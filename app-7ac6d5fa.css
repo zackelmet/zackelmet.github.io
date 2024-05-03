@@ -1578,6 +1578,7 @@ img,video {
     background-color: rgb(113 113 122 / var(--tw-bg-opacity))
 }
 
+/*  Home Page Backgroun */
 .bg-zinc-600 {
     --tw-bg-opacity: 1;
     background-color: rgb(26 54 64 / var(--tw-bg-opacity))
@@ -1905,7 +1906,7 @@ img,video {
 
 .text-zinc-600 {
     --tw-text-opacity: 1;
-    color: rgb(82 82 91 / var(--tw-text-opacity))
+    color: rgb(214  214 242 / var(--tw-text-opacity))
 }
 
 .text-zinc-700 {
