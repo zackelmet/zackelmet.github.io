@@ -59,77 +59,9 @@
                                             </a>
                                             <article>
                                                 <header class="flex flex-col">
-                                                    <h1 class="mt-6 text-4xl font-bold tracking-tight text-zinc-100 sm:text-5xl">Thanks for reaching out!</h1>
-                                                    <time datetime="2022-09-05" class="order-first flex items-center text-base text-zinc-500">
-                                                        <span class="h-4 w-0.5 rounded-full bg-zinc-500"></span>
-                                                        <span class="ml-3">October 23, 2023</span>
-                                                    </time>
-                                                    <p class="my-5 text-zinc-400 font-bold">I hear a lot of folks parrot the opinion that PHP is somehow less secure than other languages. This simply isn &#039;t true. Here &#039;s why.</p>
-                                                    <img alt="" loading="lazy" width="1310" height="872" decoding="async" data-nimg="1" src="/storage/wink/images/I0WJXz2UmPiyG6QAMzMNVD0lE7uECfZpwgFzpW31.png" style="color: transparent;">
+                                                    <h2 class="mt-6 text-4xl font-bold tracking-tight text-zinc-100 sm:text-5xl">Thanks for reaching out</h2>
+                                                    <p class="my-5 text-zinc-400 font-bold">Better be interesting</p>
                                                 </header>
-                                                <div class="mt-4 prose prose-invert prose-a:text-emerald-500 prose-gray" data-mdx-content="true">
-                                                    <p>Almost daily, I see someone making a crack at PHP, implying that apps written in PHP are somehow less secure than other languages.</p>
-                                                    <p>Here’s the thing: they’re not.</p>
-                                                    <h2>
-                                                        <strong>Where does the idea stem from?</strong>
-                                                    </h2>
-                                                    <p>I have a few theories about why people &nbsp;think &nbsp;PHP is less secure than other languages. I’m going to address all of them.</p>
-                                                    <h2>
-                                                        <strong>People’s perception of PHP is outdated by 15+ years</strong>
-                                                    </h2>
-                                                    <p>Back in the early days of PHP, it was one of the few options for web-based languages, and probably the best. This was also an age where security was more of an afterthought, so vulnerabilities were everywhere. This wasn’t specific to PHP; rather, it was a general lack of awareness regarding security in that era.</p>
-                                                    <p>Many older security professionals began their careers by finding vulnerabilities in websites during the 90s and early 00s, back when PHP powered pretty much everything. Now when they see PHP it just &nbsp;feels &nbsp;vulnerable because they’re equating PHP with the vulnerability of 15+ year old web applications.</p>
-                                                    <p>
-                                                        You see, PHP has stood the test of time, and it still powers most of the internet today. You can’t say the same about ASP, JSP, ColdFusion or Perl, which were the other popular web languages that were available 20 years ago. We have to give a shoutout to ASP though, which has been modernised with C#, .NET,&nbsp;<a href="https://asp.net/" rel="noopener noreferrer">ASP.NET</a>
-                                                        .
-                                                    </p>
-                                                    <h2>
-                                                        <strong>You don’t notice it’s PHP unless you see a .php extension</strong>
-                                                    </h2>
-                                                    <p>
-                                                        In the early days of web applications we would split PHP code into different files and access those files directly. For example if you wanted to visit the “about” page of a website, it would probably be located at &nbsp;/about.php. The user would navigate to &nbsp;<a href="http://example.com/about.php" rel="noopener noreferrer">example.com/about.php</a>
-                                                        , which would execute the about.php file on the server-side and return the result.
-                                                    </p>
-                                                    <p>Modern applications are much more likely to use application-level routing to forward requests to the right section of code within their application. When we use routing in this way, there is no need to have .php extensions visible in the URL, so we omit them.</p>
-                                                    <p>The vast majority of modern PHP applications don’t show .php extensions in the URL. For this reason, you’re unlikely to notice that an application runs on PHP unless it’s a really old application. In this case, once again, the application is more likely to be vulnerable because it’s old, not because it uses PHP. The same goes for a .asp extension, for example.</p>
-                                                    <h2>
-                                                        <strong>Examples of vulnerable code are often written in PHP</strong>
-                                                    </h2>
-                                                    <p>If you’ve ever done any appsec training, there’s a very good chance that you’ve seen PHP being used to demonstrate vulnerable code. For example, how many times have you seen this XSS demo?</p>
-                                                    <pre class="ql-syntax" spellcheck="false">
-                                                        <span class="hljs-meta">&lt;?php</span>
-                                                        <span class="hljs-keyword">echo</span>
-                                                        <span class="hljs-string">"Hello "</span>
-                                                        . $_GET[<span class="hljs-string">'name'</span>
-                                                        ] . <span class="hljs-string">"!"</span>
-                                                        ; <span class="hljs-meta">?&gt;</span>
-                                                    </pre>
-                                                    <p>The truth is, PHP is often chosen as a language to demonstrate vulnerabilities simply because PHP was the language where most of these vulnerabilities were first discovered – not because PHP is somehow more vulnerable, but because PHP was one of the few server-side web languages that existed back then.</p>
-                                                    <p>Just by training security professionals with vulnerable code snippets in PHP, we have inadvertently trained them to feel that PHP is somehow less secure.</p>
-                                                    <h2>
-                                                        <strong>People compare raw PHP with full web frameworks</strong>
-                                                    </h2>
-                                                    <p>For some reason, when people argue that PHP is less secure, they often compare raw PHP with a web &nbsp;framework &nbsp;in another language, rather than comparing the two raw languages against each other (e.g. PHP vs. JS). For example, I have seen people comparing raw PHP with Next.js.</p>
-                                                    <p>This makes absolutely no sense.</p>
-                                                    <p>In fact, the closest equivalent to Next.js in the PHP world is probably Laravel, and anyone who has used Laravel knows that it is amazing, modern and just as secure as any other popular framework in any language.</p>
-                                                    <h2>
-                                                        <strong>PHP is very easy for beginners</strong>
-                                                    </h2>
-                                                    <p>Creating a web application with PHP can be as easy as writing a PHP file &nbsp;in notepad.exe and uploading it to a web server. There’s very little prerequisite knowledge required. This is very encouraging for beginner coders, but beginner coders are the ones most likely to write insecure code! As a result, there’s a lot of bad PHP code out there.</p>
-                                                    <p>I also think that many developers who are experienced &nbsp;today &nbsp;probably started their web development journey with PHP. The code that they wrote when they started was likely filled with vulnerabilities &nbsp;because they weren’t experienced developers yet.&nbsp;Rather than blame their own inexperience, they blame the language they used. “A poor worker blames his tools”, as they say.</p>
-                                                    <p>Is this PHP’s fault? No! In fact, I’d say that being beginner-friendly is probably a net positive. Important production code is rarely written by beginners.</p>
-                                                    <h2>
-                                                        <strong>People don’t know about Laravel</strong>
-                                                    </h2>
-                                                    <p>It still blows me away how many cybersecurity folks have never heard of Laravel. Or any PHP frameworks for that matter. They hear “PHP” and assume that people are just writing raw PHP.</p>
-                                                    <p>I consider Laravel to be one of the most robust, modern, developer-friendly frameworks out there today. It even has a healthy ecosystem of pre-made starter kits, testing suites, managed hosting solutions, local dev environments, admin dashboards, auth flows, debugging interfaces and much more.</p>
-                                                    <p>Modern frameworks like Laravel attempt to shield developers from writing vulnerable code by using secure defaults. For example, the Blade templating engine in PHP will HTML encode variable output by default, thwarting XSS vulnerabilities unless the developer &nbsp;explicitly &nbsp;disables it.</p>
-                                                    <h2>
-                                                        <strong>People are ignorant/uninformed</strong>
-                                                    </h2>
-                                                    <p>More than anything, when I hear someone imply in 2023 that PHP is somehow more insecure than other languages, it tells me that they are simply ignorant or uninformed. They’re parroting an inaccurate opinion that has somehow stuck around for decades.</p>
-                                                    <p>If you’re still sure that PHP is an “inherently insecure” language, then I’d encourage you to try finding 0days in some long-standing popular PHP apps like WordPress or phpBB. Good luck!</p>
-                                                </div>
                                             </article>
                                         </div>
                                     </div>
@@ -138,30 +70,7 @@
                         </div>
                     </div>
                 </main>
-                <footer class="mt-32 flex-none">
-                    <div class="sm:px-8">
-                        <div class="mx-auto w-full max-w-7xl lg:px-8">
-                            <div class="border-t border-zinc-100 pb-16 pt-10 dark:border-zinc-700/40">
-                                <div class="relative px-4 sm:px-8 lg:px-12">
-                                    <div class="mx-auto max-w-2xl lg:max-w-5xl">
-                                        <div class="flex flex-col items-center justify-between gap-6 sm:flex-row">
-                                            <div class="flex flex-wrap justify-center gap-x-6 gap-y-1 text-sm font-medium text-zinc-800 dark:text-zinc-200">
-                                                <a class="transition hover:text-teal-500 dark:hover:text-teal-400" href="/">Home</a>
-                                                <p class="text-sm text-zinc-400 dark:text-zinc-500">
-                                                    ©
-                                    <script>
-                                                        document.write(new Date().getFullYear());
-                                                    </script>
-                                                    Luke Stephens. All rights reserved.
-                                
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                </footer>
+                    
             </div>
         </div>
     </body>
