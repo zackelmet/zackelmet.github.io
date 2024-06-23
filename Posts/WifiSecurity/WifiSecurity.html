@@ -63,28 +63,38 @@
                                                         <span class="ml-3">July, 2023</span>
                                                     </time>
                                                     <p class="my-5 text-zinc-400 font-bold"></p>
-                                                    <img alt="" loading="lazy" width="1310" height="872" decoding="async" data-nimg="1" src="kali.png" style="color: transparent;">
+                                                    <img alt="" loading="lazy" width="1310" height="872" decoding="async" data-nimg="1" src="images/postimage.png" style="color: transparent;">
                                                 </header>
                                                     <p>&nbsp;</p>
                                                     <p>&nbsp;</p>
                                                 <div class="mt-4 prose prose-invert prose-a:text-emerald-500 prose-gray" data-mdx-content="true">
                                                     <p></p>
 
-                                                    <p>Wifi security is important. From a security perspective it can often be a weak point. Here are some cool penetration testing tools to prod at your local wireless network security. Note: Always use hacking for good, including the following.</p>
+                                                    <p>Wifi security is important, and  it can sometimes be a weak point. Here are some cool penetration testing tools to prod at your local wireless network security.</p>
+                                                    
+                                                    <p>Note: Always use hacking for good, including the following.</p>
 
                                                     <p>Raspi’s are awesome. We are going to use one, in combination with an external wifi card, to grab passwords that our target machine is submitting into a webpage. We will be using an arp spoof attack to mitm our target machine and read their network traffic.</p>
 
-                                                    <p>The Raspi programming is installing a linux distro on an sd card. In this case a RaspberryPi may even be a bit of overkill, in terms of resources. It would be cool to get these tools on an even smaller form factor like some kind of arduino with an on-board packet injection supported wifi chip -- project for another day.</p>
+                                                    <p>The Raspi programming is installing a linux distro on an sd card. In this case, a RaspberryPi may even be a bit of overkill in terms of resources. It would be cool to get these tools on an even smaller form factor like some kind of arduino with an on-board packet injection supported wifi chip -- project for another day.</p>
 
                                                     <p>Today we are using these:</p>
 
-                                                    <p>Step one is downloading Kali Linux and burning it to an sd card. Here is some documentation on how do that. Once installed, shove that card in your RasPi and boot it up. Get into the desktop, connect to wifi, and you are good to go.</p>
+                                                    <img alt="" loading="lazy" width="1310" height="872" decoding="async" data-nimg="1" src="images/Raspi.jpg" style="color: transparent;">
+
+                                                    <img alt="" loading="lazy" width="1310" height="872" decoding="async" data-nimg="1" src="images/Wifi-Card.jpg" style="color: transparent;">
+
+                                                    <p>Step one is downloading Kali Linux and burning it to an sd card. <a href="https://www.kali.org/docs/arm/raspberry-pi-4/" target="_blank" class="text-teal-500 ">Here</a> is some documentation on how do that. Once installed, shove that card in your RasPi and boot it up. Get into the desktop, connect to wifi, and you are good to go.</p>
 
                                                     <p>Once you bask in the glory of your new Kali Linux box you’ll want to connect your external wifi card and get it into monitor mode.</p>
 
-                                                    <p>Note: You will need an external wifi card that supports packet injection and monitor mode. This is my favorite one.</p>
+                                                    <img alt="" loading="lazy" width="1310" height="872" decoding="async" data-nimg="1" src="images/kalidesktop.png" style="color: transparent;">
+                                                    
+                                                    <p>Note: You will need an external wifi card that supports packet injection and monitor mode. The one made by Alfa Network has always worked very smoothly for me.</p>
 
                                                     <p>Find your WiFi card name in iwconfig</p>
+
+                                                    <img alt="" loading="lazy" width="1310" height="872" decoding="async" data-nimg="1" src="images/iwconfig.png" style="color: transparent;">
 
                                                     <p>And set it to monitor mode with these commands:</p>
 
@@ -97,21 +107,24 @@
                                                     <p>echo "Ifconfig wlan1 down<br>
                                                     Iwconfig wlan1 mode monitor<br>
                                                     Ifconfig wlan1 up" > monmode.sh</p>
+                                                    <img alt="" loading="lazy" width="1310" height="872" decoding="async" data-nimg="1" src="images/monmode_bash_script.png" style="color: transparent;">
 
                                                     <p>There are a lot of tools to perform mitm attacks. We are going to be using bettercap to arp spoof our target machine.</p>
 
-                                                    <p>Launch bettercap in the command line:</p>
-
-                                                    <p>Bettercap</p>
+                                                    <p>Launch bettercap in the command line by typing 'Bettercap' and hit enter</p>
 
                                                     <p>Use the ‘help’ command to see the modules you are currently running:</p>
 
-                                                    <p>You will want to turn net.probe and net.recon on:</p>
+                                                    <img alt="" loading="lazy" width="1310" height="872" decoding="async" data-nimg="1" src="images/modules_help.png" style="color: transparent;">
+
+                                                    <p>You will want to turn net.probe and net.recon by typing them out:</p>
 
                                                     <p>net.probe on<br>
                                                     net.recon on</p>
 
-                                                    <p>Run net.show to see the other devices connected to your network:</p>
+                                                    <p>Run the command 'net.show' to see the other devices connected to your network:</p>
+
+                                                    <img alt="" loading="lazy" width="1310" height="872" decoding="async" data-nimg="1" src="images/arp.spoof-settings.png" style="color: transparent;">
 
                                                     <p>Find your target machine and note its IP address.</p>
 
@@ -120,15 +133,19 @@
                                                     <p>set arp.spoof.fullduplex true<br>
                                                     set arp.spoof.targets [Target IP]</p>
 
+                                                    <img alt="" loading="lazy" width="1310" height="872" decoding="async" data-nimg="1" src="images/net-show.png" style="color: transparent;">
+
                                                     <p>Once that is done your bettercap modules should look like this:</p>
 
-                                                    <p>Now start the net.sniff module:</p>
+                                                    <img alt="" loading="lazy" width="1310" height="872" decoding="async" data-nimg="1" src="images/modules-before-net.sniff.png" style="color: transparent;">
 
-                                                    <p>net.sniff on</p>
+                                                    <p>Now start the net.sniff module with the command 'net.sniff on'</p>
 
                                                     <p>If your target machine is generating traffic, bettercap will immediately start looking thru it and presenting you with the interesting stuff:</p>
+                                                    <img alt="" loading="lazy" width="1310" height="872" decoding="async" data-nimg="1" src="images/vulnweb-traffic.png" style="color: transparent;">
 
                                                     <p>It will even capture passwords over http traffic:</p>
+                                                    <img alt="" loading="lazy" width="1310" height="872" decoding="async" data-nimg="1" src="images/vulnweb-creds.png" style="color: transparent;">
 
                                                     <p>Username: Admin<br>
                                                     Password: zack123</p>
