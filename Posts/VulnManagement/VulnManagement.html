@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="preload" as="style" href="https://zackelmet.xyz/app-7ac6d5fa.css"/>
+        <link rel="stylesheet" href="https://zackelmet.xyz/app-7ac6d5fa.css"/>
+        <link rel="icon" type="Posts/VulnManagement/images/favicon.ico" href="Posts/VulnManagement/images/favicon.ico">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+        <meta name="twitter:card" content="summary_large_image"/>
+        <meta name="twitter:site" content="@zkpz_"/>
+        <meta name="twitter:creator" content="@zkpx_"/>
+        <meta name="twitter:title" content="POSTTITLE">
+        <meta name="twitter:description" content="POSTTITLE"/>
+        <meta property="og:url" content="POSTTITLE"/>
+        <meta property="og:title" content="POSTTITLE"/>
+        <meta name="og:description" content="POSTTITLE"/>
+        <meta name="author" content="zackelmet"/>
+        <meta property="og:image:type" content="image/png">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="675">
+        <title>ZE | POSTTITLE </title>
+        <!-- Global site tag (gtag.js) - Google Analytics 
+        <script async src="https://www.googletagmanager.com/gtag/js?id="></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+
+            function gtag() {
+                dataLayer.push(arguments);
+            }
+
+            gtag('js', new Date());
+
+            gtag('config', '');
+        </script> -->
+    </head>
+    <body class="flex h-full bg-black">
+        <div class="flex w-full">
+            <div class="fixed inset-0 flex justify-center sm:px-8">
+                <div class="flex w-full max-w-7xl lg:px-8">
+                    <div class="w-full ring-1 bg-zinc-900 ring-zinc-300/20"></div>
+                </div>
+            </div>
+            <div class="relative flex w-full flex-col">
+                <main class="flex-auto">
+                    <div class="sm:px-8 mt-16 lg:mt-32">
+                        <div class="mx-auto w-full max-w-7xl lg:px-8">
+                            <div class="relative px-4 sm:px-8 lg:px-12">
+                                <div class="mx-auto max-w-2xl lg:max-w-5xl">
+                                    <div class="xl:relative">
+                                        <div class="mx-auto max-w-2xl">
+                                            <a href="/">
+                                                <button type="button" aria-label="Go home" class="group mb-8 flex h-10 w-10 items-center justify-center rounded-full shadow-md shadow-zinc-800/5 ring-1 ring-zinc-900/5 transition dark:border dark:border-zinc-700/50 bg-zinc-800 dark:ring-0 dark:ring-white/10 dark:hover:border-zinc-700 dark:hover:ring-white/20 lg:absolute lg:-left-5 lg:-mt-2 lg:mb-0 xl:-top-1.5 xl:left-0 xl:mt-0">
+                                                    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" class="h-4 w-4 stroke-zinc-500 transition group-hover:stroke-zinc-700 dark:stroke-zinc-500 dark:group-hover:stroke-zinc-400">
+                                                        <path d="M7.25 11.25 3.75 8m0 0 3.5-3.25M3.75 8h8.5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                                    </svg>
+                                                </button>
+                                            </a>
+                                            <article>
+                                                <header class="flex flex-col">
+                                                    <h1 class="mt-6 text-4xl font-bold tracking-tight text-zinc-100 sm:text-5xl">Vulnerability Management</h1>
+                                                    <time datetime="2022-09-05" class="order-first flex items-center text-base text-zinc-500">
+                                                        <span class="h-4 w-0.5 rounded-full bg-zinc-500"></span>
+                                                        <span class="ml-3">May, 2024</span>
+                                                    </time>
+                                                    <p class="my-5 text-zinc-400 font-bold"></p>
+                                                    <img alt="" loading="lazy" width="1310" height="872" decoding="async" data-nimg="1" src="kali.png" style="color: transparent;">
+                                                </header>
+                                                    <p>&nbsp;</p>
+                                                    <p>&nbsp;</p>
+                                                <div class="mt-4 prose prose-invert prose-a:text-emerald-500 prose-gray" data-mdx-content="true">
+                                                    <div>
+                                                        <h1>Keeping Our Systems Safe: My Approach to Tackling Vulnerabilities</h1>
+                                                        <img alt="" loading="lazy" width="1310" height="872" decoding="async" data-nimg="1" src="images/NIST_CSF_maturitylevels.jpeg" style="color: transparent;">
+                                                        
+                                                        <p>Lately, I’ve been diving deep into vulnerability management, and I thought it’d be cool to write about how I think about this process and what my overall strategy looks like.</p>
+                                                        
+                                                        <p>Basically, vulnerability management is about finding and fixing security holes in our systems before bad actors can exploit them. Part of that process includes threat modeling and trying to imagine what areas of your systems will be targeted. But right now I want to focus on the process of finding and remediating vulns.</p>
+                                                        
+                                                        <p>A great way to think about vulnerability management is in the context of the NIST Maturity levels framework. Getting to levels 4 or 5 in a comprehensive way across all the cybersecurity functions is a huge undertaking for most organizations.</p>
+                                                        
+                                                        <img alt="" loading="lazy" width="1310" height="872" decoding="async" data-nimg="1" src="images/NIST_CSF_maturitylevels.jpeg" style="color: transparent;">
+
+                                                        <p>In this post I will explain some important operational methods you should be using in your vulnerability management strategy. I broke it down into 6 parts. If you have these bases covered, you’re likely on your way to at least level 3 infosec maturity.</p>
+                                                        
+                                                        <h2>Accurate and up-to-date inventory:</h2>
+                                                        <p>First things first, we need to keep a detailed inventory of all our systems and infrastructure. This gives some sort of baseline source of truth to measure against. You’ll need to be familiar with all of your enterprise endpoint, server, and cloud environments, and the tools that are being used to manage them. Some important tools for this are often your AD ADUC tools, your EDR management portal, and your networking scanning tools. If you use a dedicated comprehensive inventory management product like ServiceNow or Manage Engine, that's great too.</p>
+                                                        
+                                                        <h3>Workstations</h3>
+                                                        <p>Constant communication with your help desk team is crucial for managing your fleet of end-user workstations. Keep tabs on newly deployed and returned machines. Knowing the status of one-off laptops and desktop machines often lets you react quickly to remediate.</p>
+                                                        
+                                                        <h3>Servers</h3>
+                                                        <p>Keeping tabs on your sysadmins and their work will give you insight into servers that need patching or updates. It can also help you prioritize remediation by having insight into the time/energy cost of remediating any given system. Is it a crucial server with high uptime requirements? Does the fix need to be performed during a maintenance period? What is involved in the remediation process? Is it just an off-the-shelf software update? Or is it a low-level tool that just needs a configuration change? These are the questions that need to be asked when patching servers.</p>
+                                                        
+                                                        <h2>Continuous Scanning:</h2>
+                                                        <p>You need to be using automated continuous scanning techniques. There are plenty of off-the-shelf tools to accomplish this. Products like Tenable Nessus, Rapid7 Nexpose, and QualysGuard are well-known options in the industry. They get you the basic but important things like vulnerability scanning, threat detection, and compliance monitoring to help identify and mitigate security risks continuously. Additionally, open-source solutions such as OpenVAS and Nikto can be used for those who prefer more customizable and cost-effective options.</p>
+                                                        
+                                                        <h2>Assessing the Risk:</h2>
+                                                        <p>Not all vulnerabilities are equally bad. And you need to prioritize or else you could fall behind and risk wasting resources. Prioritization can be done using several methods:</p>
+                                                        <ul>
+                                                          <li>Risk-Based Assessment: Focus on vulnerabilities that pose the highest risk to critical assets. Use CVSS scores to gauge severity.</li>
+                                                          <li>Threat Intelligence: Incorporate real-time threat data to identify vulnerabilities being actively exploited in the wild.</li>
+                                                          <li>Business Impact: Assess the potential impact on business operations if a vulnerability is exploited. Prioritize those with the highest potential impact.</li>
+                                                          <li>Asset Criticality: Prioritize vulnerabilities on systems that are crucial to your operations or contain sensitive data.</li>
+                                                          <li>Exploitability: Consider how easy it is for a vulnerability to be exploited. Prioritize easily exploitable vulnerabilities.</li>
+                                                        </ul>
+                                                        <p>Using tools like Tenable.io, Rapid7 InsightVM, and Qualys VMDR can help automate this prioritization process, ensuring that your efforts are focused on the most critical vulnerabilities. How you choose to prioritize is often subject to things like the industry you are in and the business processes your organization uses as well as compliance requirements.</p>
+                                                        <p>Another way to determine the types of vulnerabilities to target first are often the ones that are known common attack surfaces. These include:</p>
+                                                        <ul>
+                                                          <li>DMZ Assets</li>
+                                                          <li>End-user browser updates</li>
+                                                          <li>High severity + easy exploitability</li>
+                                                        </ul>
+                                                        
+                                                        <h2>Patching Things Up:</h2>
+                                                        <p>Applying patches quickly is super important. For your endpoint workstations you need to have automated version control for common end-user applications like web browsers, IDEs, and specialized apps. Tools like PDQ Deploy and Microsoft Endpoint Configuration Manager (MECM) are great for this. And on the server side Windows Server Update Services (WSUS) or Red Hat Satellite will help you get automatic updates. If we can’t patch right away, we look for other ways to reduce the risk. Things like applying workarounds, implementing temporary fixes or mitigations recommended by vendors.</p>
+                                                        
+                                                        <h2>Art + Science</h2>
+                                                        <p>Infosec vulnerability management is both an art and a science. It requires rigor of systematic processes like scanning, assessment, and patching, which rely on data and tools. As well as the ability to make subjective judgment calls on prioritization, risk assessment, and mitigation strategies, considering the unique context and nuances of each organization. Combining these elements ensures a balanced, effective approach to securing systems.</p>
+                                                        <p>Effective vulnerability management focuses on the most impactful threats. By maintaining a detailed inventory, continuous monitoring, and prioritization, infosec teams can significantly increase the cost of exploitation without burdening end users.</p>
+                                                      </div>
+                                                      
+                                                </div>
+                                            </article>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+                <footer class="mt-32 flex-none">
+                    <div class="sm:px-8">
+                        <div class="mx-auto w-full max-w-7xl lg:px-8">
+                            <div class="border-t border-zinc-100 pb-16 pt-10 dark:border-zinc-700/40">
+                                <div class="relative px-4 sm:px-8 lg:px-12 ">
+                                    <div class="mx-auto max-w-2xl lg:max-w-5xl ">
+                                        <div class="flex flex-col items-center justify-between gap-6 sm:flex-row ">
+                                            <div class="flex flex-wrap justify-center gap-x-6 gap-y-1 text-sm font-medium text-zinc-600 dark:text-zinc-200 ">
+                                                <a class="transition hover:text-teal-500 dark:hover:text-teal-400 " href="/">Home</a>
+                                                <p class="text-sm text-zinc-400 dark:text-zinc-500 ">©
+                                                    <script>document.write(new Date().getFullYear());</script>
+                                                    Zack ElMetennani
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                </footer>
+            </div>
+        </div>
+    </body>
