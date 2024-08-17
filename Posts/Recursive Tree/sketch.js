@@ -10,7 +10,7 @@ function draw() {
   background(0, 0, 20);
 
   // Calculate the angle based on the mouse position, maximum 90 degrees
-  angle = (mouseX / width) * 90;
+  angle = (mouseX / width) * 95;
   angle = min(angle, 90);
 
   // Start the tree from the bottom of the screen
