@@ -3,6 +3,15 @@
     <head>
         <meta charset="utf-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-XZQS8EF17V"></script>
+        <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+
+          gtag('config', 'G-XZQS8EF17V');
+        </script>
         <link rel="preload" as="style" href="https://zackelmet.xyz/app-7ac6d5fa.css"/>
         <link rel="stylesheet" href="https://zackelmet.xyz/app-7ac6d5fa.css"/>
         <link rel="icon" type="image/x-icon" href="/Posts/WifiSecurity/images/favicon.ico">
@@ -75,7 +84,7 @@
                                                     
                                                     <p>Note: Always use hacking for good, including the following.</p>
 
-                                                    <p>Raspi’s are awesome. We are going to use one, in combination with an external wifi card, to grab passwords that our target machine is submitting into a webpage. We will be using an arp spoof attack to mitm our target machine and read their network traffic.</p>
+                                                    <p>Raspi's are awesome. We are going to use one, in combination with an external wifi card, to grab passwords that our target machine is submitting into a webpage. We will be using an arp spoof attack to mitm our target machine and read their network traffic.</p>
 
                                                     <p>The Raspi programming is installing a linux distro on an sd card. In this case, a RaspberryPi may even be a bit of overkill in terms of resources. It would be cool to get these tools on an even smaller form factor like some kind of arduino with an on-board packet injection supported wifi chip -- project for another day.</p>
 
@@ -87,7 +96,7 @@
 
                                                     <p>Step one is downloading Kali Linux and burning it to an sd card. <a href="https://www.kali.org/docs/arm/raspberry-pi-4/" target="_blank" class="text-teal-500 ">Here</a> is some documentation on how do that. Once installed, shove that card in your RasPi and boot it up. Get into the desktop, connect to wifi, and you are good to go.</p>
 
-                                                    <p>Once you bask in the glory of your new Kali Linux box you’ll want to connect your external wifi card and get it into monitor mode.</p>
+                                                    <p>Once you bask in the glory of your new Kali Linux box you'll want to connect your external wifi card and get it into monitor mode.</p>
 
                                                     <img alt="" loading="lazy" width="1310" height="872" decoding="async" data-nimg="1" src="images/kalidesktop.png" style="color: transparent;">
                                                     
@@ -114,7 +123,7 @@
 
                                                     <p>Launch bettercap in the command line by typing 'Bettercap' and hit enter</p>
 
-                                                    <p>Use the ‘help’ command to see the modules you are currently running:</p>
+                                                    <p>Use the 'help' command to see the modules you are currently running:</p>
 
                                                     <img alt="" loading="lazy" width="1310" height="872" decoding="async" data-nimg="1" src="images/modules_help.png" style="color: transparent;">
 
