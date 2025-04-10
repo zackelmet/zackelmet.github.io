@@ -67,66 +67,59 @@
                                             </a>
                                             <article>
                                                 <header class="flex flex-col">
-                                                    <h1 class="mt-6 text-4xl font-bold tracking-tight text-zinc-100 sm:text-5xl">Vulnerability Management</h1>
-                                                    <time datetime="2022-09-05" class="order-first flex items-center text-base text-zinc-500">
+                                                    <h1 class="mt-6 text-4xl font-bold tracking-tight text-zinc-100 sm:text-5xl">Vulnerability Management: Operational Strategy Aligned with NIST and CIS</h1>
+                                                    <time datetime="2024-05-01" class="order-first flex items-center text-base text-zinc-500">
                                                         <span class="h-4 w-0.5 rounded-full bg-zinc-500"></span>
-                                                        <span class="ml-3">May, 2024</span>
+                                                        <span class="ml-3">May 2024</span>
                                                     </time>
-                                                    <p class="my-5 text-zinc-400 font-bold"></p>
+                                                    <p class="my-5 text-zinc-400 font-bold">Keeping Systems Safe: A Practical Approach to Vulnerability Management</p>
                                                 </header>
-                                                    <p>&nbsp;</p>
-                                                    <p>&nbsp;</p>
                                                 <div class="mt-4 prose prose-invert prose-a:text-emerald-500 prose-gray" data-mdx-content="true">
-                                                    <div>
-                                                        <h1>Keeping Our Systems Safe: My Approach to Tackling Vulnerabilities</h1>
-                                                        
-                                                        <p>Lately, I've been diving deep into vulnerability management, and I thought it'd be cool to write about how I think about this process and what my overall strategy looks like.</p>
-                                                        
-                                                        <p>Basically, vulnerability management is about finding and fixing security holes in our systems before bad actors can exploit them. Part of that process includes threat modeling and trying to imagine what areas of your systems will be targeted. But right now I want to focus on the process of finding and remediating vulns.</p>
-                                                        
-                                                        <p>A great way to think about vulnerability management is in the context of the NIST Maturity levels framework. Getting to levels 4 or 5 in a comprehensive way across all the cybersecurity functions is a huge undertaking for most organizations.</p>
-                                                        
-                                                        <img alt="" loading="lazy" width="1310" height="872" decoding="async" data-nimg="1" src="images/NIST_CSF_maturitylevels.jpeg" style="color: transparent;">
-
-                                                        <p>In this post I will explain some important operational methods you should be using in your vulnerability management strategy. I broke it down into 6 parts. If you have these bases covered, you're likely on your way to at least level 3 infosec maturity.</p>
-                                                        
-                                                        <h2>Accurate and up-to-date inventory:</h2>
-                                                        <p>Importantly, we need to keep a detailed inventory of all our systems and infrastructure. This gives some sort of baseline source of truth to measure against. You'll need to be familiar with all of your enterprise endpoint, server, and cloud environments, and the tools that are being used to manage them. Some important tools for this are often your AD ADUC tools, your EDR management portal, and your networking scanning tools. If you use a dedicated comprehensive inventory management product like ServiceNow or Manage Engine, that's great too.</p>
-                                                        
-                                                        <h3>Workstations</h3>
-                                                        <p>Constant communication with your help desk team is crucial for managing your fleet of end-user workstations. Keep tabs on newly deployed and returned machines. Knowing the status of one-off laptops and desktop machines often lets you react quickly to remediate.</p>
-                                                        
-                                                        <h3>Servers</h3>
-                                                        <p>Keeping tabs on your sysadmins and their work will give you insight into servers that need patching or updates. It can also help you prioritize remediation by having insight into the time/energy cost of remediating any given system. Is it a crucial server with high uptime requirements? Does the fix need to be performed during a maintenance period? What is involved in the remediation process? Is it just an off-the-shelf software update? Or is it a low-level tool that just needs a configuration change? These are the questions that need to be asked when patching servers.</p>
-                                                        
-                                                        <h2>Continuous Scanning:</h2>
-                                                        <p>You need to be using automated continuous scanning techniques. There are plenty of off-the-shelf tools to accomplish this. Products like Tenable Nessus, Rapid7 Nexpose, and QualysGuard are well-known options in the industry. They get you the basic but important things like vulnerability scanning, threat detection, and compliance monitoring to help identify and mitigate security risks continuously. Additionally, open-source solutions such as OpenVAS and Nikto can be used for those who prefer more customizable and cost-effective options.</p>
-                                                        
-                                                        <h2>Assessing the Risk:</h2>
-                                                        <p>Not all vulnerabilities are equally bad. And you need to prioritize or else you could fall behind and risk wasting resources. Prioritization can be done using several methods:</p>
-                                                        <ul>
-                                                          <li>Risk-Based Assessment: Focus on vulnerabilities that pose the highest risk to critical assets. Use CVSS scores to gauge severity.</li>
-                                                          <li>Threat Intelligence: Incorporate real-time threat data to identify vulnerabilities being actively exploited in the wild.</li>
-                                                          <li>Business Impact: Assess the potential impact on business operations if a vulnerability is exploited. Prioritize those with the highest potential impact.</li>
-                                                          <li>Asset Criticality: Prioritize vulnerabilities on systems that are crucial to your operations or contain sensitive data.</li>
-                                                          <li>Exploitability: Consider how easy it is for a vulnerability to be exploited. Prioritize easily exploitable vulnerabilities.</li>
-                                                        </ul>
-                                                        <p>Using tools like Tenable.io, Rapid7 InsightVM, and Qualys VMDR can help automate this prioritization process, ensuring that your efforts are focused on the most critical vulnerabilities. How you choose to prioritize is often subject to things like the industry you are in and the business processes your organization uses as well as compliance requirements.</p>
-                                                        <p>Another way to determine the types of vulnerabilities to target first are often the ones that are known common attack surfaces. These include:</p>
-                                                        <ul>
-                                                          <li>DMZ Assets</li>
-                                                          <li>End-user browser updates</li>
-                                                          <li>High severity + easy exploitability</li>
-                                                        </ul>
-                                                        
-                                                        <h2>Patching Things Up:</h2>
-                                                        <p>Applying patches quickly is super important. For your endpoint workstations you need to have automated version control for common end-user applications like web browsers, IDEs, and specialized apps. Tools like PDQ Deploy and Microsoft Endpoint Configuration Manager (MECM) are great for this. And on the server side Windows Server Update Services (WSUS) or Red Hat Satellite will help you get automatic updates. If we can't patch right away, we look for other ways to reduce the risk. Things like applying workarounds, implementing temporary fixes or mitigations recommended by vendors.</p>
-                                                        
-                                                        <h2>Art + Science</h2>
-                                                        <p>Infosec vulnerability management is both an art and a science. It requires rigor of systematic processes like scanning, assessment, and patching, which rely on data and tools. As well as the ability to make subjective judgment calls on prioritization, risk assessment, and mitigation strategies.</p>
-                                                        <p>Effective vulnerability management focuses on the most impactful threats. By maintaining a detailed inventory, continuous monitoring, and prioritization, infosec teams can significantly increase the cost of exploitation without burdening end users.</p>
-                                                      </div>
-                                                      
+                                                    <p>Over the past few months, I've been refining how I approach vulnerability management. It's not just about finding holes—it's about aligning with frameworks like NIST SP 800-40 and CIS Control 7 to create a repeatable, risk-driven strategy.</p>
+                                                    <p>In this post, I'll walk through six key parts of a solid vulnerability management program—mapped loosely to CIS Control 7 and guided by operational guidance from NIST SP 800-40 Rev. 3.</p>
+                                                    <h2>1. Asset Inventory: Know What You Own (CIS 1 + CIS 7.1)</h2>
+                                                    <p>Everything starts with an up-to-date, dynamic inventory. According to NIST SP 800-40, maintaining awareness of what assets are in play is step zero. Without this, you can't assess exposure or prioritize action.</p>
+                                                    <h3>Tactics:</h3>
+                                                    <ul>
+                                                        <li>Use tools like ServiceNow, ManageEngine, or CMDB integrations in EDR platforms.</li>
+                                                        <li>Stay tight with helpdesk/sysadmin teams to track laptops, desktops, and servers in motion.</li>
+                                                    </ul>
+                                                    <h2>2. Continuous Scanning and Discovery (CIS 7.2)</h2>
+                                                    <p>NIST emphasizes automated vulnerability scanning as the engine of modern vuln management. Your scanners should run regularly and integrate with inventory systems to detect changes and exposure.</p>
+                                                    <h3>Tools:</h3>
+                                                    <ul>
+                                                        <li>Commercial: Tenable.io, Qualys VMDR, Rapid7 InsightVM</li>
+                                                        <li>Open-Source: OpenVAS, Nikto</li>
+                                                    </ul>
+                                                    <h2>3. Risk-Based Prioritization (NIST + CIS 7.3, 7.4)</h2>
+                                                    <p>Not all vulns are created equal. NIST encourages risk-scoring and contextual prioritization rather than CVSS-only thinking. Combine severity with exploitability, asset criticality, and business context.</p>
+                                                    <h3>Factors to Consider:</h3>
+                                                    <ul>
+                                                        <li>CVSS + EPSS for exploit likelihood</li>
+                                                        <li>Criticality of the asset (DMZs, domain controllers, etc.)</li>
+                                                        <li>Business impact and uptime requirements</li>
+                                                        <li>Real-world threat intelligence (CISA KEV list, etc.)</li>
+                                                    </ul>
+                                                    <h2>4. Patch Management & Mitigation (CIS 7.5)</h2>
+                                                    <p>Patching is the "action" step. According to NIST SP 800-40, enterprise patch management should be timely, automated where possible, and documented.</p>
+                                                    <h3>Tools for Patching:</h3>
+                                                    <ul>
+                                                        <li>Workstations: PDQ Deploy, MECM (SCCM), Intune</li>
+                                                        <li>Servers: WSUS, Red Hat Satellite, Ansible</li>
+                                                    </ul>
+                                                    <p>When patching isn't feasible, documented mitigations (like firewall rules or feature disablement) are acceptable stopgaps.</p>
+                                                    <h2>5. Operational Coordination</h2>
+                                                    <p>Vuln management isn't just tools—it's cross-team communication.</p>
+                                                    <ul>
+                                                        <li>Coordinate with sysadmins on server maintenance windows.</li>
+                                                        <li>Work closely with desktop teams on software version control.</li>
+                                                        <li>Track and triage new assets with onboarding processes.</li>
+                                                    </ul>
+                                                    <h2>6. Building Toward Maturity</h2>
+                                                    <p>Using the NIST Cybersecurity Framework (CSF) maturity lens, these practices push you toward Tier 3 or higher. It's about making vulnerability management institutionalized—baked into workflows, not just reactive sprints.</p>
+                                                    <h2>Final Thoughts: It's Art + Science</h2>
+                                                    <p>The science is in scanning, data, and patching. The art is in deciding what matters, knowing your environment, and balancing security with business ops.</p>
+                                                    <p>Frameworks like NIST and CIS give structure—but ultimately, vulnerability management is a human process with technical tooling. Get the fundamentals right, and you'll make your systems safer without burning out your team or disrupting the business.</p>
                                                 </div>
                                             </article>
                                         </div>
