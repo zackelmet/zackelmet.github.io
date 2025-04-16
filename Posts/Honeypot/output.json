@@ -1,0 +1,212 @@
+
+Total unique IPs: 21
+
+    Shodan API error for IP 3.148.192.132: Access denied (403 Forbidden)
+[+] IP: 3.148.192.132 - 6 attempts
+    ASN: 16509
+    Org: AT-88-Z
+    Net Name: AMAZON-02, US
+    Location: Columbus, Ohio, US
+    Lat/Lon: 39.9612, -82.9988
+    Open Ports: N/A
+    Services: N/A
+
+    Shodan API error for IP 92.118.39.77: Access denied (403 Forbidden)
+[+] IP: 92.118.39.77 - 5 attempts
+    ASN: 47890
+    Org: DMZHOST
+    Net Name: UNMANAGED-DEDICATED-SERVERS, GB
+    Location: Timişoara, Timiș County, RO
+    Lat/Lon: 45.7537, 21.2257
+    Open Ports: N/A
+    Services: N/A
+
+    Shodan API error for IP 162.142.125.42: No information available for that IP.
+[+] IP: 162.142.125.42 - 4 attempts
+    ASN: 398324
+    Org: CENSY
+    Net Name: CENSYS-ARIN-01, US
+    Location: Chicago, Illinois, US
+    Lat/Lon: 41.8500, -87.6500
+    Open Ports: N/A
+    Services: N/A
+
+    Shodan API error for IP 104.234.115.187: No information available for that IP.
+[+] IP: 104.234.115.187 - 3 attempts
+    ASN: 396982
+    Org: NET-104-234-115-0-24
+    Net Name: GOOGLE-CLOUD-PLATFORM, US
+    Location: Ashburn, Virginia, US
+    Lat/Lon: 39.0437, -77.4875
+    Open Ports: N/A
+    Services: N/A
+
+    Shodan API error for IP 219.76.25.3: Access denied (403 Forbidden)
+[+] IP: 219.76.25.3 - 2 attempts
+    ASN: 4760
+    Org: NETVIGATOR
+    Net Name: HKTIMS-AP HKT Limited, HK
+    Location: Hong Kong, Hong Kong, HK
+    Lat/Lon: 22.2783, 114.1747
+    Open Ports: N/A
+    Services: N/A
+
+    Shodan API error for IP 18.189.28.87: Access denied (403 Forbidden)
+[+] IP: 18.189.28.87 - 1 attempts
+    ASN: 16509
+    Org: AT-88-Z
+    Net Name: AMAZON-02, US
+    Location: Columbus, Ohio, US
+    Lat/Lon: 39.9612, -82.9988
+    Open Ports: N/A
+    Services: N/A
+
+    Shodan API error for IP 104.152.52.241: No information available for that IP.
+[+] IP: 104.152.52.241 - 1 attempts
+    ASN: 14987
+    Org: RETHEM-HOSTING
+    Net Name: RETHEMHOSTING, US
+    Location: Chicago, Illinois, US
+    Lat/Lon: 41.8500, -87.6500
+    Open Ports: N/A
+    Services: N/A
+
+    Shodan API error for IP 20.64.105.234: Access denied (403 Forbidden)
+[+] IP: 20.64.105.234 - 1 attempts
+    ASN: 8075
+    Org: MSFT
+    Net Name: MICROSOFT-CORP-MSN-AS-BLOCK, US
+    Location: San Antonio, Texas, US
+    Lat/Lon: 29.4241, -98.4936
+    Open Ports: N/A
+    Services: N/A
+
+    Shodan API error for IP 198.235.24.80: Access denied (403 Forbidden)
+[+] IP: 198.235.24.80 - 1 attempts
+    ASN: 396982
+    Org: PAN-22
+    Net Name: GOOGLE-CLOUD-PLATFORM, US
+    Location: Changhua, Taiwan, TW
+    Lat/Lon: 24.0692, 120.5512
+    Open Ports: N/A
+    Services: N/A
+
+    Shodan API error for IP 3.17.73.23: Access denied (403 Forbidden)
+[+] IP: 3.17.73.23 - 1 attempts
+    ASN: 16509
+    Org: AT-88-Z
+    Net Name: AMAZON-02, US
+    Location: Columbus, Ohio, US
+    Lat/Lon: 39.9612, -82.9988
+    Open Ports: N/A
+    Services: N/A
+
+    Shodan API error for IP 20.84.44.177: Access denied (403 Forbidden)
+[+] IP: 20.84.44.177 - 1 attempts
+    ASN: 8075
+    Org: MSFT
+    Net Name: MICROSOFT-CORP-MSN-AS-BLOCK, US
+    Location: Lorton, Virginia, US
+    Lat/Lon: 38.7043, -77.2278
+    Open Ports: N/A
+    Services: N/A
+
+    Shodan API error for IP 44.220.188.159: Access denied (403 Forbidden)
+[+] IP: 44.220.188.159 - 1 attempts
+    ASN: 14618
+    Org: AMAZON-IAD
+    Net Name: AMAZON-AES, US
+    Location: Ashburn, Virginia, US
+    Lat/Lon: 39.0437, -77.4875
+    Open Ports: N/A
+    Services: N/A
+
+    Shodan API error for IP 20.81.45.124: Access denied (403 Forbidden)
+[+] IP: 20.81.45.124 - 1 attempts
+    ASN: 8075
+    Org: MSFT
+    Net Name: MICROSOFT-CORP-MSN-AS-BLOCK, US
+    Location: Ashburn, Virginia, US
+    Lat/Lon: 39.0437, -77.4875
+    Open Ports: N/A
+    Services: N/A
+
+    Shodan API error for IP 47.76.130.96: Access denied (403 Forbidden)
+[+] IP: 47.76.130.96 - 1 attempts
+    ASN: 45102
+    Org: ALIBABA CLOUD - HK
+    Net Name: ALIBABA-CN-NET Alibaba US Technology Co., Ltd., CN
+    Location: Hong Kong, Hong Kong, HK
+    Lat/Lon: 22.2783, 114.1747
+    Open Ports: N/A
+    Services: N/A
+
+    Shodan API error for IP 60.205.210.74: Access denied (403 Forbidden)
+[+] IP: 60.205.210.74 - 1 attempts
+    ASN: 37963
+    Org: ALISOFT
+    Net Name: ALIBABA-CN-NET Hangzhou Alibaba Advertising Co.,Ltd., CN
+    Location: Beijing, Beijing, CN
+    Lat/Lon: 39.9075, 116.3972
+    Open Ports: N/A
+    Services: N/A
+
+    Shodan API error for IP 20.169.104.203: Access denied (403 Forbidden)
+[+] IP: 20.169.104.203 - 1 attempts
+    ASN: 8075
+    Org: MSFT
+    Net Name: MICROSOFT-CORP-MSN-AS-BLOCK, US
+    Location: Phoenix, Arizona, US
+    Lat/Lon: 33.4484, -112.0740
+    Open Ports: N/A
+    Services: N/A
+
+    Shodan API error for IP 20.15.160.217: No information available for that IP.
+[+] IP: 20.15.160.217 - 1 attempts
+    ASN: 8075
+    Org: MSFT
+    Net Name: MICROSOFT-CORP-MSN-AS-BLOCK, US
+    Location: Des Moines, Iowa, US
+    Lat/Lon: 41.6005, -93.6091
+    Open Ports: N/A
+    Services: N/A
+
+    Shodan API error for IP 18.116.202.164: Access denied (403 Forbidden)
+[+] IP: 18.116.202.164 - 1 attempts
+    ASN: 16509
+    Org: AT-88-Z
+    Net Name: AMAZON-02, US
+    Location: Columbus, Ohio, US
+    Lat/Lon: 39.9612, -82.9988
+    Open Ports: N/A
+    Services: N/A
+
+    Shodan API error for IP 101.37.23.201: Access denied (403 Forbidden)
+[+] IP: 101.37.23.201 - 1 attempts
+    ASN: 37963
+    Org: ALISOFT
+    Net Name: ALIBABA-CN-NET Hangzhou Alibaba Advertising Co.,Ltd., CN
+    Location: Hangzhou, Zhejiang, CN
+    Lat/Lon: 30.2936, 120.1614
+    Open Ports: N/A
+    Services: N/A
+
+[+] IP: 92.255.57.61 - 1 attempts
+    ASN: 207566
+    Org: HK-CHANGWAY-20071224
+    Net Name: LD007-AS, HK
+    Location: Moscow, Moscow, RU
+    Lat/Lon: 55.7522, 37.6156
+    Open Ports: [80]
+    Services: ['Istio Service Mesh']
+
+    Shodan API error for IP 47.93.19.197: Access denied (403 Forbidden)
+[+] IP: 47.93.19.197 - 1 attempts
+    ASN: 37963
+    Org: ALISOFT
+    Net Name: ALIBABA-CN-NET Hangzhou Alibaba Advertising Co.,Ltd., CN
+    Location: Beijing, Beijing, CN
+    Lat/Lon: 39.9075, 116.3972
+    Open Ports: N/A
+    Services: N/A
+

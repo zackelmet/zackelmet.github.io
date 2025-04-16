@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-XZQS8EF17V"></script>
+        <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-XZQS8EF17V');
+        </script>
+        <link rel="preload" as="style" href="https://zackelmet.xyz/app-7ac6d5fa.css"/>
+        <link rel="stylesheet" href="https://zackelmet.xyz/app-7ac6d5fa.css"/>
+        <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+        <meta name="twitter:card" content="summary_large_image"/>
+        <meta name="twitter:site" content="@zkpz_"/>
+        <meta name="twitter:creator" content="@zkpx_"/>
+        <meta name="twitter:title" content="Cowrie Honeypot Attack Data – 3 Day Analysis">
+        <meta name="twitter:description" content="Cowrie Honeypot Attack Data – 3 Day Analysis"/>
+        <meta property="og:url" content="Cowrie Honeypot Attack Data – 3 Day Analysis"/>
+        <meta property="og:title" content="Cowrie Honeypot Attack Data – 3 Day Analysis"/>
+        <meta name="og:description" content="Cowrie Honeypot Attack Data – 3 Day Analysis"/>
+        <meta name="author" content="zackelmet"/>
+        <meta property="og:image:type" content="image/png">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="675">
+        <title>Cowrie Honeypot Attack Data – 3 Day Analysis</title>
+    </head>
+    <body class="flex h-full bg-black">
+        <div class="flex w-full">
+            <div class="fixed inset-0 flex justify-center sm:px-8">
+                <div class="flex w-full max-w-7xl lg:px-8">
+                    <div class="w-full ring-1 bg-zinc-900 ring-zinc-300/20"></div>
+                </div>
+            </div>
+            <div class="relative flex w-full flex-col">
+                <main class="flex-auto">
+                    <div class="sm:px-8 mt-16 lg:mt-32">
+                        <div class="mx-auto w-full max-w-7xl lg:px-8">
+                            <div class="relative px-4 sm:px-8 lg:px-12">
+                                <div class="mx-auto max-w-2xl lg:max-w-5xl">
+                                    <div class="xl:relative">
+                                        <div class="mx-auto max-w-2xl">
+                                            <a href="/">
+                                                <button type="button" aria-label="Go home" class="group mb-8 flex h-10 w-10 items-center justify-center rounded-full shadow-md shadow-zinc-800/5 ring-1 ring-zinc-900/5 transition dark:border dark:border-zinc-700/50 bg-zinc-800 dark:ring-0 dark:ring-white/10 dark:hover:border-zinc-700 dark:hover:ring-white/20 lg:absolute lg:-left-5 lg:-mt-2 lg:mb-0 xl:-top-1.5 xl:left-0 xl:mt-0">
+                                                    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" class="h-4 w-4 stroke-zinc-500 transition group-hover:stroke-zinc-700 dark:stroke-zinc-500 dark:group-hover:stroke-zinc-400">
+                                                        <path d="M7.25 11.25 3.75 8m0 0 3.5-3.25M3.75 8h8.5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                                    </svg>
+                                                </button>
+                                            </a>
+                                            <article>
+                                                <header class="flex flex-col">
+                                                    <h1 class="mt-6 text-4xl font-bold tracking-tight text-zinc-100 sm:text-5xl">Cowrie Honeypot Attack Data – 3 Day Analysis</h1>
+                                                    <time datetime="2025-04-15" class="order-first flex items-center text-base text-zinc-500">
+                                                        <span class="h-4 w-0.5 rounded-full bg-zinc-500"></span>
+                                                        <span class="ml-3">April 15, 2025</span>
+                                                    </time>
+                                                    <p class="my-5 text-zinc-400 font-bold">SSH-only honeypot running on AWS EU (Stockholm) for 3 days – analyzing real attack traffic</p>
+                                                    <img alt="" loading="lazy" width="1310" height="872" decoding="async" data-nimg="1" src="kali.png" style="color: transparent;">
+                                                </header>
+                                                <div class="mt-4 prose prose-invert prose-a:text-emerald-500 prose-gray" data-mdx-content="true">
+                                                    <p>✅ <strong>Overview:</strong> We deployed a Cowrie SSH honeypot on AWS for 3 days. It logged <span id="total-connections"></span> total connections from <span id="unique-ips"></span> unique IPs.</p>
+                                                    <p>🌍 <strong>Pew Pew Map:</strong> Below is a real-time map showing the geographic source of attacks.</p>
+                                                    <div id="map" style="height: 400px; width: 100%; border-radius: 8px; margin: 20px 0;"></div>
+                                                    <p>📊 <strong>Country Distribution:</strong></p>
+                                                    <div style="height: 300px; margin: 20px 0;">
+                                                        <canvas id="countryChart"></canvas>
+                                                    </div>
+                                                    <p>🏢 <strong>ASN Netblock Owners:</strong></p>
+                                                    <div style="height: 300px; margin: 20px 0;">
+                                                        <canvas id="asnChart"></canvas>
+                                                    </div>
+                                                    <p>🔍 <strong>Observations:</strong></p>
+                                                    <ul>
+                                                        <li>Low traffic (14 unique IPs) likely due to AWS IP, EU region, and no Telnet.</li>
+                                                        <li>Most hits came from cloud scanners and known ASNs.</li>
+                                                    </ul>
+                                                    <p>🔧 <strong>Next:</strong></p>
+                                                    <ul>
+                                                        <li>Run on smaller VPS (e.g., DigitalOcean)</li>
+                                                        <li>Enable Telnet</li>
+                                                        <li>Leverage Shodan to verify visibility</li>
+                                                    </ul>
+                                                </div>
+                                            </article>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+                <footer class="mt-32 flex-none">
+                    <div class="sm:px-8">
+                        <div class="mx-auto w-full max-w-7xl lg:px-8">
+                            <div class="border-t border-zinc-100 pb-16 pt-10 dark:border-zinc-700/40">
+                                <div class="relative px-4 sm:px-8 lg:px-12 ">
+                                    <div class="mx-auto max-w-2xl lg:max-w-5xl ">
+                                        <div class="flex flex-col items-center justify-between gap-6 sm:flex-row ">
+                                            <div class="flex flex-wrap justify-center gap-x-6 gap-y-1 text-sm font-medium text-zinc-600 dark:text-zinc-200 ">
+                                                <a class="transition hover:text-teal-500 dark:hover:text-teal-400 " href="/">Home</a>
+                                                <p class="text-sm text-zinc-400 dark:text-zinc-500 ">©
+                                                    <script>document.write(new Date().getFullYear());</script>
+                                                    Zack ElMetennani
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                </footer>
+            </div>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+        <script>
+            let map;
+            let asnChart;
+            let countryChart;
+            let attackLayer;
+
+            // Initialize the map
+            function initMap() {
+                if (map) {
+                    map.remove();
+                }
+                map = L.map('map').setView([59.3293, 18.0686], 2); // Center on Stockholm
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors'
+                }).addTo(map);
+                
+                // Use a dark theme for the map
+                document.querySelector('.leaflet-tile-pane').style.filter = 'invert(90%) hue-rotate(180deg)';
+
+                // Add server marker
+                const serverIcon = L.divIcon({
+                    className: 'server-marker',
+                    html: '<div class="server-pulse"></div>',
+                    iconSize: [20, 20]
+                });
+
+                L.marker([59.3293, 18.0686], {
+                    icon: serverIcon,
+                    title: 'AWS EU-North (Stockholm) Server'
+                }).addTo(map).bindPopup('AWS EU-North (Stockholm) Server');
+            }
+
+            // Parse the input data
+            function parseData(text) {
+                const entries = text.split('[+]').filter(entry => entry.trim());
+                return entries.map(entry => {
+                    const lines = entry.trim().split('\n');
+                    const ipMatch = lines[0].match(/IP: ([\d.]+) - (\d+) attempts/);
+                    const asnMatch = lines.find(l => l.includes('ASN:'))?.match(/ASN: (\d+)/);
+                    const locationMatch = lines.find(l => l.includes('Location:'))?.match(/Location: ([^,]+), ([^,]+), ([A-Z]+)/);
+                    const latLonMatch = lines.find(l => l.includes('Lat/Lon:'))?.match(/Lat\/Lon: ([-\d.]+), ([-\d.]+)/);
+                    
+                    return {
+                        ip: ipMatch?.[1],
+                        attempts: parseInt(ipMatch?.[2] || '0'),
+                        asn: asnMatch?.[1],
+                        location: locationMatch ? {
+                            city: locationMatch[1].trim(),
+                            state: locationMatch[2].trim(),
+                            country: locationMatch[3].trim()
+                        } : null,
+                        coordinates: latLonMatch ? [parseFloat(latLonMatch[1]), parseFloat(latLonMatch[2])] : null
+                    };
+                });
+            }
+
+            // Update the attack map
+            function updateMap(data) {
+                if (attackLayer) {
+                    map.removeLayer(attackLayer);
+                }
+
+                const markers = data.map(entry => {
+                    if (entry.coordinates) {
+                        // Create attack marker
+                        const marker = L.circle(entry.coordinates, {
+                            color: '#ff3300',
+                            fillColor: '#ff3300',
+                            fillOpacity: 0.5,
+                            radius: Math.sqrt(entry.attempts) * 20000
+                        }).bindPopup(`
+                            <b>IP:</b> ${entry.ip}<br>
+                            <b>Attempts:</b> ${entry.attempts}<br>
+                            <b>Location:</b> ${entry.location?.city}, ${entry.location?.state}, ${entry.location?.country}
+                        `);
+
+                        // Create animated line
+                        const line = L.polyline(
+                            [entry.coordinates, [59.3293, 18.0686]], // From attack to Stockholm
+                            {
+                                color: '#ff3300',
+                                weight: 2,
+                                dashArray: '5, 10',
+                                dashOffset: '0'
+                            }
+                        ).addTo(map);
+
+                        // Animate the line - moving towards Stockholm
+                        let offset = 0;
+                        setInterval(() => {
+                            offset = (offset - 1) % 15; // Changed to negative to move towards Stockholm
+                            line.setStyle({ dashOffset: offset });
+                        }, 50);
+
+                        return marker;
+                    }
+                }).filter(marker => marker);
+
+                attackLayer = L.layerGroup(markers).addTo(map);
+            }
+
+            // Update the ASN distribution chart
+            function updateAsnChart(data) {
+                const asnCounts = {};
+                data.forEach(entry => {
+                    if (entry.asn) {
+                        asnCounts[entry.asn] = (asnCounts[entry.asn] || 0) + entry.attempts;
+                    }
+                });
+
+                const sortedAsns = Object.entries(asnCounts)
+                    .sort(([,a], [,b]) => b - a)
+                    .slice(0, 10);
+
+                const ctx = document.getElementById('asnChart').getContext('2d');
+                if (asnChart) {
+                    asnChart.destroy();
+                }
+
+                asnChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: sortedAsns.map(([asn]) => `ASN ${asn}`),
+                        datasets: [{
+                            label: 'Attack Attempts',
+                            data: sortedAsns.map(([,count]) => count),
+                            backgroundColor: '#4CAF50'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    color: '#ffffff'
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                ticks: { color: '#ffffff' },
+                                grid: { color: '#333333' }
+                            },
+                            x: {
+                                ticks: { color: '#ffffff' },
+                                grid: { color: '#333333' }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Update the country distribution chart
+            function updateCountryChart(data) {
+                const countryCounts = {};
+                data.forEach(entry => {
+                    if (entry.location?.country) {
+                        countryCounts[entry.location.country] = (countryCounts[entry.location.country] || 0) + entry.attempts;
+                    }
+                });
+
+                const sortedCountries = Object.entries(countryCounts)
+                    .sort(([,a], [,b]) => b - a)
+                    .slice(0, 10);
+
+                const ctx = document.getElementById('countryChart').getContext('2d');
+                if (countryChart) {
+                    countryChart.destroy();
+                }
+
+                countryChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: sortedCountries.map(([country]) => country),
+                        datasets: [{
+                            label: 'Attack Attempts',
+                            data: sortedCountries.map(([,count]) => count),
+                            backgroundColor: '#4CAF50'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    color: '#ffffff'
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                ticks: { color: '#ffffff' },
+                                grid: { color: '#333333' }
+                            },
+                            x: {
+                                ticks: { color: '#ffffff' },
+                                grid: { color: '#333333' }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Update statistics in the overview section
+            function updateStats(data) {
+                const totalConnections = data.reduce((sum, entry) => sum + entry.attempts, 0);
+                const uniqueIPs = new Set(data.map(entry => entry.ip)).size;
+                
+                document.getElementById('total-connections').textContent = totalConnections;
+                document.getElementById('unique-ips').textContent = uniqueIPs;
+            }
+
+            // Load and process data
+            async function loadData() {
+                try {
+                    const response = await fetch('output.json');
+                    const text = await response.text();
+                    const data = parseData(text);
+                    
+                    initMap();
+                    updateMap(data);
+                    updateAsnChart(data);
+                    updateCountryChart(data);
+                    updateStats(data);
+                } catch (error) {
+                    console.error('Error loading data:', error);
+                }
+            }
+
+            // Initialize everything when the page loads
+            window.addEventListener('load', loadData);
+
+            // Add custom styles for the server marker
+            const style = document.createElement('style');
+            style.textContent = `
+                .server-marker {
+                    background-color: #00ff00;
+                    border-radius: 50%;
+                    width: 20px;
+                    height: 20px;
+                    position: relative;
+                }
+                .server-pulse {
+                    position: absolute;
+                    width: 100%;
+                    height: 100%;
+                    background-color: #00ff00;
+                    border-radius: 50%;
+                    animation: pulse 2s infinite;
+                }
+                @keyframes pulse {
+                    0% {
+                        transform: scale(1);
+                        opacity: 1;
+                    }
+                    100% {
+                        transform: scale(2);
+                        opacity: 0;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        </script>
+    </body>
+</html>

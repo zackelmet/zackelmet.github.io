@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Honeypot Analytics</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #ffffff;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .visualization-section {
+            background: #2a2a2a;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        #map {
+            height: 500px;
+            width: 100%;
+            border-radius: 8px;
+        }
+        .chart-container {
+            position: relative;
+            height: 400px;
+            width: 100%;
+        }
+        .data-input {
+            width: 100%;
+            height: 200px;
+            margin-bottom: 20px;
+            background: #333;
+            color: #fff;
+            border: 1px solid #444;
+            border-radius: 4px;
+            padding: 10px;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        h2 {
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Honeypot Attack Visualization</h2>
+        
+        <textarea class="data-input" id="dataInput" placeholder="Paste your data here..."></textarea>
+        <button onclick="processData()">Generate Visualizations</button>
+
+        <div class="visualization-section">
+            <h2>Attack Origins Map</h2>
+            <div id="map"></div>
+        </div>
+
+        <div class="visualization-section">
+            <h2>ASN Distribution</h2>
+            <div class="chart-container">
+                <canvas id="asnChart"></canvas>
+            </div>
+        </div>
+
+        <div class="visualization-section">
+            <h2>Country Distribution</h2>
+            <div class="chart-container">
+                <canvas id="countryChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        let map;
+        let asnChart;
+        let countryChart;
+        let attackLayer;
+
+        // Initialize the map
+        function initMap() {
+            map = L.map('map').setView([20, 0], 2);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+            
+            // Use a dark theme for the map
+            document.querySelector('.leaflet-tile-pane').style.filter = 'invert(90%) hue-rotate(180deg)';
+        }
+
+        // Parse the input data
+        function parseData(text) {
+            const entries = text.split('[+]').filter(entry => entry.trim());
+            return entries.map(entry => {
+                const lines = entry.trim().split('\n');
+                const ipMatch = lines[0].match(/IP: ([\d.]+) - (\d+) attempts/);
+                const asnMatch = lines.find(l => l.includes('ASN:'))?.match(/ASN: (\d+)/);
+                const locationMatch = lines.find(l => l.includes('Location:'))?.match(/Location: ([^,]+), ([^,]+), ([A-Z]+)/);
+                const latLonMatch = lines.find(l => l.includes('Lat/Lon:'))?.match(/Lat\/Lon: ([-\d.]+), ([-\d.]+)/);
+                
+                return {
+                    ip: ipMatch?.[1],
+                    attempts: parseInt(ipMatch?.[2] || '0'),
+                    asn: asnMatch?.[1],
+                    location: locationMatch ? {
+                        city: locationMatch[1].trim(),
+                        state: locationMatch[2].trim(),
+                        country: locationMatch[3].trim()
+                    } : null,
+                    coordinates: latLonMatch ? [parseFloat(latLonMatch[1]), parseFloat(latLonMatch[2])] : null
+                };
+            });
+        }
+
+        // Update the attack map
+        function updateMap(data) {
+            if (attackLayer) {
+                map.removeLayer(attackLayer);
+            }
+
+            const markers = data.map(entry => {
+                if (entry.coordinates) {
+                    return L.circle(entry.coordinates, {
+                        color: '#ff3300',
+                        fillColor: '#ff3300',
+                        fillOpacity: 0.5,
+                        radius: Math.sqrt(entry.attempts) * 20000
+                    }).bindPopup(`
+                        <b>IP:</b> ${entry.ip}<br>
+                        <b>Attempts:</b> ${entry.attempts}<br>
+                        <b>Location:</b> ${entry.location?.city}, ${entry.location?.state}, ${entry.location?.country}
+                    `);
+                }
+            }).filter(marker => marker);
+
+            attackLayer = L.layerGroup(markers).addTo(map);
+        }
+
+        // Update the ASN distribution chart
+        function updateAsnChart(data) {
+            const asnCounts = {};
+            data.forEach(entry => {
+                if (entry.asn) {
+                    asnCounts[entry.asn] = (asnCounts[entry.asn] || 0) + entry.attempts;
+                }
+            });
+
+            const sortedAsns = Object.entries(asnCounts)
+                .sort(([,a], [,b]) => b - a)
+                .slice(0, 10);
+
+            if (asnChart) {
+                asnChart.destroy();
+            }
+
+            asnChart = new Chart(document.getElementById('asnChart'), {
+                type: 'bar',
+                data: {
+                    labels: sortedAsns.map(([asn]) => `ASN ${asn}`),
+                    datasets: [{
+                        label: 'Attack Attempts',
+                        data: sortedAsns.map(([,count]) => count),
+                        backgroundColor: '#4CAF50'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#ffffff'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { color: '#ffffff' },
+                            grid: { color: '#333333' }
+                        },
+                        x: {
+                            ticks: { color: '#ffffff' },
+                            grid: { color: '#333333' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update the country distribution chart
+        function updateCountryChart(data) {
+            const countryCounts = {};
+            data.forEach(entry => {
+                if (entry.location?.country) {
+                    countryCounts[entry.location.country] = (countryCounts[entry.location.country] || 0) + entry.attempts;
+                }
+            });
+
+            const sortedCountries = Object.entries(countryCounts)
+                .sort(([,a], [,b]) => b - a)
+                .slice(0, 10);
+
+            if (countryChart) {
+                countryChart.destroy();
+            }
+
+            countryChart = new Chart(document.getElementById('countryChart'), {
+                type: 'bar',
+                data: {
+                    labels: sortedCountries.map(([country]) => country),
+                    datasets: [{
+                        label: 'Attack Attempts',
+                        data: sortedCountries.map(([,count]) => count),
+                        backgroundColor: '#4CAF50'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#ffffff'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { color: '#ffffff' },
+                            grid: { color: '#333333' }
+                        },
+                        x: {
+                            ticks: { color: '#ffffff' },
+                            grid: { color: '#333333' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Process the input data and update visualizations
+        function processData() {
+            const input = document.getElementById('dataInput').value;
+            if (!input.trim()) {
+                alert('Please paste your data first!');
+                return;
+            }
+
+            const data = parseData(input);
+            updateMap(data);
+            updateAsnChart(data);
+            updateCountryChart(data);
+        }
+
+        // Initialize the map when the page loads
+        window.onload = initMap;
+    </script>
+</body>
+</html> 
