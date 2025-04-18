@@ -17,11 +17,11 @@
         <meta name="twitter:card" content="summary_large_image"/>
         <meta name="twitter:site" content="@zkpz_"/>
         <meta name="twitter:creator" content="@zkpx_"/>
-        <meta name="twitter:title" content="Cowrie Honeypot Attack Data – 3 Day Analysis">
-        <meta name="twitter:description" content="Cowrie Honeypot Attack Data – 3 Day Analysis"/>
-        <meta property="og:url" content="Cowrie Honeypot Attack Data – 3 Day Analysis"/>
-        <meta property="og:title" content="Cowrie Honeypot Attack Data – 3 Day Analysis"/>
-        <meta name="og:description" content="Cowrie Honeypot Attack Data – 3 Day Analysis"/>
+        <meta name="twitter:title" content="Cowrie Honeypot Attack Data"/>
+        <meta name="twitter:description" content="Cowrie Honeypot Attack Data"/>
+        <meta property="og:url" content="Cowrie Honeypot Attack Data"/>
+        <meta property="og:title" content="Cowrie Honeypot Attack Data"/>
+        <meta name="og:description" content="Cowrie Honeypot Attack Data"/>
         <meta name="author" content="zackelmet"/>
         <meta property="og:image:type" content="image/png">
         <meta property="og:image:width" content="1200">
@@ -52,7 +52,7 @@
                                             </a>
                                             <article>
                                                 <header class="flex flex-col">
-                                                    <h1 class="mt-6 text-4xl font-bold tracking-tight text-zinc-100 sm:text-5xl">Cowrie Honeypot Attack Data – 3 Day Analysis</h1>
+                                                    <h1 class="mt-6 text-4xl font-bold tracking-tight text-zinc-100 sm:text-5xl">Cowrie Honeypot Attack Data Analysis</h1>
                                                     <time datetime="2025-04-15" class="order-first flex items-center text-base text-zinc-500">
                                                         <span class="h-4 w-0.5 rounded-full bg-zinc-500"></span>
                                                         <span class="ml-3">April 15, 2025</span>
@@ -69,9 +69,6 @@
                                                     <h2>2. Server Setup: AWS Free Tier + Ubuntu = Good Enough</h2>
                                                     <p>We started with an EC2 t2.micro instance (Free Tier eligible) running Ubuntu 22.04 LTS. This setup proved more than sufficient for our needs, demonstrating that you don't need expensive infrastructure to run an effective honeypot.</p>
                                                     <p>Security was a priority from the start. We created a dedicated PEM key for SSH access and implemented strict security group rules. The instance was placed in the eu-north-1 (Stockholm) region, which provided an interesting perspective on global attack patterns.</p>
-                                                    <p class="font-bold text-amber-400">Troubleshooting moment:</p>
-                                                    <p>Our initial attempt to transfer logs using scp failed due to a common pitfall—using the internal IP address instead of the public IP. Additionally, we had to ensure the correct user and key path were specified. The working command:</p>
-                                                    <pre class="bg-zinc-800 p-4 rounded-lg"><code>scp -i ~/Keys/honeypot.pem cowrie@&lt;public-ip&gt;:/home/cowrie/output.json ~/Downloads/</code></pre>
 
                                                     <h2>3. Honeypot Setup: Deploying Cowrie</h2>
                                                     <p>Isolation is crucial when running a honeypot. We created a dedicated Linux user 'cowrie' to run the honeypot service, minimizing potential security risks to the host system.</p>
@@ -95,57 +92,122 @@ cp cowrie.cfg.dist cowrie.cfg
 # [telnet]
 # listen_endpoints = tcp:23:interface=0.0.0.0</code></pre>
 
-                                                    <h2>4. Log Parsing: Python Script FTW</h2>
-                                                    <p>To make sense of the raw Cowrie logs, we developed a custom Python parser that extracted and enriched several key metrics. Here's a simplified version of our parser:</p>
+                                                    <h2>4. Log Parsing: Structured Data Extraction</h2>
+                                                    <p>Cowrie generates detailed JSON logs containing rich information about each connection attempt. Our Python parser extracted and enriched several key metrics from these logs:</p>
+                                                    <ul class="list-disc pl-6">
+                                                        <li>Session data including timestamps, source IPs, and attempted credentials</li>
+                                                        <li>ASN and organization information using ipwhois</li>
+                                                        <li>Geographic location data from ipinfo.io</li>
+                                                        <li>Open ports and services from Shodan API</li>
+                                                    </ul>
+                                                    <p>Here's our comprehensive log parser:</p>
                                                     <pre class="bg-zinc-800 p-4 rounded-lg"><code>import json
+import glob
+from collections import defaultdict
+import requests
 from ipwhois import IPWhois
-import geoip2.database
+import ipaddress
+import shodan
 
-def parse_cowrie_logs(log_file):
-    entries = []
-    current_entry = {}
-    
-    with open(log_file, 'r') as f:
-        for line in f:
-            if '[+] IP:' in line:
-                if current_entry:
-                    entries.append(current_entry)
-                current_entry = {
-                    'ip': line.split('IP: ')[1].split(' - ')[0],
-                    'attempts': int(line.split(' - ')[1].split(' ')[0])
-                }
-            elif 'ASN:' in line:
-                current_entry['asn'] = line.split('ASN: ')[1].strip()
-            elif 'Location:' in line:
-                parts = line.split('Location: ')[1].split(', ')
-                current_entry['location'] = {
-                    'city': parts[0],
-                    'state': parts[1],
-                    'country': parts[2]
-                }
-            elif 'Lat/Lon:' in line:
-                coords = line.split('Lat/Lon: ')[1].split(', ')
-                current_entry['coordinates'] = [float(coords[0]), float(coords[1])]
-    
-    return entries
+LOG_DIR_PATTERN = "/home/cowrie/cowrie/var/log/cowrie/cowrie.json*"
+SHODAN_API_KEY = "<Insert your Shodan API key here>"
 
-# Example usage
-data = parse_cowrie_logs('cowrie.log')
-with open('output.json', 'w') as f:
-    json.dump(data, f, indent=2)</code></pre>
+api = shodan.Shodan(SHODAN_API_KEY)
+
+def is_valid_ip(ip):
+    try:
+        return ipaddress.ip_address(ip).is_global
+    except ValueError:
+        return False
+
+def get_asn_info(ip):
+    try:
+        obj = IPWhois(ip)
+        res = obj.lookup_rdap()
+        asn = res.get("asn", "N/A")
+        org = res.get("network", {}).get("name", "N/A")
+        net_name = res.get("asn_description", "N/A")
+        return asn, org, net_name
+    except Exception:
+        return "Private IP", "N/A", "N/A"
+
+def get_geoip(ip):
+    try:
+        res = requests.get(f"https://ipinfo.io/{ip}/json", timeout=5)
+        if res.status_code == 200:
+            data = res.json()
+            loc = data.get("loc", ",").split(',')
+            return {
+                "country": data.get("country", "N/A"),
+                "region": data.get("region", "N/A"),
+                "city": data.get("city", "N/A"),
+                "latitude": loc[0],
+                "longitude": loc[1]
+            }
+    except Exception:
+        pass
+    return {"country": "N/A", "region": "N/A", "city": "N/A", "latitude": "N/A", "longitude": "N/A"}
+
+def get_shodan_info(ip):
+    try:
+        result = api.host(ip)
+        open_ports = result.get("ports", [])
+        services = [str(service.get("product", "unknown")) for service in result.get("data", [])]
+        return open_ports, services
+    except shodan.APIError as e:
+        print(f"    Shodan API error for IP {ip}: {e}")
+        return "N/A", "N/A"
+    except Exception:
+        return "N/A", "N/A"
+
+def main():
+    ip_counts = defaultdict(int)
+    log_files = sorted(glob.glob(LOG_DIR_PATTERN))
+
+    for log_file in log_files:
+        with open(log_file, 'r') as f:
+            for line in f:
+                try:
+                    log = json.loads(line)
+                    if log.get("eventid") == "cowrie.session.connect":
+                        ip = log.get("src_ip")
+                        if is_valid_ip(ip):
+                            ip_counts[ip] += 1
+                except json.JSONDecodeError:
+                    continue
+
+    print(f"\nTotal unique IPs: {len(ip_counts)}\n")
+
+    for ip, count in sorted(ip_counts.items(), key=lambda x: x[1], reverse=True):
+        asn, org, net_name = get_asn_info(ip)
+        geo = get_geoip(ip)
+        ports, services = get_shodan_info(ip)
+
+        print(f"[+] IP: {ip} - {count} attempts")
+        print(f"    ASN: {asn}")
+        print(f"    Org: {org}")
+        print(f"    Net Name: {net_name}")
+        print(f"    Location: {geo['city']}, {geo['region']}, {geo['country']}")
+        print(f"    Lat/Lon: {geo['latitude']}, {geo['longitude']}")
+        print(f"    Open Ports: {ports}")
+        print(f"    Services: {services}\n")
+
+if __name__ == "__main__":
+    main()</code></pre>
 
                                                     <h2>5. Pew Pew Map: Attack Visualizer</h2>
-                                                    <p>To visualize the global nature of the attacks, we created an interactive map using Leaflet.js. The map shows attacks from 21 unique IPs, with the most active attacker (3.148.192.132) making 6 attempts from Columbus, Ohio.</p>
-                                                    <p>Key findings from our data:</p>
+                                                    <p>To visualize the global nature of the attacks, we created an interactive map using Leaflet.js. The map shows attacks from 21 unique IPs over a 24-hour period, with the most active attacker making 6 attempts from Columbus, Ohio.</p>
+                                                    <p>Key features of our visualization:</p>
                                                     <ul class="list-disc pl-6">
-                                                        <li>Most attacks originated from cloud infrastructure (AWS, Azure, Google Cloud)</li>
-                                                        <li>Top attacking ASNs: 16509 (Amazon), 8075 (Microsoft), 37963 (Alibaba)</li>
-                                                        <li>Geographic distribution showed clusters in US, China, and Hong Kong</li>
+                                                        <li>Real-time coordinate data obtained through ipwhois for accurate geolocation</li>
+                                                        <li>Animated lines showing attack paths to our Stockholm server</li>
+                                                        <li>Circle markers sized by number of attempts</li>
+                                                        <li>Dark theme for better visibility of attack patterns</li>
                                                     </ul>
                                                     <div id="map" style="height: 400px; width: 100%; border-radius: 8px; margin: 20px 0;"></div>
 
                                                     <h2>6. Country Distribution</h2>
-                                                    <p>Our data showed a clear pattern of attacks primarily from:</p>
+                                                    <p>Using the ipwhois Python library, we enriched our IP data with country and ASN information. The results showed a clear pattern of attacks primarily from:</p>
                                                     <ul class="list-disc pl-6">
                                                         <li>United States (9 unique IPs)</li>
                                                         <li>China (4 unique IPs)</li>
@@ -177,12 +239,13 @@ with open('output.json', 'w') as f:
                                                         <li><span class="font-bold">Data Quality:</span> The structured output format made it easy to create visualizations and analyze patterns.</li>
                                                     </ul>
 
-                                                    <h2>9. What's Next</h2>
+                                                    <h2>9. Future Enhancements</h2>
                                                     <p>Based on our findings, we plan to:</p>
                                                     <ul class="list-disc pl-6">
                                                         <li>Enable Telnet to increase visibility and capture more attack data</li>
+                                                        <li>Integrate Shodan API to enrich attacker data with open ports and services</li>
+                                                        <li>Implement reverse DNS lookups and threat intelligence feeds for automated enrichment</li>
                                                         <li>Deploy on a smaller VPS provider to compare attack patterns</li>
-                                                        <li>Integrate Shodan API to verify our honeypot's visibility</li>
                                                     </ul>
                                                 </div>
                                             </article>
@@ -231,7 +294,7 @@ with open('output.json', 'w') as f:
                 }
                 map = L.map('map').setView([59.3293, 18.0686], 2); // Center on Stockholm
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© OpenStreetMap contributors'
+                    attribution: ''
                 }).addTo(map);
                 
                 // Use a dark theme for the map
@@ -344,7 +407,7 @@ with open('output.json', 'w') as f:
                         datasets: [{
                             label: 'Attack Attempts',
                             data: sortedAsns.map(([,count]) => count),
-                            backgroundColor: '#4CAF50'
+                            backgroundColor: '#0d9488'
                         }]
                     },
                     options: {
@@ -396,7 +459,7 @@ with open('output.json', 'w') as f:
                         datasets: [{
                             label: 'Attack Attempts',
                             data: sortedCountries.map(([,count]) => count),
-                            backgroundColor: '#4CAF50'
+                            backgroundColor: '#0d9488'
                         }]
                     },
                     options: {
