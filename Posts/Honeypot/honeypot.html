@@ -12,7 +12,7 @@
         </script>
         <link rel="preload" as="style" href="https://zackelmet.xyz/app-7ac6d5fa.css"/>
         <link rel="stylesheet" href="https://zackelmet.xyz/app-7ac6d5fa.css"/>
-        <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+        <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
         <meta name="twitter:card" content="summary_large_image"/>
         <meta name="twitter:site" content="@zkpz_"/>
@@ -26,7 +26,7 @@
         <meta property="og:image:type" content="image/png">
         <meta property="og:image:width" content="1200">
         <meta property="og:image:height" content="675">
-        <title>Cowrie Honeypot Attack Data – 3 Day Analysis</title>
+        <title>Cowrie Honeypot Attack Data and Analysis</title>
     </head>
     <body class="flex h-full bg-black">
         <div class="flex w-full">
@@ -57,31 +57,132 @@
                                                         <span class="h-4 w-0.5 rounded-full bg-zinc-500"></span>
                                                         <span class="ml-3">April 15, 2025</span>
                                                     </time>
-                                                    <p class="my-5 text-zinc-400 font-bold">SSH-only honeypot running on AWS EU (Stockholm) for 3 days – analyzing real attack traffic</p>
-                                                    <img alt="" loading="lazy" width="1310" height="872" decoding="async" data-nimg="1" src="kali.png" style="color: transparent;">
+                                                    <p class="my-5 text-zinc-400 font-bold">SSH-only honeypot running on AWS EU (Stockholm) for a few days – analyzing real attack traffic</p>
+                                                    <img alt="Honeypot illustration with circuit background" loading="lazy" width="328" height="218" decoding="async" data-nimg="1" src="/images/honeypot.png" style="color: transparent;">
                                                 </header>
                                                 <div class="mt-4 prose prose-invert prose-a:text-emerald-500 prose-gray" data-mdx-content="true">
-                                                    <p>✅ <strong>Overview:</strong> We deployed a Cowrie SSH honeypot on AWS for 3 days. It logged <span id="total-connections"></span> total connections from <span id="unique-ips"></span> unique IPs.</p>
-                                                    <p>🌍 <strong>Pew Pew Map:</strong> Below is a real-time map showing the geographic source of attacks.</p>
+                                                    <h2>1. Intro: Why Even Bother With a Honeypot?</h2>
+                                                    <p>In the world of cybersecurity, honeypots serve as digital decoys—systems designed to attract and monitor malicious activity. They're like leaving a fake wallet on the street to see who tries to pick it up. By deploying a honeypot, we can observe real-world attacker behavior, including brute force attempts, malware delivery patterns, and botnet activity.</p>
+                                                    <p>For this project, we spun up a Cowrie SSH honeypot on an AWS Free Tier instance. Cowrie is a medium-interaction honeypot that emulates a real SSH server, allowing us to capture and analyze attack patterns while keeping our actual systems safe. The data we collected provides fascinating insights into the constant barrage of automated attacks that occur on the internet.</p>
+                                                    <p class="font-bold text-emerald-400">Spoiler: The noise on the Internet never sleeps. Within minutes of deployment, our honeypot was receiving connection attempts from around the globe.</p>
+
+                                                    <h2>2. Server Setup: AWS Free Tier + Ubuntu = Good Enough</h2>
+                                                    <p>We started with an EC2 t2.micro instance (Free Tier eligible) running Ubuntu 22.04 LTS. This setup proved more than sufficient for our needs, demonstrating that you don't need expensive infrastructure to run an effective honeypot.</p>
+                                                    <p>Security was a priority from the start. We created a dedicated PEM key for SSH access and implemented strict security group rules. The instance was placed in the eu-north-1 (Stockholm) region, which provided an interesting perspective on global attack patterns.</p>
+                                                    <p class="font-bold text-amber-400">Troubleshooting moment:</p>
+                                                    <p>Our initial attempt to transfer logs using scp failed due to a common pitfall—using the internal IP address instead of the public IP. Additionally, we had to ensure the correct user and key path were specified. The working command:</p>
+                                                    <pre class="bg-zinc-800 p-4 rounded-lg"><code>scp -i ~/Keys/honeypot.pem cowrie@&lt;public-ip&gt;:/home/cowrie/output.json ~/Downloads/</code></pre>
+
+                                                    <h2>3. Honeypot Setup: Deploying Cowrie</h2>
+                                                    <p>Isolation is crucial when running a honeypot. We created a dedicated Linux user 'cowrie' to run the honeypot service, minimizing potential security risks to the host system.</p>
+                                                    <p>The setup process involved:</p>
+                                                    <pre class="bg-zinc-800 p-4 rounded-lg"><code># Create cowrie user and set up environment
+sudo useradd -m -d /home/cowrie -s /bin/bash cowrie
+sudo su - cowrie
+
+# Clone and set up Cowrie
+git clone https://github.com/cowrie/cowrie.git
+cd cowrie
+python3 -m venv cowrie-env
+source cowrie-env/bin/activate
+pip install -r requirements.txt
+
+# Configure Cowrie
+cp cowrie.cfg.dist cowrie.cfg
+# Edit cowrie.cfg to set:
+# [ssh]
+# listen_endpoints = tcp:22:interface=0.0.0.0
+# [telnet]
+# listen_endpoints = tcp:23:interface=0.0.0.0</code></pre>
+
+                                                    <h2>4. Log Parsing: Python Script FTW</h2>
+                                                    <p>To make sense of the raw Cowrie logs, we developed a custom Python parser that extracted and enriched several key metrics. Here's a simplified version of our parser:</p>
+                                                    <pre class="bg-zinc-800 p-4 rounded-lg"><code>import json
+from ipwhois import IPWhois
+import geoip2.database
+
+def parse_cowrie_logs(log_file):
+    entries = []
+    current_entry = {}
+    
+    with open(log_file, 'r') as f:
+        for line in f:
+            if '[+] IP:' in line:
+                if current_entry:
+                    entries.append(current_entry)
+                current_entry = {
+                    'ip': line.split('IP: ')[1].split(' - ')[0],
+                    'attempts': int(line.split(' - ')[1].split(' ')[0])
+                }
+            elif 'ASN:' in line:
+                current_entry['asn'] = line.split('ASN: ')[1].strip()
+            elif 'Location:' in line:
+                parts = line.split('Location: ')[1].split(', ')
+                current_entry['location'] = {
+                    'city': parts[0],
+                    'state': parts[1],
+                    'country': parts[2]
+                }
+            elif 'Lat/Lon:' in line:
+                coords = line.split('Lat/Lon: ')[1].split(', ')
+                current_entry['coordinates'] = [float(coords[0]), float(coords[1])]
+    
+    return entries
+
+# Example usage
+data = parse_cowrie_logs('cowrie.log')
+with open('output.json', 'w') as f:
+    json.dump(data, f, indent=2)</code></pre>
+
+                                                    <h2>5. Pew Pew Map: Attack Visualizer</h2>
+                                                    <p>To visualize the global nature of the attacks, we created an interactive map using Leaflet.js. The map shows attacks from 21 unique IPs, with the most active attacker (3.148.192.132) making 6 attempts from Columbus, Ohio.</p>
+                                                    <p>Key findings from our data:</p>
+                                                    <ul class="list-disc pl-6">
+                                                        <li>Most attacks originated from cloud infrastructure (AWS, Azure, Google Cloud)</li>
+                                                        <li>Top attacking ASNs: 16509 (Amazon), 8075 (Microsoft), 37963 (Alibaba)</li>
+                                                        <li>Geographic distribution showed clusters in US, China, and Hong Kong</li>
+                                                    </ul>
                                                     <div id="map" style="height: 400px; width: 100%; border-radius: 8px; margin: 20px 0;"></div>
-                                                    <p>📊 <strong>Country Distribution:</strong></p>
+
+                                                    <h2>6. Country Distribution</h2>
+                                                    <p>Our data showed a clear pattern of attacks primarily from:</p>
+                                                    <ul class="list-disc pl-6">
+                                                        <li>United States (9 unique IPs)</li>
+                                                        <li>China (4 unique IPs)</li>
+                                                        <li>Hong Kong (2 unique IPs)</li>
+                                                        <li>Romania, Russia, Taiwan (1 IP each)</li>
+                                                    </ul>
+                                                    <p>This distribution reflects the global nature of automated scanning, with a particular focus on cloud infrastructure in these regions.</p>
                                                     <div style="height: 300px; margin: 20px 0;">
                                                         <canvas id="countryChart"></canvas>
                                                     </div>
-                                                    <p>🏢 <strong>ASN Netblock Owners:</strong></p>
+
+                                                    <h2>7. ASN Distribution</h2>
+                                                    <p>Analysis of the ASN data revealed interesting patterns in network ownership:</p>
+                                                    <ul class="list-disc pl-6">
+                                                        <li>AWS (AS16509): 4 attacking IPs</li>
+                                                        <li>Microsoft (AS8075): 4 attacking IPs</li>
+                                                        <li>Alibaba (AS37963): 3 attacking IPs</li>
+                                                        <li>Google Cloud (AS396982): 2 attacking IPs</li>
+                                                    </ul>
+                                                    <p>This distribution suggests that most attacks originated from cloud infrastructure rather than residential or business networks.</p>
                                                     <div style="height: 300px; margin: 20px 0;">
                                                         <canvas id="asnChart"></canvas>
                                                     </div>
-                                                    <p>🔍 <strong>Observations:</strong></p>
-                                                    <ul>
-                                                        <li>Low traffic (14 unique IPs) likely due to AWS IP, EU region, and no Telnet.</li>
-                                                        <li>Most hits came from cloud scanners and known ASNs.</li>
+
+                                                    <h2>8. Lessons Learned</h2>
+                                                    <ul class="list-disc pl-6">
+                                                        <li><span class="font-bold">Cloud Infrastructure:</span> Most attacks originated from cloud providers, suggesting automated scanning tools running on cloud infrastructure.</li>
+                                                        <li><span class="font-bold">Low Traffic Volume:</span> The relatively low number of unique IPs (21) suggests that running on AWS in the EU region with only SSH enabled results in less visibility to automated scanners.</li>
+                                                        <li><span class="font-bold">Data Quality:</span> The structured output format made it easy to create visualizations and analyze patterns.</li>
                                                     </ul>
-                                                    <p>🔧 <strong>Next:</strong></p>
-                                                    <ul>
-                                                        <li>Run on smaller VPS (e.g., DigitalOcean)</li>
-                                                        <li>Enable Telnet</li>
-                                                        <li>Leverage Shodan to verify visibility</li>
+
+                                                    <h2>9. What's Next</h2>
+                                                    <p>Based on our findings, we plan to:</p>
+                                                    <ul class="list-disc pl-6">
+                                                        <li>Enable Telnet to increase visibility and capture more attack data</li>
+                                                        <li>Deploy on a smaller VPS provider to compare attack patterns</li>
+                                                        <li>Integrate Shodan API to verify our honeypot's visibility</li>
                                                     </ul>
                                                 </div>
                                             </article>
