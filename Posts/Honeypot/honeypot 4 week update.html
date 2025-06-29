@@ -26,7 +26,7 @@
         <meta property="og:image:type" content="image/png">
         <meta property="og:image:width" content="1200">
         <meta property="og:image:height" content="675">
-        <title>Cowrie Honeypot Attack Data and Analysis</title>
+        <title>Cowrie Honeypot 4 Week Update </title>
     </head>
     <body class="flex h-full bg-black">
         <div class="flex w-full">
@@ -58,33 +58,39 @@
                                                         <span class="ml-3">June 10, 2025</span>
                                                     </time>
                                                     <p class="my-5 text-zinc-400 font-bold">After running our Cowrie SSH honeypot for four weeks in the wild, we’ve gathered a total of 1,775 unique IPs attempting to connect.</p>
-                                                    <img alt="Honeypot illustration with circuit background" loading="lazy" width="328" height="218" decoding="async" data-nimg="1" src="/images/honeypot.png" style="color: transparent;">
                                                 </header>
                                                 <div class="mt-4 prose prose-invert prose-a:text-emerald-500 prose-gray" data-mdx-content="true">
-                                                    <h2>1. Intro: Why Even Bother With a Honeypot?</h2>
+                                                    <h2>Attack Volume & Growth</h2>
                                                     <p>In the world of cybersecurity, honeypots serve as digital decoys, they're intentionally vulnerable systems designed to attract and monitor malicious activity. They're like leaving a fake wallet on the street to see who tries to pick it up. By deploying a honeypot, we can observe real-world attacker behavior, including brute force attempts, malware delivery patterns, and botnet activity.</p>
                                                     <p>For this project, we spun up a Cowrie SSH honeypot on an AWS Free Tier instance. Cowrie is a medium-interaction honeypot that emulates a real SSH server, allowing us to capture and analyze attack patterns while keeping our actual systems safe. The data we collected provides fascinating insights into the constant barrage of automated attacks that occur on the internet.</p>
                                                     <p class="font-bold text-emerald-400">Spoiler: The noise on the Internet never sleeps. Within minutes of deployment, our honeypot was receiving connection attempts from around the globe.</p>
 
-                                                    <h2>5. Pew Pew Map: Attack Visualizer</h2>
-                                                    <p>To visualize the global nature of the attacks, we created an interactive map using Leaflet.js. The map shows attacks from 21 unique IPs, with the most active attacker making 6 attempts from Columbus, Ohio.</p>
+                                                    <h2>Pew Pew Map: Attack Visualizer</h2>
+                                                    <p>To visualize the global nature of the attacks, I created an interactive map using Leaflet.js. To really get a impression of the connection attempts zoom in and scroll around from different parts of the world.</p>
                                                     <div id="map" style="height: 400px; width: 100%; border-radius: 8px; margin: 20px 0;"></div>
 
-                                                    <h2>6. Country Distribution</h2>
-                                                    <p>Using the ipwhois Python library, we enriched our IP data with country and ASN information. The results showed a clear pattern of attacks primarily from:</p>
+                                                    <h2>Country Distribution</h2>
+                                                    <p>Top attacker source countries by number of unique IPs:</p>
                                                     <ul class="list-disc pl-6">
-                                                        <li>United States (9 unique IPs)</li>
-                                                        <li>China (4 unique IPs)</li>
-                                                        <li>Hong Kong (2 unique IPs)</li>
-                                                        <li>Romania, Russia, Taiwan (1 IP each)</li>
+                                                        <li>🇨🇳 China — 219 IPs</li>
+                                                        <li>🇺🇸 United States — 143 IPs</li>
+                                                        <li>🇰🇷 South Korea — 90 IPs</li>
+                                                        <li>🇷🇺 Russia — 68 IPs</li>
+                                                        <li>🇮🇳 India — 67 IPs</li>
+                                                        <li>🇮🇶 Iraq — 38 IPs</li>
+                                                        <li>🇭🇰 Hong Kong — 33 IPs</li>
+                                                        <li>🇹🇼 Taiwan — 31 IPs</li>
+                                                        <li>🇸🇪 Sweden — 24 IPs</li>
+                                                        <li>🇲🇾 Malaysia — 24 IPs</li>
                                                     </ul>
-                                                    <p>This distribution reflects the global nature of automated scanning, with a particular focus on cloud infrastructure in these regions.</p>
+
+                                                    <p>Major cloud markets dominate, with China and the U.S. leading brute force traffic.</p>
                                                     <div style="height: 300px; margin: 20px 0;">
                                                         <canvas id="countryChart"></canvas>
                                                     </div>
 
-                                                    <h2>7. ASN Distribution</h2>
-                                                    <p>Analysis of the ASN data revealed interesting patterns in network ownership:</p>
+                                                    <h2>ASN Distribution</h2>
+                                                    <p>We enriched each IP with ASN info and plotted top networks:</p>
                                                     <ul class="list-disc pl-6">
                                                         <li>AWS (AS16509): 4 attacking IPs</li>
                                                         <li>Microsoft (AS8075): 4 attacking IPs</li>
@@ -92,11 +98,12 @@
                                                         <li>Google Cloud (AS396982): 2 attacking IPs</li>
                                                     </ul>
                                                     <p>This distribution suggests that most attacks originated from cloud infrastructure rather than residential or business networks.</p>
+                                                    <p>In terms of unique attempts, Chinese machines were far and away the most aggresive.</p>
                                                     <div style="height: 300px; margin: 20px 0;">
                                                         <canvas id="asnChart"></canvas>
                                                     </div>
 
-                                                    <h2>8. Most Common Open Ports</h2>
+                                                    <h2>Most Common Open Ports</h2>
                                                     <p>From the enriched Shodan data, we extracted the most frequently observed open ports across scanning hosts. This helps profile attacker tooling and default configurations:</p>
                                                     <ul class="list-disc pl-6">
                                                         <li>Port 22 (SSH)</li>
