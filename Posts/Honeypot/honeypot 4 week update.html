@@ -55,15 +55,14 @@
                                                     <h1 class="mt-6 text-4xl font-bold tracking-tight text-zinc-100 sm:text-5xl">Cowrie Honeypot: 4 Weeks Later</h1>
                                                     <time datetime="2025-04-15" class="order-first flex items-center text-base text-zinc-500">
                                                         <span class="h-4 w-0.5 rounded-full bg-zinc-500"></span>
-                                                        <span class="ml-3">June 10, 2025</span>
+                                                        <span class="ml-3">June 29, 2025</span>
                                                     </time>
-                                                    <p class="my-5 text-zinc-400 font-bold">After running our Cowrie SSH honeypot for four weeks in the wild, we’ve gathered a total of 1,775 unique IPs attempting to connect.</p>
+                                                    <p class="my-5 text-zinc-400 font-bold">After running our Cowrie SSH honeypot for four weeks in the wild, it gathered a total of 1,775 unique IPs attempting to connect. Go read the first <a href="Posts/Honeypot/honeypot.html" target="_blank" class="site-link">post</a> about it to see what and how i did it.</p>
                                                 </header>
                                                 <div class="mt-4 prose prose-invert prose-a:text-emerald-500 prose-gray" data-mdx-content="true">
                                                     <h2>Attack Volume & Growth</h2>
-                                                    <p>In the world of cybersecurity, honeypots serve as digital decoys, they're intentionally vulnerable systems designed to attract and monitor malicious activity. They're like leaving a fake wallet on the street to see who tries to pick it up. By deploying a honeypot, we can observe real-world attacker behavior, including brute force attempts, malware delivery patterns, and botnet activity.</p>
-                                                    <p>For this project, we spun up a Cowrie SSH honeypot on an AWS Free Tier instance. Cowrie is a medium-interaction honeypot that emulates a real SSH server, allowing us to capture and analyze attack patterns while keeping our actual systems safe. The data we collected provides fascinating insights into the constant barrage of automated attacks that occur on the internet.</p>
-                                                    <p class="font-bold text-emerald-400">Spoiler: The noise on the Internet never sleeps. Within minutes of deployment, our honeypot was receiving connection attempts from around the globe.</p>
+                                                    <p>8,838 total connection attempts from 1,775 unique IP addresses.</p>
+                                                    <p>Top attacker: 61.50.119.110 (China Unicom Beijing) with 5,855 attempts.</p>
 
                                                     <h2>Pew Pew Map: Attack Visualizer</h2>
                                                     <p>To visualize the global nature of the attacks, I created an interactive map using Leaflet.js. To really get a impression of the connection attempts zoom in and scroll around from different parts of the world.</p>
@@ -85,52 +84,86 @@
                                                     </ul>
 
                                                     <p>Major cloud markets dominate, with China and the U.S. leading brute force traffic.</p>
+                                                    <p>In terms of unique attempts, China orignating IP were far and away the most aggresive:</p>
                                                     <div style="height: 300px; margin: 20px 0;">
                                                         <canvas id="countryChart"></canvas>
                                                     </div>
 
                                                     <h2>ASN Distribution</h2>
-                                                    <p>We enriched each IP with ASN info and plotted top networks:</p>
+                                                    <p>I enriched each IP with ASN info and plotted top networks with the most numbner of unique IPs trying to connect:</p>
                                                     <ul class="list-disc pl-6">
-                                                        <li>AWS (AS16509): 4 attacking IPs</li>
-                                                        <li>Microsoft (AS8075): 4 attacking IPs</li>
-                                                        <li>Alibaba (AS37963): 3 attacking IPs</li>
-                                                        <li>Google Cloud (AS396982): 2 attacking IPs</li>
+                                                        <li>🏢 ASN 4134 (CHINANET-HN-XX) — 156 IPs</li>
+                                                        <li>🏢 ASN 4766 (KORNET-KR) — 103 IPs</li>
+                                                        <li>🏢 ASN 4837 (IATCBGL) — 96 IPs</li>
+                                                        <li>🏢 ASN 203214 (AE-EARTHLINK-DMCC) — 60 IPs</li>
+                                                        <li>🏢 ASN 9808 (CMNET) — 57 IPs</li>
+                                                        <li>🏢 ASN 4818 (DIGI-AS-AP) — 52 IPs</li>
+                                                        <li>🏢 ASN 8075 (MSFT) — 36 IPs</li>
+                                                        <li>🏢 ASN 17421 (EMOME-NET) — 31 IPs</li>
+                                                        <li>🏢 ASN 7922 (BOSTON-CBC-9) — 28 IPs</li>
+                                                        <li>🏢 ASN 4760 (NETVIGATOR) — 27 IPs</li>
                                                     </ul>
-                                                    <p>This distribution suggests that most attacks originated from cloud infrastructure rather than residential or business networks.</p>
-                                                    <p>In terms of unique attempts, Chinese machines were far and away the most aggresive.</p>
+                                                    <p>Then I also plotted which ASNs had the most connection attempts, with 5,867 total connection attempts from China Unicom Beijing Province Network (ASN 4808) machines:</p>
                                                     <div style="height: 300px; margin: 20px 0;">
                                                         <canvas id="asnChart"></canvas>
                                                     </div>
 
                                                     <h2>Most Common Open Ports</h2>
-                                                    <p>From the enriched Shodan data, we extracted the most frequently observed open ports across scanning hosts. This helps profile attacker tooling and default configurations:</p>
+                                                    <p>I From the enriched Shodan data, we extracted the most frequently observed open ports across scanning hosts. This helps profile attacker tooling and default configurations:</p>
                                                     <ul class="list-disc pl-6">
-                                                        <li>Port 22 (SSH)</li>
-                                                        <li>Port 23 (Telnet)</li>
-                                                        <li>Port 445 (SMB)</li>
-                                                        <li>Port 80/443 (HTTP/HTTPS)</li>
+                                                        <li> Port 22 (SSH) — 434 instances</li>
+                                                        <li> Port 80 (HTTP) — 231 instances</li>
+                                                        <li> Port 443 (HTTPS) — 203 instances</li>
+                                                        <li> Port 23 (Telnet) — 97 instances</li>
+                                                        <li> Port 53 (DNS) — 91 instances</li>
+                                                        <li> Port 21 (FTP) — 84 instances</li>
+                                                        <li> Port 161 (SNMP) — 84 instances</li>
+                                                        <li> Port 2222 (Alt SSH) — 52 instances</li>
+                                                        <li> Port 123 (NTP) — 45 instances</li>
+                                                        <li> Port 8443 (Alt HTTPS) — 42 instances</li>
+                                                        <li> Port 8080 (Alt HTTP) — 37 instances</li>
+                                                        <li> Port 1701 (L2TP) — 34 instances</li>
+                                                        <li> Port 1723 (PPTP) — 31 instances</li>
+                                                        <li> Port 500 (IPSec) — 27 instances</li>
+                                                        <li> Port 8888 (Alt HTTP) — 25 instances</li>
                                                     </ul>
-                                                    <p>The presence of legacy and insecure ports like Telnet highlights outdated scanning kits or targeting of vulnerable IoT systems.</p>
-                                                    <div style="height: 300px; margin: 20px 0;">
-                                                        <canvas id="portChart"></canvas>
-                                                    </div>
+                                                    <p>SSH (434 instances) and HTTP/HTTPS (231/203 instances) are the most commonly exposed ports among connecting systems, with older protocols like Telnet (97
+                                                    instances) and SNMP (84 instances) also frequently present.</p>
+                                                    <p>The distribution of ports, including VPN protocols and alternative service ports, suggests these systems represent a mix of network infrastructure devices
+                                                    and servers with varying configuration practices.</p>
 
 
-                                                    <h2>8. Lessons Learned</h2>
-                                                    <ul class="list-disc pl-6">
-                                                        <li><span class="font-bold">Cloud Infrastructure:</span> Most attacks originated from cloud providers, suggesting automated scanning tools running on cloud infrastructure.</li>
-                                                        <li><span class="font-bold">Low Traffic Volume:</span> The relatively low number of unique IPs (21) suggests that running on AWS in the EU region with only SSH enabled results in less visibility to automated scanners.</li>
-                                                        <li><span class="font-bold">Data Quality:</span> The structured output format made it easy to create visualizations and analyze patterns.</li>
-                                                    </ul>
+                                                    <h2>Most Common Services</h2>
+                                                          <p>Service fingerprinting from Shodan reveals the connecting systems are predominantly embedded devices and network infrastructure running various SSH
+                                                             implementations and lightweight web servers:</p>
+                                                        <ul class="list-disc pl-6">
+                                                            <li>🔧 unknown — 1,290 instances</li>
+                                                            <li>🔧 OpenSSH — 215 instances</li>
+                                                            <li>🔧 Dropbear sshd — 191 instances</li>
+                                                            <li>🔧 nginx — 138 instances</li>
+                                                            <li>🔧 lighttpd — 74 instances</li>
+                                                            <li>🔧 net-snmp — 56 instances</li>
+                                                            <li>🔧 Apache httpd — 53 instances</li>
+                                                            <li>🔧 Ubiquiti AirRouter — 50 instances</li>
+                                                            <li>🔧 PPTP — 30 instances</li>
+                                                            <li>🔧 MikroTik bandwidth-test server — 14 instances</li>
+                                                            <li>🔧 Linksys WRT45G modified dropbear sshd — 14 instances</li>
+                                                            <li>🔧 Busybox telnetd — 14 instances</li>
+                                                            <li>🔧 Samba — 12 instances</li>
+                                                            <li>🔧 MySQL — 12 instances</li>
+                                                            <li>🔧 ZyXEL ZyWALL sshd — 9 instances</li>
+                                                        </ul>
+                                                      <p>The high number of "unknown" services (1,290 instances) indicates either non-standard software configurations or services that Shodan cannot identify,
+                                                        while specific router and embedded device signatures suggest these connection attempts originate from network infrastructure equipment.</p>
 
-                                                    <h2>9. Future Enhancements</h2>
-                                                    <p>Based on our findings, we plan to:</p>
-                                                    <ul class="list-disc pl-6">
-                                                        <li>Enable Telnet to increase visibility and capture more attack data</li>
-                                                        <li>Integrate Shodan API to enrich attacker data with open ports and services</li>
-                                                        <li>Implement reverse DNS lookups and threat intelligence feeds for automated enrichment</li>
-                                                        <li>Deploy on a smaller VPS provider to compare attack patterns</li>
+
+                                                        <h2>Future Enhancements</h2>
+                                                        <p>Based on the findings, a next iteration might include:</p>
+                                                        <ul class="list-disc pl-6">
+                                                            <li>Deploy multi-protocol honeypots (Telnet port 23, HTTP/HTTPS, SNMP) to capture broader attack vectors and cross-protocol exploitation patterns</li>
+                                                            <li>Implement real-time threat intelligence integration with multiple feeds beyond Shodan to correlate IPs with known malware families and botnet
+                                                        affiliations</li>
+                                                            <li>Deploy distributed honeypots across multiple cloud providers and geographic regions to understand location-based attack variations</li>
                                                     </ul>
                                                 </div>
                                             </article>
