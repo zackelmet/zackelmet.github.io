@@ -60,9 +60,26 @@
                                                     <p class="my-5 text-zinc-400 font-bold">After running our Cowrie SSH honeypot for four weeks in the wild, it gathered a total of 1,775 unique IPs attempting to connect. Go read the first <a href="Posts/Honeypot/honeypot.html" target="_blank" class="site-link">post</a> to see what and how i did it.</p>
                                                 </header>
                                                 <div class="mt-4 prose prose-invert prose-a:text-emerald-500 prose-gray" data-mdx-content="true">
-                                                    <h2>Attack Volume & Growth</h2>
+                                                    <h2>Summary and Key Figures</h2>
                                                     <p>- 8,838 total connection attempts from 1,775 unique IP addresses.</p>
                                                     <p>- IP with most connection attempts: 61.50.119.110 (China Unicom Beijing) with 5,855 attempts (66% of the total).</p>
+
+                                                    <p>• One IP dominated everything: A single Chinese IP (61.50.119.110) made 66.2% of all connection attempts (5,855 out of 8,838)</p
+                                                        >
+                                                    <p>• Massive connection attempt gap: The top attacker made 5,855 attempts while the 2nd highest only made 39 attempts</p>
+
+                                                    <p>• China overwhelmingly leads: 219 unique Chinese IPs attacked vs 143 from the US (the 2nd highest country)</p>
+
+                                                    <p>• Most attackers are invisible to Shodan: Only 685 out of 1,775 IPs (38.6%) had any port/service data available</p>
+
+                                                    <p>• Chinese networks dominate the top ASNs: ASN 4134 (CHINANET) had 156 unique attacking IPs, more than any other network</p>
+
+                                                    <p>• Geographic concentration is extreme and scanners but machines attempting to connect come from everywhere</p>
+
+                                                    <p>• The honeypot attracted both residential and cloud infrastructure: Mixed ASNs from major telecoms and cloud providers</p>
+
+                                                    <p>• Attack persistence varies wildly: While one IP tried 5,855 times, hundreds of others made single-digit attempts and gave up</p>
+
 
                                                     <h2>Pew Pew Map: Attack Visualizer</h2>
                                                     <p>To visualize the global nature of the attacks, I created an interactive map using Leaflet.js. To really get a impression of the connection attempts zoom in and scroll around from different parts of the world.</p>
