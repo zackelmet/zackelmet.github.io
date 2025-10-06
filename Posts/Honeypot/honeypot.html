@@ -62,9 +62,9 @@
                                                 </header>
                                                 <div class="mt-4 prose prose-invert prose-a:text-emerald-500 prose-gray" data-mdx-content="true">
                                                     <h2>1. Intro: Why Even Bother With a Honeypot?</h2>
-                                                    <p>In the world of cybersecurity, honeypots serve as digital decoys, they're intentionally vulnerable systems designed to attract and monitor malicious activity. They're like leaving a fake wallet on the street to see who tries to pick it up. By deploying a honeypot, we can observe real-world attacker behavior, including brute force attempts, malware delivery patterns, and botnet activity.</p>
-                                                    <p>For this project, we spun up a Cowrie SSH honeypot on an AWS Free Tier instance. Cowrie is a medium-interaction honeypot that emulates a real SSH server, allowing us to capture and analyze attack patterns while keeping our actual systems safe. The data we collected provides fascinating insights into the constant barrage of automated attacks that occur on the internet.</p>
-                                                    <p class="font-bold text-emerald-400">Spoiler: The noise on the Internet never sleeps. Within minutes of deployment, our honeypot was receiving connection attempts from around the globe.</p>
+                                                    <p>In the world of cybersecurity, honeypots serve as digital decoys, they're intentionally vulnerable systems designed to attract and monitor malicious activity. They're like leaving a fake wallet on the street to see who tries to pick it up. By deploying a honeypot, I can observe real-world attacker behavior, including brute force attempts, malware delivery patterns, and botnet activity.</p>
+                                                    <p>For this project, we spun up a Cowrie SSH honeypot on an AWS Free Tier instance. Cowrie is a medium-interaction honeypot that emulates a real SSH server, allowing us to capture and analyze attack patterns while keeping my actual systems safe. The data collected provides fascinating insights into the constant barrage of automated attacks that occur on the internet.</p>
+                                                    <p class="font-bold text-emerald-400">Spoiler: The noise on the Internet never sleeps. Within minutes of deployment, the honeypot was receiving connection attempts from around the globe.</p>
 
                                                     <h2>2. Server Setup: AWS Free Tier + Ubuntu = Good Enough</h2>
                                                     <p>We started with an EC2 t2.micro instance (Free Tier eligible) running Ubuntu 22.04 LTS. This setup proved more than sufficient for our needs, demonstrating that you don't need expensive infrastructure to run an effective honeypot.</p>
@@ -93,14 +93,14 @@ cp cowrie.cfg.dist cowrie.cfg
 # listen_endpoints = tcp:23:interface=0.0.0.0</code></pre>
 
                                                     <h2>4. Log Parsing: Structured Data Extraction</h2>
-                                                    <p>Cowrie generates detailed JSON logs containing rich information about each connection attempt. Our Python parser extracted and enriched several key metrics from these logs:</p>
+                                                    <p>Cowrie generates detailed JSON logs containing rich information about each connection attempt. The Python parser extracted and enriched several key metrics from these logs:</p>
                                                     <ul class="list-disc pl-6">
                                                         <li>Session data including timestamps, source IPs, and attempted credentials</li>
                                                         <li>ASN and organization information using ipwhois</li>
                                                         <li>Geographic location data from ipinfo.io</li>
                                                         <li>Open ports and services from Shodan API</li>
                                                     </ul>
-                                                    <p>Here's our comprehensive log parser:</p>
+                                                    <p>Here's the comprehensive log parser:</p>
                                                     <pre class="bg-zinc-800 p-4 rounded-lg"><code>import json
 import glob
 from collections import defaultdict
@@ -233,7 +233,7 @@ if __name__ == "__main__":
                                                     </ul>
 
                                                     <h2>9. Future Enhancements</h2>
-                                                    <p>Based on our findings, we plan to:</p>
+                                                    <p>Based on the findings, we plan to:</p>
                                                     <ul class="list-disc pl-6">
                                                         <li>Enable Telnet to increase visibility and capture more attack data</li>
                                                         <li>Integrate Shodan API to enrich attacker data with open ports and services</li>
