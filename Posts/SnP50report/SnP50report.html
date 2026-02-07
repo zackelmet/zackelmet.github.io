@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XZQS8EF17V"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XZQS8EF17V');
+  </script>
+  <link rel="stylesheet" href="../../app-7ac6d5fa.css"/>
+  <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:site" content="@zkpx_"/>
+  <meta name="twitter:creator" content="@zkpx_"/>
+  <meta name="twitter:title" content="The S&amp;P 50 Web Vulnerability Report"/>
+  <meta name="twitter:description" content="A Quantitative Analysis of High-Value Target Attack Surfaces"/>
+  <meta property="og:url" content="https://zackelmet.xyz/Posts/SnP50report/SnP50report.html"/>
+  <meta property="og:title" content="The S&amp;P 50 Web Vulnerability Report"/>
+  <meta name="og:description" content="A Quantitative Analysis of High-Value Target Attack Surfaces"/>
+  <meta name="author" content="zackelmet"/>
+  <title>The S&amp;P 50 Web Vulnerability Report</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="flex h-full bg-black">
+<div class="flex w-full">
+  <div class="fixed inset-0 flex justify-center sm:px-8">
+    <div class="flex w-full max-w-7xl lg:px-8">
+      <div class="w-full ring-1 bg-zinc-900 ring-zinc-300/20"></div>
+    </div>
+  </div>
+  <div class="relative flex w-full flex-col">
+    <main class="flex-auto">
+      <div class="sm:px-8 mt-16 lg:mt-32">
+        <div class="mx-auto w-full max-w-7xl lg:px-8">
+          <div class="relative px-4 sm:px-8 lg:px-12">
+            <div class="mx-auto max-w-2xl lg:max-w-5xl">
+              <div class="xl:relative">
+                <div class="mx-auto max-w-2xl">
+                  <a href="/">
+                    <button type="button" aria-label="Go home" class="group mb-8 flex h-10 w-10 items-center justify-center rounded-full shadow-md shadow-zinc-800/5 ring-1 ring-zinc-900/5 transition dark:border dark:border-zinc-700/50 bg-zinc-800 dark:ring-0 dark:ring-white/10 dark:hover:border-zinc-700 dark:hover:ring-white/20 lg:absolute lg:-left-5 lg:-mt-2 lg:mb-0 xl:-top-1.5 xl:left-0 xl:mt-0">
+                      <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" class="h-4 w-4 stroke-zinc-500 transition group-hover:stroke-zinc-700 dark:stroke-zinc-500 dark:group-hover:stroke-zinc-400">
+                        <path d="M7.25 11.25 3.75 8m0 0 3.5-3.25M3.75 8h8.5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                      </svg>
+                    </button>
+                  </a>
+                  <article>
+                    <header class="flex flex-col">
+                      <h1 class="mt-6 text-4xl font-bold tracking-tight text-zinc-100 sm:text-5xl">The S&amp;P 50 Web "Vulnerability" Report</h1>
+                      <time datetime="2026-02-06" class="order-first flex items-center text-base text-zinc-500">
+                        <span class="h-4 w-0.5 rounded-full bg-zinc-500"></span>
+                        <span class="ml-3">February 6, 2026</span>
+                      </time>
+                      <p class="my-5 text-zinc-400 font-bold">A Quantitative Analysis of High-Value Target Attack Surfaces</p>
+                    </header>
+                    <div class="mt-4 prose prose-invert prose-a:text-emerald-500 prose-gray" data-mdx-content="true">
+
+<h2>Introduction</h2>
+<p>
+High-value enterprises are priority targets for attackers.<br>
+S&amp;P 50 firms represent critical infrastructure and massive data repositories.
+Advanced Persistent Threats (APTs) frequently target web perimeters for initial access.
+</p>
+<p>
+Understanding real attack surfaces requires <strong>measurement, not assumptions</strong>.
+Compliance checklists often differ significantly from observable internet-facing configurations.
+Empirical data bridges the gap between <em>intended security</em> and <em>observable reality</em>.
+</p>
+
+<h2>Research Question</h2>
+<ul>
+  <li>What can passive scanning reliably observe on S&amp;P 50 root domains?</li>
+  <li>What "first impression" does a target present to an unauthenticated observer?</li>
+  <li>How visible are edge defenses versus origin infrastructure?</li>
+</ul>
+<p>
+All claims are intentionally restricted to what the data actually shows.
+No speculative "behind-the-firewall" assumptions are made.
+</p>
+
+<h2>Dataset &amp; Tooling</h2>
+<ul>
+  <li>S&amp;P 50 constituent root domains (n = 50)</li>
+  <li>Scope limited to primary apex domains ("front door" security posture)</li>
+  <li>WhatWeb passive HTTP fingerprinting (1,700+ plugins)</li>
+</ul>
+
+<h2>Scan Scope &amp; Measurement</h2>
+<ul>
+  <li>Unauthenticated, single-pass scans</li>
+  <li>Simulates low-and-slow external reconnaissance</li>
+  <li>Zero interaction - no exploitation or intrusive probing</li>
+</ul>
+
+<h2>Methodology Limitations</h2>
+<ul>
+  <li>Security through obscurity can mask vulnerable systems</li>
+  <li>Proprietary enterprise stacks lack public signatures</li>
+  <li>Interior architecture and custom code remain invisible</li>
+</ul>
+
+<h2>The Perimeter Gatekeepers</h2>
+<p>
+Large enterprises no longer host "naked" web servers.
+They deploy globally distributed edge layers (CDNs and WAFs) to absorb reconnaissance,
+DDoS, and automated exploitation attempts.
+</p>
+
+<div style="height:300px">
+  <canvas id="cdnChart"></canvas>
+</div>
+
+<h3>Findings</h3>
+<ul>
+  <li>78% of S&amp;P 50 companies use observable edge infrastructure</li>
+  <li>Akamai dominates with 42% market share</li>
+  <li>CloudFront (12%) and Cloudflare (10%) follow</li>
+</ul>
+
+<h2>The Next Layer: Application-Level Bot Detection</h2>
+<p>
+Reconnaissance is step one of every breach.
+Modern WAFs fingerprint non-human traffic using user-agents, request velocity,
+and behavioral analysis, denying access before application logic is exposed.
+</p>
+
+<div style="height:300px">
+  <canvas id="responseChart"></canvas>
+</div>
+
+<h3>Findings</h3>
+<ul>
+  <li>54% return 403 Forbidden (active blocking)</li>
+  <li>38% allow 200 OK access with deeper runtime detection</li>
+  <li>8% still operate F5 BIG-IP on-premises</li>
+</ul>
+
+<h2>Protocol Hardening Through Security Headers</h2>
+<p>
+After edge filtering and bot detection, HTTP security headers represent the final
+browser-level defense against downgrade attacks, clickjacking, and XSS.
+</p>
+
+<div style="height:300px">
+  <canvas id="headersChart"></canvas>
+</div>
+
+<ul>
+  <li>HSTS adoption: 62%</li>
+  <li>X-Frame-Options: 56%</li>
+  <li>Content Security Policy: 44%</li>
+  <li>Only 34% deploy all three headers</li>
+</ul>
+
+<h2>The Obscurity Layer - Origin Obfuscation</h2>
+<p>
+Leaking server metadata provides attackers with CVE targets.
+The goal is to deny blueprint information entirely.
+</p>
+
+<div style="height:300px">
+  <canvas id="serverChart"></canvas>
+</div>
+
+<ul>
+  <li>82% successfully hide origin infrastructure</li>
+  <li>Nginx: 8%</li>
+  <li>Apache: 8%</li>
+  <li>IIS: 2%</li>
+</ul>
+
+<h2>CMS Presence</h2>
+<p>
+Public CMS platforms are frequent targets of automated exploit kits.
+S&amp;P 50 firms overwhelmingly avoid CMS usage at root domains.
+</p>
+
+<div style="height:300px">
+  <canvas id="cmsChart"></canvas>
+</div>
+
+<ul>
+  <li>No CMS detected: 96%</li>
+  <li>Drupal: 2%</li>
+  <li>WordPress: 2%</li>
+</ul>
+
+<h2>Conclusion</h2>
+<p>
+The S&amp;P 50 root domain is a hardened portal - not a representative application.
+Security is concentrated at the perimeter.
+The observable attack surface is the WAF configuration, not the origin server.
+</p>
+
+<h2>Final Takeaway</h2>
+<p>
+<strong>Measurement beats assumption.</strong><br>
+Observable reality is the only reliable baseline for enterprise security analysis.
+</p>
+
+<h2>Research Partnership</h2>
+<p>This research was done in partnership with <a href="https://hackeranalytics.com" target="_blank" class="underline">Hacker Analytics</a> and <a href="https://msppentesting.com" target="_blank" class="underline">MSP Pentesting</a>.</p>
+<div class="flex items-center justify-center gap-16 mt-8 mb-4">
+  <a href="https://hackeranalytics.com" target="_blank" class="transform hover:scale-105 transition-transform duration-300" style="animation: float 3s ease-in-out infinite;">
+    <img src="/images/HA Logo2.jpg" alt="Hacker Analytics Logo" class="h-20 rounded-lg shadow-lg shadow-zinc-800/50">
+  </a>
+  <a href="https://msppentesting.com" target="_blank" class="transform hover:scale-105 transition-transform duration-300" style="animation: float 3s ease-in-out infinite; animation-delay: 1.5s;">
+    <img src="/images/msp pentesting logo.png" alt="MSP Pentesting Logo" class="h-10 rounded-lg shadow-lg shadow-zinc-800/50">
+  </a>
+</div>
+<style>
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+  }
+</style>
+
+                    </div>
+                  </article>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <footer class="mt-32 flex-none">
+      <div class="sm:px-8">
+        <div class="mx-auto w-full max-w-7xl lg:px-8">
+          <div class="border-t border-zinc-100 pb-16 pt-10 dark:border-zinc-700/40">
+            <div class="relative px-4 sm:px-8 lg:px-12">
+              <div class="mx-auto max-w-2xl lg:max-w-5xl">
+                <div class="flex flex-col items-center justify-between gap-6 sm:flex-row">
+                  <div class="flex flex-wrap justify-center gap-x-6 gap-y-1 text-sm font-medium text-zinc-600 dark:text-zinc-200">
+                    <a class="transition hover:text-teal-500 dark:hover:text-teal-400" href="/">Home</a>
+                    <p class="text-sm text-zinc-400 dark:text-zinc-500">©
+                      <script>document.write(new Date().getFullYear());</script>
+                      Zack ElMetennani
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+</div>
+
+<script>
+const baseOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: { legend: { labels: { color: '#e5e7eb' } } },
+  scales: {
+    x: { ticks: { color: '#e5e7eb' }, grid: { color: '#333' } },
+    y: { ticks: { color: '#e5e7eb' }, grid: { color: '#333' } }
+  }
+};
+
+new Chart(document.getElementById('cdnChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Akamai','CloudFront','Cloudflare','Other CDN','No CDN'],
+    datasets: [{ data: [21,6,5,7,11], backgroundColor: '#0d9488' }]
+  },
+  options: baseOptions
+});
+
+new Chart(document.getElementById('responseChart'), {
+  type: 'pie',
+  data: {
+    labels: ['403 Forbidden','200 OK','Redirects / Other'],
+    datasets: [{
+      data: [27,19,4],
+      backgroundColor: ['#ef4444','#10b981','#f59e0b']
+    }]
+  }
+});
+
+new Chart(document.getElementById('headersChart'), {
+  type: 'bar',
+  data: {
+    labels: ['HSTS','X-Frame-Options','CSP','All Three'],
+    datasets: [{ data: [62,54,44,34], backgroundColor: '#3b82f6' }]
+  },
+  options: baseOptions
+});
+
+new Chart(document.getElementById('serverChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Hidden','Nginx','Apache','IIS'],
+    datasets: [{
+      data: [41,4,4,1],
+      backgroundColor: ['#22c55e','#0ea5e9','#f97316','#a855f7']
+    }]
+  }
+});
+
+new Chart(document.getElementById('cmsChart'), {
+  type: 'pie',
+  data: {
+    labels: ['No CMS','Drupal','WordPress'],
+    datasets: [{
+      data: [48,1,1],
+      backgroundColor: ['#16a34a','#2563eb','#1d4ed8']
+    }]
+  }
+});
+</script>
+
+</body>
+</html>
