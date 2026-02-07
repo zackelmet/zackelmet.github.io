@@ -262,6 +262,19 @@ const baseOptions = {
   }
 };
 
+const pieOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: { 
+    legend: { 
+      labels: { 
+        color: '#ffffff',
+        font: { size: 14 }
+      } 
+    } 
+  }
+};
+
 new Chart(document.getElementById('cdnChart'), {
   type: 'bar',
   data: {
@@ -279,14 +292,15 @@ new Chart(document.getElementById('responseChart'), {
       data: [27,19,4],
       backgroundColor: ['#ef4444','#10b981','#f59e0b']
     }]
-  }
+  },
+  options: pieOptions
 });
 
 new Chart(document.getElementById('headersChart'), {
   type: 'bar',
   data: {
     labels: ['HSTS','X-Frame-Options','CSP','All Three'],
-    datasets: [{ data: [62,54,44,34], backgroundColor: '#3b82f6' }]
+    datasets: [{ label: 'Header Type', data: [62,54,44,34], backgroundColor: '#3b82f6' }]
   },
   options: baseOptions
 });
@@ -299,7 +313,8 @@ new Chart(document.getElementById('serverChart'), {
       data: [41,4,4,1],
       backgroundColor: ['#22c55e','#0ea5e9','#f97316','#a855f7']
     }]
-  }
+  },
+  options: pieOptions
 });
 
 new Chart(document.getElementById('cmsChart'), {
@@ -310,7 +325,8 @@ new Chart(document.getElementById('cmsChart'), {
       data: [48,1,1],
       backgroundColor: ['#16a34a','#2563eb','#1d4ed8']
     }]
-  }
+  },
+  options: pieOptions
 });
 </script>
 
