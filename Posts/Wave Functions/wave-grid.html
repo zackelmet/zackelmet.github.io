@@ -17,6 +17,7 @@
 <meta name="twitter:title" content="Wave Functions" />
 <meta name="twitter:description" content="An interactive particle grid driven by four real wave models: the wave equation, quantum |psi|^2, Chladni plate vibrations, and Gerstner ocean waves, all colored by height." />
 <meta name="twitter:image" content="https://zackelmet.github.io/images/wave-functions-preview.png" />
+<link rel="icon" type="image/x-icon" href="/images/favicon.ico" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous" />
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
 <style>
@@ -24,6 +25,13 @@
   html, body { margin: 0; height: 100%; background: #05060f; overflow: hidden;
     font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
   #c { display: block; width: 100vw; height: 100vh; }
+  #home { position: fixed; top: 18px; left: 20px; z-index: 20; display: flex; align-items: center; justify-content: center;
+    width: 40px; height: 40px; border-radius: 9999px; background: rgba(18,22,38,.6); border: 1px solid rgba(255,255,255,.12);
+    backdrop-filter: blur(4px); transition: background .2s; }
+  #home:hover { background: rgba(40,50,82,.85); }
+  #home svg { width: 16px; height: 16px; }
+  #home path { stroke: #9fb4d8; transition: stroke .2s; }
+  #home:hover path { stroke: #fff; }
   #panel { position: fixed; left: 24px; bottom: 24px; display: flex; align-items: center; gap: 18px;
     pointer-events: none; }
   #info { pointer-events: auto; cursor: pointer; }
@@ -49,6 +57,9 @@
 </head>
 <body>
 <canvas id="c"></canvas>
+<a id="home" href="/" aria-label="Back to home" title="Home">
+  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M7.25 11.25 3.75 8m0 0 3.5-3.25M3.75 8h8.5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</a>
 <div id="panel">
   <svg id="timer" width="52" height="52" viewBox="0 0 52 52">
     <circle cx="26" cy="26" r="21" fill="none" stroke="#1b2540" stroke-width="3"/>
