@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Wave Grid — a cycling math showcase</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous" />
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+<style>
+  :root { color-scheme: dark; }
+  html, body { margin: 0; height: 100%; background: #05060f; overflow: hidden;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+  #c { display: block; width: 100vw; height: 100vh; }
+  #panel { position: fixed; left: 24px; bottom: 24px; display: flex; align-items: center; gap: 18px;
+    pointer-events: none; }
+  #info { pointer-events: auto; cursor: pointer; }
+  #info .name { font-size: 19px; letter-spacing: .04em; color: #fff; margin-bottom: 8px; text-shadow: 0 1px 4px #000; }
+  #info .eq { color: #9fd8ff; font-size: 17px; }
+  #info .hint { margin-top: 9px; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: #5a6a92; transition: color .2s; }
+  #info:hover .hint { color: #7fb0ff; }
+  #timer text { font-variant-numeric: tabular-nums; }
+  #overlay { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 10; }
+  #backdrop { position: absolute; inset: 0; background: rgba(3,4,12,.72); backdrop-filter: blur(4px); }
+  #card { position: relative; width: min(600px, 90vw); max-height: 82vh; overflow: auto;
+    background: linear-gradient(160deg,#0d1228,#080a16); border: 1px solid #23315c; border-radius: 16px;
+    padding: 30px 32px; box-shadow: 0 30px 80px rgba(0,0,0,.6); }
+  #card .ctitle { font-size: 23px; color: #fff; margin-bottom: 12px; }
+  #card .ceq { color: #9fd8ff; font-size: 20px; margin-bottom: 4px; }
+  #card .cbody h4 { color: #7fb0ff; margin: 18px 0 6px; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; }
+  #card .cbody p { line-height: 1.65; font-size: 14px; color: #c4cee8; margin: 0; }
+  #card .cresume { margin-top: 22px; font-size: 11px; color: #5a6a92; letter-spacing: .08em; }
+  #cardClose { position: absolute; top: 12px; right: 16px; background: none; border: none; color: #8090b5;
+    font-size: 26px; line-height: 1; cursor: pointer; }
+  #cardClose:hover { color: #fff; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="panel">
+  <svg id="timer" width="52" height="52" viewBox="0 0 52 52">
+    <circle cx="26" cy="26" r="21" fill="none" stroke="#1b2540" stroke-width="3"/>
+    <circle id="tarc" cx="26" cy="26" r="21" fill="none" stroke="#7fd8ff" stroke-width="3"
+      stroke-linecap="round" transform="rotate(-90 26 26)" stroke-dasharray="131.95" stroke-dashoffset="0"/>
+    <text id="tnum" x="26" y="30.5" text-anchor="middle" font-size="14" fill="#9fb4d8">30</text>
+  </svg>
+  <div id="info" title="Click to learn the math">
+    <div class="name" id="mname">Wave Equation</div>
+    <div class="eq" id="meq"></div>
+    <div class="hint">click to learn more &rarr;</div>
+  </div>
+</div>
+<div id="overlay">
+  <div id="backdrop"></div>
+  <div id="card">
+    <button id="cardClose" aria-label="close">&times;</button>
+    <div class="ctitle" id="ctitle"></div>
+    <div class="ceq" id="ceq"></div>
+    <div class="cbody" id="cbody"></div>
+    <div class="cresume">click outside, &times;, or Esc to resume</div>
+  </div>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
+// ===================== config =====================
+const GN = 200, SPAN = 12, AMP = 1.0;
+const L = SPAN / 2;
+const MODE_TIME = 30, TRANS = 1.6;     // seconds per mode / cross-blend time
+const COUNT = GN * GN;
+const smooth = (x) => { x = x < 0 ? 0 : x > 1 ? 1 : x; return x * x * (3 - 2 * x); };
+
+const MODE_NAME = ['Wave Equation', 'Quantum |ψ|²', 'Chladni Modes', 'Gerstner Waves'];
+const MODE_EQ = [
+  '\\frac{\\partial^2 u}{\\partial t^2}=c^2\\nabla^2 u',
+  '\\psi=\\textstyle\\sum_n c_n\\,\\phi_n\\,e^{-iE_n t},\\quad h=|\\psi|^2',
+  'u=\\textstyle\\sum\\sin\\frac{n\\pi x}{L}\\,\\sin\\frac{m\\pi z}{L}\\,\\cos\\omega t',
+  'x{+}\\textstyle\\sum Q_iA_iD_i\\cos\\theta_i,\\;\\;y{=}\\sum A_i\\sin\\theta_i'
+];
+
+// ===================== mode 0: wave-equation PDE =====================
+let u = new Float32Array(COUNT), uPrev = new Float32Array(COUNT), uNext = new Float32Array(COUNT);
+const C2 = 0.22, PDAMP = 0.9995;
+function pdeStep() {
+  for (let j = 1; j < GN - 1; j++) {
+    for (let i = 1; i < GN - 1; i++) {
+      const k = j * GN + i;
+      const lap = u[k - 1] + u[k + 1] + u[k - GN] + u[k + GN] - 4 * u[k];
+      uNext[k] = (2 * u[k] - uPrev[k] + C2 * lap) * PDAMP;
+    }
+  }
+  const t = uPrev; uPrev = u; u = uNext; uNext = t;   // rotate buffers (edges stay 0 -> reflecting)
+}
+function dropPDE(wx, wz) {
+  const ci = Math.round((wx / SPAN + 0.5) * (GN - 1)), cj = Math.round((wz / SPAN + 0.5) * (GN - 1));
+  const R = 5, s2 = 2 * 0.30 * 0.30, h = SPAN / (GN - 1);
+  for (let dj = -R; dj <= R; dj++) for (let di = -R; di <= R; di++) {
+    const i = ci + di, j = cj + dj; if (i < 1 || j < 1 || i >= GN - 1 || j >= GN - 1) continue;
+    const d2 = (di * di + dj * dj) * h * h, b = 1.4 * Math.exp(-d2 / s2), k = j * GN + i;
+    u[k] += b; uPrev[k] += b;   // equal -> starts at rest, splits into rings
+  }
+}
+
+// ===================== mode 1: quantum |psi|^2 (separable, precomputed) =====================
+const Q = [{ n: 1, m: 2, c: 0.7 }, { n: 2, m: 1, c: 0.6 }, { n: 2, m: 3, c: 0.5 }, { n: 3, m: 1, c: 0.45 }];
+const qSinX = new Float32Array(Q.length * GN), qSinZ = new Float32Array(Q.length * GN);
+const qCos = new Float32Array(Q.length), qSin = new Float32Array(Q.length);
+function buildQuantum(t) {
+  const tq = t * 0.7;
+  for (let q = 0; q < Q.length; q++) {
+    const E = Q[q].n * Q[q].n + Q[q].m * Q[q].m;
+    qCos[q] = Math.cos(E * tq); qSin[q] = -Math.sin(E * tq);      // e^{-iEt}
+    for (let i = 0; i < GN; i++) {
+      const w = (i / (GN - 1));                                   // (x+L)/(2L) in [0,1]
+      qSinX[q * GN + i] = Math.sin(Q[q].n * Math.PI * w);
+      qSinZ[q * GN + i] = Math.sin(Q[q].m * Math.PI * w);
+    }
+  }
+}
+
+// ===================== mode 2: chladni standing modes =====================
+const CH = [{ n: 3, m: 2, A: 0.62 }, { n: 1, m: 4, A: 0.5 }];
+const chSinX = new Float32Array(CH.length * GN), chSinZ = new Float32Array(CH.length * GN), chT = new Float32Array(CH.length);
+function buildChladni(t) {
+  for (let c = 0; c < CH.length; c++) {
+    chT[c] = Math.cos(Math.sqrt(CH[c].n * CH[c].n + CH[c].m * CH[c].m) * 0.45 * t);
+    for (let i = 0; i < GN; i++) {
+      const w = i / (GN - 1);
+      chSinX[c * GN + i] = Math.sin(CH[c].n * Math.PI * w);
+      chSinZ[c * GN + i] = Math.sin(CH[c].m * Math.PI * w);
+    }
+  }
+}
+
+// ===================== mode 3: gerstner waves =====================
+const GW = [];
+{ const ang = [0.3, 1.2, -0.7, 2.1], A = [0.5, 0.34, 0.22, 0.15], K = [0.6, 0.95, 1.5, 2.2], Qs = [0.7, 0.6, 0.5, 0.4];
+  for (let w = 0; w < 4; w++) GW.push({ dx: Math.cos(ang[w]), dz: Math.sin(ang[w]), A: A[w], k: K[w], w: Math.sqrt(9.8 * K[w]) * 0.35, q: Qs[w] }); }
+
+// ===================== per-mode evaluation (results via module temps) =====================
+let g_y = 0, g_dx = 0, g_dz = 0, g_t = 0;
+function evalMode(mode, x, z, k, i, j, t) {
+  if (mode === 0) {
+    const y = u[k]; g_y = y; g_dx = 0; g_dz = 0; g_t = y / 1.5 * 0.5 + 0.5;
+  } else if (mode === 1) {
+    let re = 0, im = 0;
+    for (let q = 0; q < Q.length; q++) { const phi = Q[q].c * qSinX[q * GN + i] * qSinZ[q * GN + j]; re += phi * qCos[q]; im += phi * qSin[q]; }
+    const h = re * re + im * im; g_y = h * 0.34; g_dx = 0; g_dz = 0; g_t = h * 0.34 < 1 ? h * 0.34 : 1;
+  } else if (mode === 2) {
+    let s = 0; for (let c = 0; c < CH.length; c++) s += CH[c].A * chSinX[c * GN + i] * chSinZ[c * GN + j] * chT[c];
+    g_y = s; g_dx = 0; g_dz = 0; g_t = s / 1.1 * 0.5 + 0.5;
+  } else {
+    let y = 0, dx = 0, dz = 0;
+    for (let w = 0; w < GW.length; w++) { const W = GW[w], th = W.k * (W.dx * x + W.dz * z) - W.w * t;
+      const cs = Math.cos(th), sn = Math.sin(th); y += W.A * sn; dx += W.q * W.A * W.dx * cs; dz += W.q * W.A * W.dz * cs; }
+    g_y = y; g_dx = dx; g_dz = dz; g_t = y / 1.1 * 0.5 + 0.5;
+  }
+}
+
+// ===================== scene =====================
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x05060f);
+scene.fog = new THREE.FogExp2(0x05060f, 0.034);
+const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.1, 100);
+camera.position.set(0, 7.5, 10);
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true; controls.dampingFactor = 0.05;
+controls.autoRotate = true; controls.autoRotateSpeed = 0.4;
+controls.minDistance = 5; controls.maxDistance = 24; controls.maxPolarAngle = Math.PI * 0.49;
+
+const pos = new Float32Array(COUNT * 3), col = new Float32Array(COUNT * 3), siz = new Float32Array(COUNT);
+const bx = new Float32Array(COUNT), bz = new Float32Array(COUNT);
+{ let p = 0; for (let j = 0; j < GN; j++) for (let i = 0; i < GN; i++) {
+    const x = (i / (GN - 1) - 0.5) * SPAN, z = (j / (GN - 1) - 0.5) * SPAN;
+    bx[p] = x; bz[p] = z; pos[p * 3] = x; pos[p * 3 + 2] = z; siz[p] = 0.04; p++; } }
+const geo = new THREE.BufferGeometry();
+geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+geo.setAttribute('aSize', new THREE.BufferAttribute(siz, 1));
+const mat = new THREE.ShaderMaterial({
+  transparent: true, depthTest: true, depthWrite: true, blending: THREE.NormalBlending,
+  vertexShader: `attribute float aSize; attribute vec3 color; varying vec3 vColor;
+    void main(){ vColor=color; vec4 mv=modelViewMatrix*vec4(position,1.0);
+      gl_PointSize=aSize*(520.0/-mv.z); gl_Position=projectionMatrix*mv; }`,
+  fragmentShader: `varying vec3 vColor; void main(){ vec2 d=gl_PointCoord-0.5; float r=dot(d,d);
+      if(r>0.25) discard; float a=smoothstep(0.25,0.02,r); gl_FragColor=vec4(vColor,a); }`
+});
+scene.add(new THREE.Points(geo, mat));
+
+const STOPS = [[0.00, 0.09, 0.05, 0.32], [0.32, 0.05, 0.34, 0.66], [0.52, 0.10, 0.74, 0.70], [0.74, 0.96, 0.84, 0.45], [1.00, 1.00, 0.42, 0.55]];
+const tmp = [0, 0, 0];
+function ramp(t, o) {
+  t = t < 0 ? 0 : t > 1 ? 1 : t;
+  for (let s = 0; s < STOPS.length - 1; s++) { const a = STOPS[s], b = STOPS[s + 1];
+    if (t <= b[0]) { const f = (t - a[0]) / (b[0] - a[0] + 1e-9);
+      o[0] = a[1] + (b[1] - a[1]) * f; o[1] = a[2] + (b[2] - a[2]) * f; o[2] = a[3] + (b[3] - a[3]) * f; return; } }
+  o[0] = 1; o[1] = 0.42; o[2] = 0.55;
+}
+
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+composer.addPass(new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.55, 0.6, 0.5));
+composer.addPass(new OutputPass());
+
+// click to drop a ripple (into the PDE field)
+let paused = false;
+const rc = new THREE.Raycaster(), ndc = new THREE.Vector2(), plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), hit = new THREE.Vector3();
+addEventListener('pointerdown', (e) => {
+  if (paused || e.target !== canvas) return;      // ignore clicks on the UI / while a card is open
+  ndc.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight * 2 - 1));
+  rc.setFromCamera(ndc, camera); if (rc.ray.intersectPlane(plane, hit)) dropPDE(hit.x, hit.z);
+});
+
+// ===================== UI: mode panel + countdown ring =====================
+const mnameEl = document.getElementById('mname'), meqEl = document.getElementById('meq');
+const tarc = document.getElementById('tarc'), tnum = document.getElementById('tnum');
+const RING_C = 131.95;
+function updatePanel(mode) {
+  mnameEl.textContent = MODE_NAME[mode];
+  if (window.katex) { try { katex.render(MODE_EQ[mode], meqEl, { throwOnError: false }); } catch (e) { meqEl.textContent = MODE_EQ[mode]; } }
+  else meqEl.textContent = MODE_EQ[mode];
+}
+
+// ===================== loop =====================
+const clock = new THREE.Clock();
+let time = 0, dropTimer = 1.5, phaseDrops = 0;
+let mode = 0, prevMode = 0, modeTimer = MODE_TIME, transT = TRANS;
+updatePanel(0);
+
+// ===================== info cards (history + applications) =====================
+const CARD = [
+`<h4>What it is</h4><p>The wave equation says a quantity's acceleration in time equals a constant c² (the speed squared) times its curvature in space, the Laplacian ∇². Any disturbance — a pluck, a tap, a spark — radiates outward at speed c, and where ripples meet they simply add (superposition). This scene solves it directly on the grid: each drop injects a bump that spreads as rings and reflects off the edges.</p>
+<h4>History</h4><p>Jean le Rond d'Alembert first wrote it down in 1747 for a vibrating string; Euler, Daniel Bernoulli and Lagrange developed it into a cornerstone of mathematical physics — and the seed of Fourier's idea that any shape is a sum of sine modes. In 1865 Maxwell found a wave equation hiding inside electromagnetism, revealing that light itself is a wave.</p>
+<h4>In the world</h4><p>Acoustics and musical instruments, seismology (the P- and S-waves of earthquakes), sonar and medical ultrasound, radio and telecommunications, optics, and tsunami and ocean modeling.</p>`,
+
+`<h4>What it is</h4><p>In quantum mechanics a particle is a complex wavefunction ψ that evolves by the Schrödinger equation. You never observe ψ directly — what's physical is |ψ|², the probability of finding the particle at each point (the height here). These lobes are the standing energy states of a particle trapped in a box; superposing several makes the probability slosh and interfere as each state rotates at its own frequency e^(−iEₙt/ħ).</p>
+<h4>History</h4><p>Erwin Schrödinger wrote his equation in 1926; that same year Max Born proposed that |ψ|² is a probability — both went on to win Nobel Prizes. The "particle in a box" is the first model every physics student ever solves.</p>
+<h4>In the world</h4><p>It explains the periodic table and chemical bonding (atomic orbitals) and underpins transistors and semiconductors, lasers and LEDs, quantum dots, scanning tunneling microscopes, flash memory (quantum tunneling), MRI, and quantum computing.</p>`,
+
+`<h4>What it is</h4><p>A plate or membrane can only vibrate in certain shapes — its normal modes — each with a natural frequency. Along special curves called nodal lines the surface never moves. Sprinkle sand on a vibrating plate and it gathers on those still lines, drawing the mode. Mathematically the modes are eigenfunctions of the Laplacian, sin(nπx/L)·sin(mπz/L); here two are superposed.</p>
+<h4>History</h4><p>Ernst Chladni demonstrated these sand figures in 1787 and is called the "father of acoustics." Napoleon was so taken with them he funded a prize to explain them; Sophie Germain's work toward that prize helped found the theory of elasticity.</p>
+<h4>In the world</h4><p>Tuning the resonance of violins, guitars and loudspeakers ("tap tuning"); modal analysis in mechanical and civil engineering to find and avoid destructive resonances in bridges, turbines and aircraft panels; and the visual art of cymatics.</p>`,
+
+`<h4>What it is</h4><p>An idealized ocean wave in which each water particle travels in a circle rather than just bobbing up and down. That circular motion piles water into sharp, peaked crests and broad, flat troughs — the unmistakable look of a real sea. It is one of the few exact solutions of the equations of fluid flow; adding several with different directions and sizes builds a convincing ocean.</p>
+<h4>History</h4><p>Franz Josef Gerstner described these trochoidal waves in 1802, and W. J. M. Rankine rediscovered them in 1863. They've remained a touchstone because exact periodic-wave solutions are so rare.</p>
+<h4>In the world</h4><p>The basis of computer-graphics oceans in film and games (later extended by Tessendorf's FFT method), plus naval architecture and coastal and offshore engineering, where wave shape drives the loads on ships and platforms.</p>`
+];
+const overlay = document.getElementById('overlay'), ctitleEl = document.getElementById('ctitle'),
+      ceqEl = document.getElementById('ceq'), cbodyEl = document.getElementById('cbody');
+function openCard() {
+  const m = mode;
+  ctitleEl.textContent = MODE_NAME[m];
+  if (window.katex) { try { katex.render(MODE_EQ[m], ceqEl, { throwOnError: false }); } catch (e) { ceqEl.textContent = MODE_EQ[m]; } }
+  else ceqEl.textContent = MODE_EQ[m];
+  cbodyEl.innerHTML = CARD[m];
+  overlay.style.display = 'flex'; paused = true;
+}
+function closeCard() { overlay.style.display = 'none'; paused = false; clock.getDelta(); }
+document.getElementById('info').addEventListener('click', openCard);
+document.getElementById('backdrop').addEventListener('click', closeCard);
+document.getElementById('cardClose').addEventListener('click', closeCard);
+addEventListener('keydown', (e) => { if (e.key === 'Escape') closeCard(); });
+
+function frame() {
+  requestAnimationFrame(frame);
+  if (paused) { controls.update(); composer.render(); return; }   // freeze sim while a card is open
+  const dt = Math.min(clock.getDelta(), 0.05); time += dt;
+
+  // mode cycling
+  modeTimer -= dt;
+  if (modeTimer <= 0) { prevMode = mode; mode = (mode + 1) % 4; modeTimer = MODE_TIME; transT = 0; phaseDrops = 0; dropTimer = 1.5; updatePanel(mode); }
+  transT += dt;
+  const blend = transT < TRANS ? smooth(transT / TRANS) : 1;
+
+  // integrate the PDE every frame; during the Wave-Equation phase make exactly 4 drops
+  pdeStep();
+  if (mode === 0 && phaseDrops < 4) {
+    dropTimer -= dt;
+    if (dropTimer <= 0) { dropPDE((Math.random() * 2 - 1) * SPAN * 0.4, (Math.random() * 2 - 1) * SPAN * 0.4); phaseDrops++; dropTimer = 6.5; }
+  }
+  // precompute separable tables for the modes in play
+  buildQuantum(time); buildChladni(time);
+
+  let k = 0;
+  for (let j = 0; j < GN; j++) {
+    for (let i = 0; i < GN; i++) {
+      const x = bx[k], z = bz[k];
+      evalMode(mode, x, z, k, i, j, time);
+      let y = g_y, dx = g_dx, dz = g_dz, ct = g_t;
+      if (blend < 1) {
+        evalMode(prevMode, x, z, k, i, j, time);
+        y = g_y + (y - g_y) * blend; dx = g_dx + (dx - g_dx) * blend; dz = g_dz + (dz - g_dz) * blend; ct = g_t + (ct - g_t) * blend;
+      }
+      pos[k * 3] = x + dx; pos[k * 3 + 1] = y * AMP; pos[k * 3 + 2] = z + dz;
+      ramp(ct, tmp); col[k * 3] = tmp[0]; col[k * 3 + 1] = tmp[1]; col[k * 3 + 2] = tmp[2];
+      siz[k] = 0.03 + (ct < 0 ? 0 : ct > 1 ? 1 : ct) * 0.05;
+      k++;
+    }
+  }
+  geo.attributes.position.needsUpdate = true;
+  geo.attributes.color.needsUpdate = true;
+  geo.attributes.aSize.needsUpdate = true;
+
+  // countdown ring
+  const frac = modeTimer / MODE_TIME;
+  tarc.setAttribute('stroke-dashoffset', (RING_C * (1 - frac)).toFixed(2));
+  tnum.textContent = Math.ceil(modeTimer);
+
+  controls.update();
+  composer.render();
+}
+frame();
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight); composer.setSize(innerWidth, innerHeight);
+});
+</script>
+</body>
+</html>
