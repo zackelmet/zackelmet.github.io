@@ -109,7 +109,7 @@
                                 <div class="mx-auto max-w-2xl lg:max-w-5xl">
                                     <div class="grid grid-cols-1 gap-y-16 lg:grid-cols-2 lg:grid-rows-[auto_1fr] lg:gap-y-12">
                                         <div class="lg:pl-20">
-                                            <div class="max-w-xs px-2.5 lg:max-w-none"><div id="hero-three" class="aspect-square rotate-3 rounded-2xl" style="background:#1A3640;overflow:hidden;position:relative;" role="img" aria-label="Animated 3D particle sculpture that morphs between a fighter jet, a DNA helix, the pi symbol, a Lorenz attractor, a rocket ship, and a torus knot"></div>
+                                            <div class="max-w-xs px-2.5 lg:max-w-none"><div id="hero-three" class="aspect-square rotate-3 rounded-2xl" style="background:#1A3640;overflow:hidden;position:relative;" role="img" aria-label="Animated 3D particle sculpture that morphs between a fighter jet, an atom, a scorpion, a Lorenz attractor, a skull and crossbones, a rocket ship, and a torus knot"></div>
                                     </div>
                                 </div>
                                 <div class="lg:order-first lg:row-span-2 ">
@@ -669,53 +669,160 @@
           return a;
         }
 
-        function makeHelix() {
-          const a = new Float32Array(N * 3), turns = 3, R = 0.62, H = 2.9, rungs = 26, jit = 0.05;
-          for (let i = 0; i < N; i++) {
-            const cls = Math.random();
-            let x, y, z;
-            if (cls < 0.8) {                       // two intertwined strands
-              const fy = Math.random();
-              y = (fy - 0.5) * H;
-              const theta = fy * turns * Math.PI * 2 + (cls < 0.4 ? 0 : Math.PI);
-              x = R * Math.cos(theta); z = R * Math.sin(theta);
-            } else {                               // rungs between the strands
-              const ri = (Math.random() * rungs) | 0;
-              const f = ri / (rungs - 1);
-              y = (f - 0.5) * H;
-              const th = f * turns * Math.PI * 2;
-              const s = Math.random();
-              x = R * Math.cos(th) * (1 - 2 * s);
-              z = R * Math.sin(th) * (1 - 2 * s);
+        function makeAtom() {
+          const a = new Float32Array(N * 3);
+          const nucleusN = Math.round(N * 0.26);
+          for (let i = 0; i < nucleusN; i++) {            // dense fuzzy nucleus
+            let x, y, z, d2;
+            do { x = Math.random() * 2 - 1; y = Math.random() * 2 - 1; z = Math.random() * 2 - 1; d2 = x*x + y*y + z*z; } while (d2 > 1);
+            const rr = 0.3 * Math.cbrt(Math.random()), n = Math.sqrt(d2) || 1;
+            a[i*3] = x / n * rr; a[i*3+1] = y / n * rr; a[i*3+2] = z / n * rr;
+          }
+          const R = 1.25, ecc = 0.6, tube = 0.04;          // 3 tilted elliptical electron orbits
+          const tilts = [[0, 0], [1.15, 0.6], [-1.15, -0.6]];
+          let idx = nucleusN;
+          for (let k = 0; k < 3; k++) {
+            const count = k === 2 ? N - idx : Math.floor((N - nucleusN) / 3);
+            const cax = Math.cos(tilts[k][0]), sax = Math.sin(tilts[k][0]), caz = Math.cos(tilts[k][1]), saz = Math.sin(tilts[k][1]);
+            for (let j = 0; j < count; j++, idx++) {
+              const th = Math.random() * Math.PI * 2;
+              let ex = Math.cos(th) * R, ey = Math.sin(th) * R * ecc, ez = 0;
+              let ox, oy, oz, d2;
+              do { ox = Math.random() * 2 - 1; oy = Math.random() * 2 - 1; oz = Math.random() * 2 - 1; d2 = ox*ox + oy*oy + oz*oz; } while (d2 > 1);
+              ex += ox * tube; ey += oy * tube; ez += oz * tube;
+              const y1 = ey * cax - ez * sax, z1 = ey * sax + ez * cax;          // rotate about X
+              a[idx*3] = ex * caz - y1 * saz; a[idx*3+1] = ex * saz + y1 * caz; a[idx*3+2] = z1; // then about Z
             }
-            a[i*3]   = x + (Math.random() - 0.5) * jit;
-            a[i*3+1] = y + (Math.random() - 0.5) * jit;
-            a[i*3+2] = z + (Math.random() - 0.5) * jit;
           }
           return a;
         }
 
-        function makePi() {
-          // Greek letter π, extruded for depth so it reads in 3D as it rotates
-          const a = new Float32Array(N * 3), D = 0.14;
-          const barY = 0.72, barH = 0.17, barW = 1.05;     // top bar
-          const legTop = barY - barH, legBot = -0.85, legW = 0.17;
-          const lx = -0.5, rx = 0.55;                       // leg centres
-          const set = (i, x, y) => { a[i*3] = x; a[i*3+1] = y; a[i*3+2] = (Math.random() * 2 - 1) * D; };
-          for (let i = 0; i < N; i++) {
-            const r = Math.random();
-            if (r < 0.30) {                                 // top bar
-              set(i, (Math.random() * 2 - 1) * barW, barY - Math.random() * barH);
-            } else if (r < 0.63) {                          // left leg
-              set(i, lx + (Math.random() - 0.5) * legW, legTop - Math.random() * (legTop - legBot));
-            } else if (r < 0.96) {                          // right leg with slight outward flare (the π "tail")
-              const t = Math.random();
-              set(i, rx + 0.18 * t * t + (Math.random() - 0.5) * legW, legTop - t * (legTop - legBot));
-            } else {                                        // little serif feet
-              const cx = Math.random() < 0.5 ? lx : rx;
-              set(i, cx + (Math.random() - 0.5) * 0.22, legBot + (Math.random() - 0.5) * 0.05);
+        function makeSkull() {
+          // skull & crossbones, as a face-on silhouette (this shape is held still) over crossed bones
+          const pts = [];
+          const push = (x, y, z) => pts.push([x, y, z]);
+          const zf = () => (Math.random() * 2 - 1) * 0.1 + 0.08;       // slight forward dome
+          const crx = 0.58, cry = 0.56, cyCran = 0.45;
+          const inHead = (x, y) => {
+            if ((x / crx)**2 + ((y - cyCran) / cry)**2 <= 1 && y >= 0.06) return true; // cranium
+            if (y < 0.1 && y > -0.32) {                                 // cheeks + jaw, tapering to chin
+              const t = (0.1 - y) / 0.42;
+              return Math.abs(x) < 0.46 * (1 - t) + 0.30 * t;
+            }
+            return false;
+          };
+          const inEye = (x, y) =>                                       // big round-ish sockets
+            ((x - 0.25) / 0.19)**2 + ((y - 0.52) / 0.2)**2 < 1 ||
+            ((x + 0.25) / 0.19)**2 + ((y - 0.52) / 0.2)**2 < 1;
+          const inNose = (x, y) => y < 0.42 && y > 0.2 && Math.abs(x) < 0.1 * ((0.42 - y) / 0.22); // triangle
+          const inMouthGap = (x, y) => {                               // two rows of teeth
+            if (y < 0.05 && y > -0.2 && Math.abs(x) < 0.32) {
+              if (((x + 10) % 0.12) < 0.032) return true;              // vertical gaps between teeth
+              if (Math.abs(y + 0.08) < 0.022) return true;             // gap between upper & lower rows
+            }
+            return false;
+          };
+          const skullN = Math.round(N * 0.50);
+          let made = 0, guard = 0;
+          while (made < skullN && guard < skullN * 50) {
+            guard++;
+            const x = (Math.random() * 2 - 1) * 0.62, y = -0.34 + Math.random() * 1.4;
+            if (!inHead(x, y) || inEye(x, y) || inNose(x, y) || inMouthGap(x, y)) continue;
+            push(x, y, zf()); made++;
+          }
+          const boneN = Math.round(N * 0.23);                          // crossed bones behind, ends poking out
+          const addBone = (count, ang) => {
+            const ca = Math.cos(ang), sa = Math.sin(ang), L = 1.95, cx = 0, cy = 0.28, cz = -0.22;
+            for (let i = 0; i < count; i++) {
+              let lx, ly, lz;
+              if (Math.random() < 0.6) {                               // shaft
+                lx = (Math.random()*2-1) * (L*0.5 - 0.14);
+                const th = Math.random()*Math.PI*2, rr = 0.07*Math.sqrt(Math.random());
+                ly = rr*Math.cos(th); lz = rr*Math.sin(th);
+              } else {                                                 // four rounded end knobs
+                const end = Math.random()<0.5?-1:1, lobe = Math.random()<0.5?-1:1;
+                let sx, sy, sz, d2;
+                do { sx=Math.random()*2-1; sy=Math.random()*2-1; sz=Math.random()*2-1; d2=sx*sx+sy*sy+sz*sz; } while (d2 > 1);
+                const kr = 0.12*Math.cbrt(Math.random());
+                lx = end*(L*0.5-0.02) + sx*kr; ly = lobe*0.13 + sy*kr; lz = sz*kr;
+              }
+              push(cx + lx*ca - ly*sa, cy + lx*sa + ly*ca, cz + lz);
+            }
+          };
+          addBone(boneN, 0.7);
+          addBone(boneN, -0.7);
+          while (pts.length < N) {                                     // pad with cranium fill
+            const x = (Math.random()*2-1) * 0.5, y = cyCran - 0.1 + (Math.random()*2-1) * 0.4;
+            if (!inHead(x, y) || inEye(x, y)) continue;
+            push(x, y, zf());
+          }
+          pts.length = N;
+          const a = new Float32Array(N * 3), sc = 0.95;
+          for (let i = 0; i < N; i++) { a[i*3] = pts[i][0]*sc; a[i*3+1] = pts[i][1]*sc; a[i*3+2] = pts[i][2]*sc; }
+          return a;
+        }
+
+        function makeScorpion() {
+          // top-down scorpion: segmented body, two pincer claws, 8 bent legs, tail curling to a stinger
+          const pts = [];
+          const push = (x, y, z) => pts.push([x, y, z]);
+          const jz = () => (Math.random() * 2 - 1) * 0.05;
+          const seg = (count, ax, ay, bx, by, r) => {           // points along a limb segment
+            for (let i = 0; i < count; i++) {
+              const s = Math.random();
+              push(ax + (bx - ax) * s + (Math.random() - 0.5) * r,
+                   ay + (by - ay) * s + (Math.random() - 0.5) * r, jz());
+            }
+          };
+          const blob = (count, cx, cy, rr) => {                 // small 3D cluster
+            for (let i = 0; i < count; i++) {
+              let a1, b1, c1, d2;
+              do { a1 = Math.random()*2-1; b1 = Math.random()*2-1; c1 = Math.random()*2-1; d2 = a1*a1+b1*b1+c1*c1; } while (d2 > 1);
+              const k = rr * Math.cbrt(Math.random());
+              push(cx + a1 * k, cy + b1 * k, c1 * k * 0.6);
+            }
+          };
+
+          const bodyN = Math.round(N * 0.18);                   // cephalothorax + tapering abdomen
+          for (let i = 0; i < bodyN; i++) {
+            const y = 0.45 - Math.random() * 0.82;
+            const w = y > 0.12 ? 0.17 : 0.18 - (0.12 - y) * 0.16;
+            push((Math.random() * 2 - 1) * w, y, jz());
+          }
+          for (const side of [-1, 1]) {                         // two big two-pronged pincers
+            seg(Math.round(N * 0.035), side * 0.13, 0.34, side * 0.34, 0.70, 0.05);  // arm
+            blob(Math.round(N * 0.030), side * 0.40, 0.80, 0.11);                    // hand
+            seg(Math.round(N * 0.028), side * 0.34, 0.72, side * 0.52, 0.97, 0.03);  // outer finger
+            seg(Math.round(N * 0.028), side * 0.40, 0.78, side * 0.27, 0.95, 0.03);  // inner finger
+          }
+          const legAttach = [0.34, 0.20, 0.05, -0.10];          // 8 two-segment legs
+          const legN = Math.round(N * 0.012);
+          for (const side of [-1, 1]) {
+            for (let L = 0; L < 4; L++) {
+              const ay = legAttach[L], kneeX = side * 0.34, kneeY = ay - 0.06 - L * 0.02;
+              seg(legN, side * 0.12, ay, kneeX, kneeY, 0.02);
+              seg(legN, kneeX, kneeY, side * 0.52, ay - 0.22 - L * 0.03, 0.02);
             }
           }
+          const wp = [[0.0, -0.38], [0.30, -0.42], [0.50, -0.16], [0.45, 0.14], [0.24, 0.32], [0.07, 0.33]]; // tail curl
+          const segL = []; let totL = 0;
+          for (let i = 0; i < wp.length - 1; i++) { const d = Math.hypot(wp[i+1][0]-wp[i][0], wp[i+1][1]-wp[i][1]); segL.push(d); totL += d; }
+          const tailN = Math.round(N * 0.27);
+          for (let i = 0; i < tailN; i++) {
+            let s = Math.random() * totL, k = 0;
+            while (k < segL.length - 1 && s > segL[k]) { s -= segL[k]; k++; }
+            const f = s / segL[k], prog = (k + f) / (wp.length - 1), r = 0.06 * (1 - 0.5 * prog);
+            push(wp[k][0] + (wp[k+1][0]-wp[k][0]) * f + (Math.random()-0.5) * r,
+                 wp[k][1] + (wp[k+1][1]-wp[k][1]) * f + (Math.random()-0.5) * r, jz() * 1.2);
+          }
+          const sx = wp[wp.length-1][0], sy = wp[wp.length-1][1];   // stinger bulb + barb
+          blob(Math.round(N * 0.045), sx, sy, 0.06);
+          seg(Math.round(N * 0.02), sx, sy, sx - 0.06, sy + 0.12, 0.015);
+
+          while (pts.length < N) { const t = Math.random(); push((Math.random()*2-1)*0.15, 0.45 - t*0.82, jz()); }
+          pts.length = N;
+          const a = new Float32Array(N * 3), sc = 1.1;
+          for (let i = 0; i < N; i++) { a[i*3] = pts[i][0]*sc; a[i*3+1] = pts[i][1]*sc; a[i*3+2] = pts[i][2]*sc; }
           return a;
         }
 
@@ -780,7 +887,9 @@
           return a;
         }
 
-        const shapes = [makeJet(), makeHelix(), makePi(), makeLorenz(), makeRocket(), makeTorusKnot()];
+        const shapes = [makeJet(), makeAtom(), makeScorpion(), makeLorenz(), makeSkull(), makeRocket(), makeTorusKnot()];
+        // per-shape auto-rotation: 0 = settle face-on while held (skull), 1 = keep spinning
+        const shapeSpin = [1, 1, 1, 1, 0, 1, 1];
 
         // ---- per-particle colours (teal palette + rare white sparkle) ----
         const palette = [
@@ -796,8 +905,8 @@
           baseColors[i*3] = c[0]; baseColors[i*3+1] = c[1]; baseColors[i*3+2] = c[2];
         }
         // Death Star colour variant: teal body, blazing green superlaser on the reserved beam particles
-        // colour array aligned to `shapes` order [jet, helix, pi, lorenz, rocket, torusKnot]
-        const shapeColors = [baseColors, baseColors, baseColors, baseColors, baseColors, baseColors];
+        // colour array aligned to `shapes` order [jet, atom, scorpion, lorenz, skull, rocket, torusKnot]
+        const shapeColors = [baseColors, baseColors, baseColors, baseColors, baseColors, baseColors, baseColors];
 
         // ---- soft round sprite ----
         const spriteCanvas = document.createElement('canvas');
@@ -862,7 +971,7 @@
 
         // ---- morph state machine: show shapes[curIdx], morph to shapes[nextIdx], repeat ----
         const ease = (t) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-        const MORPH = 2.2, HOLD = 1.9;
+        const MORPH = 2.2, HOLD = 4.2;
         let curIdx = 0, nextIdx = 1;
         let from = shapes[curIdx], to = shapes[nextIdx];
         let fromC = shapeColors[curIdx], toC = shapeColors[nextIdx];
@@ -873,7 +982,14 @@
           requestAnimationFrame(frame);
           const dt = Math.min(clock.getDelta(), 0.05);
 
-          group.rotation.y += dt * (reduced ? 0.12 : 0.35);
+          // while holding on a no-spin shape (skull), ease to face-on; otherwise keep rotating
+          const paused = phase === 'hold' && shapeSpin[curIdx] === 0;
+          if (paused) {
+            const tY = Math.round(group.rotation.y / (Math.PI * 2)) * (Math.PI * 2);
+            group.rotation.y += (tY - group.rotation.y) * 0.08;
+          } else {
+            group.rotation.y += dt * (reduced ? 0.12 : 0.35);
+          }
           group.rotation.x += (-0.18 + targetY - group.rotation.x) * 0.05;
           group.rotation.z += (targetX * 0.5 - group.rotation.z) * 0.05;
 
