@@ -33,8 +33,7 @@
 - [The S&P 50 Web "Vulnerability" Report](https://zackelmet.github.io/Posts/SnP50report/SnP50report.html): Quantitative analysis of S&P 50 attack surfaces using passive scanning.
 - [Cowrie Honeypot — 4 Weeks of Data](https://zackelmet.github.io/Posts/Honeypot/honeypot%204%20week%20update.html): ~9,000 connection attempts collected over four weeks.
 - [Cowrie Honeypot Analysis](https://zackelmet.github.io/Posts/Honeypot/honeypot.html): SSH-only honeypot on AWS EU (Stockholm) analyzing real attack traffic.
-- [InfiniteMath.xyz](https://zackelmet.github.io/Posts/Infinite%20Math/infinite-math.html): A site that displays auto-updating math equations and grows forever.
-- [Web Development Projects](https://zackelmet.github.io/Posts/Webdev%20Projects/webdev-projects.html): Showcase of recent web development work.
+- [InfiniteMath](https://zackelmet.github.io/Posts/Infinite%20Math/infinite-math.html): A forever-growing site (https://infinitemath.vercel.app) that reveals a new beautiful, true math equation every day.
 - [Recursive Tree](https://zackelmet.github.io/Posts/Recursive%20Tree/): Generative JavaScript art.
 - [Vulnerability Management](https://zackelmet.github.io/Posts/VulnManagement/VulnManagement.html): Methods and strategies for managing vulnerabilities.
 

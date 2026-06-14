@@ -15,13 +15,13 @@
         <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
         <meta name="twitter:card" content="summary_large_image"/>
-        <meta name="twitter:site" content="@zkpz_"/>
+        <meta name="twitter:site" content="@zkpx_"/>
         <meta name="twitter:creator" content="@zkpx_"/>
-        <meta name="twitter:title" content="InfiniteMath.xyz: A Forever Growing Site"/>
-        <meta name="twitter:description" content="A tiny vibe-coded site that automatically publishes beautiful math equations forever."/>
-        <meta property="og:url" content="https://infinitemath.xyz"/>
-        <meta property="og:title" content="InfiniteMath.xyz: A Forever Growing Site"/>
-        <meta name="og:description" content="A tiny vibe-coded site that automatically publishes beautiful math equations forever."/>
+        <meta name="twitter:title" content="InfiniteMath: A Forever Growing Site"/>
+        <meta name="twitter:description" content="A tiny site that reveals a beautiful, true math equation every day, forever."/>
+        <meta property="og:url" content="https://infinitemath.vercel.app"/>
+        <meta property="og:title" content="InfiniteMath: A Forever Growing Site"/>
+        <meta name="og:description" content="A tiny site that reveals a beautiful, true math equation every day, forever."/>
         <meta name="author" content="zackelmet"/>
         <meta property="og:image:type" content="image/png">
         <meta property="og:image:width" content="1200">
@@ -119,30 +119,33 @@
                                             </a>
                                             <article>
                                                 <header class="flex flex-col">
-                                                    <h1 class="mt-6 text-4xl font-bold tracking-tight text-zinc-100 sm:text-5xl"><a href="https://infinitemath.xyz" target="_blank" class="site-link">InfiniteMath.xyz</a> is a Tiny Vibe-Coded Site That Grows</h1>
+                                                    <h1 class="mt-6 text-4xl font-bold tracking-tight text-zinc-100 sm:text-5xl"><a href="https://infinitemath.vercel.app" target="_blank" class="site-link">InfiniteMath</a> is a Tiny Site That Grows Forever</h1>
                                                     <time datetime="2025-04-10" class="order-first flex items-center text-base text-zinc-500">
                                                         <span class="h-4 w-0.5 rounded-full bg-zinc-500"></span>
-                                                        <span class="ml-3">April 2025</span>
+                                                        <span class="ml-3">April 2025 · rebuilt June 2026</span>
                                                     </time>
-                                                    <p class="my-5 text-zinc-400 font-bold">A self-growing site that posts cool math equations forever.</p>
+                                                    <p class="my-5 text-zinc-400 font-bold">A self-growing site that reveals a beautiful, true math equation every single day.</p>
                                                 </header>
                                                 <div class="mt-4 prose prose-invert prose-a:text-emerald-500 prose-gray" data-mdx-content="true">
-                                                    <p>Sometimes you build things for no reason at all. That's exactly what InfiniteMath.xyz is. It's a website that publishes obscure, beautiful math equations automatically, forever. No roadmap, no monetization. Just vibes, math, and a little automation.</p>
-                                                    <h2>A Living Website, Powered by Automation</h2>
-                                                    <p>What makes InfiniteMath interesting isn't just the math—it's that no one's sitting around updating it. The whole thing runs on a pipeline that looks like this:</p>
+                                                    <p>Sometimes you build things for no reason at all. That's exactly what InfiniteMath is. It's a website that reveals obscure, beautiful math equations automatically, forever. No roadmap, no monetization. Just vibes, math, and time.</p>
+                                                    <h2>Version One: A Living Website Held Together With Tape</h2>
+                                                    <p>The first version was a glorious Rube Goldberg machine. Nobody sat around updating it; instead a pipeline did:</p>
                                                     <ul>
-                                                        <li>An LLM generates new equations and writes them to a spreadsheet</li>
-                                                        <li>A Zapier automation checks the sheet and formats the equation into HTML</li>
-                                                        <li>Zapier makes a GitHub API call to open a pull request</li>
-                                                        <li>The PR is auto-merged</li>
-                                                        <li>Netlify redeploys the site after each merge</li>
+                                                        <li>An LLM generated new equations and wrote them to a spreadsheet</li>
+                                                        <li>A Zapier automation checked the sheet and formatted each equation into HTML</li>
+                                                        <li>Zapier made a GitHub API call to open a pull request</li>
+                                                        <li>The PR was auto-merged</li>
+                                                        <li>Netlify redeployed the site after each merge</li>
                                                     </ul>
-                                                    <p>Every time that loop runs, the site gets a little bigger—with zero manual effort.</p>
+                                                    <p>Every time that loop ran, the site got a little bigger—with zero manual effort. It was delightful, right up until one of those moving parts quietly lapsed and the whole thing went dark. A site that depended on five services staying alive forever, predictably, did not.</p>
+                                                    <h2>Version Two: Making It Unkillable</h2>
+                                                    <p>So I rebuilt it on Next.js and Vercel with a stubborn constraint: no database, no cron, no external service that can expire. Instead the site defines one ordered, effectively infinite sequence of equations—curated classics first (Euler's identity, the Basel problem, the Gaussian integral), then procedurally generated identities that are randomized but <em>always mathematically true</em>.</p>
+                                                    <p>Which equations are visible is computed purely from the date: a handful at launch, then one more revealed every day, forever. There's no pipeline to break because there's no pipeline at all—just a pure function of time. The math is rendered server-side with KaTeX, so it's fast and there's nothing to phone home to.</p>
                                                     <h2>Building Things Just for Fun</h2>
-                                                    <p>InfiniteMath doesn't have a purpose beyond being fun. There's no business model. Just an idea, a few hours of coding, and some clever automation to keep it alive. Not everything needs to monetize.</p>
-                                                    
+                                                    <p>InfiniteMath doesn't have a purpose beyond being fun. There's no business model. Just an idea, a few hours of coding, and—this time—an architecture simple enough that it should outlive my interest in maintaining it. Not everything needs to monetize.</p>
+
                                                     <div class="text-center">
-                                                        <a href="https://infinitemath.xyz" target="_blank" class="prominent-link">Visit InfiniteMath.xyz</a>
+                                                        <a href="https://infinitemath.vercel.app" target="_blank" class="prominent-link">Visit InfiniteMath</a>
                                                     </div>
                                                 </div>
                                             </article>

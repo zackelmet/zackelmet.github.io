@@ -109,7 +109,7 @@
                                 <div class="mx-auto max-w-2xl lg:max-w-5xl">
                                     <div class="grid grid-cols-1 gap-y-16 lg:grid-cols-2 lg:grid-rows-[auto_1fr] lg:gap-y-12">
                                         <div class="lg:pl-20">
-                                            <div class="max-w-xs px-2.5 lg:max-w-none"><div id="hero-three" class="aspect-square rotate-3 rounded-2xl" style="background:#1A3640;overflow:hidden;position:relative;" role="img" aria-label="Animated 3D particle sculpture that morphs between a cube, a sphere, and a fighter jet"></div>
+                                            <div class="max-w-xs px-2.5 lg:max-w-none"><div id="hero-three" class="aspect-square rotate-3 rounded-2xl" style="background:#1A3640;overflow:hidden;position:relative;" role="img" aria-label="Animated 3D particle sculpture that morphs between a fighter jet, a DNA helix, the pi symbol, a Lorenz attractor, a rocket ship, and a torus knot"></div>
                                     </div>
                                 </div>
                                 <div class="lg:order-first lg:row-span-2 ">
@@ -200,7 +200,7 @@
                                                     <time class="relative z-10 order-first mb-3 flex items-center text-sm text-zinc-400 dark:text-zinc-500 pl-3.5 " datetime="2024-04-15">
                                                         <span class="absolute inset-y-0 left-0 flex items-center " aria-hidden="true "><span class="h-4 w-0.5 rounded-full bg-zinc-200 dark:bg-zinc-500 "></span></span>January, 2025
                                                     </time>
-                                                    <p class="relative z-10 mt-2 text-sm text-zinc-600 dark:text-zinc-400 ">A website displaying math equations with automated updates that grows forever.</p>
+                                                    <p class="relative z-10 mt-2 text-sm text-zinc-600 dark:text-zinc-400 ">A website that reveals a new beautiful, true math equation every day — forever.</p>
                                                     <div aria-hidden="true " class="relative z-10 mt-4 flex items-center text-sm font-medium text-teal-500 ">
                                                         Read
                                                         <svg viewBox="0 0 16 16 " fill="none " aria-hidden="true " class="ml-1 h-4 w-4 stroke-current ">
@@ -209,6 +209,7 @@
                                                     </div>
                                                 </article>
 
+                                                <!-- Hidden (post files retained on disk, just not listed)
                                                 <article class="group relative flex flex-col items-start ">
                                                     <h2 class="text-base font-semibold tracking-tight text-teal-500 dark:text-zinc-100 ">
                                                         <div class="absolute -inset-x-4 -inset-y-6 z-0 scale-95 bg-zinc-700 opacity-0 transition group-hover:scale-100 group-hover:opacity-100 dark:bg-zinc-800/50 sm:-inset-x-6 sm:rounded-2xl "></div>
@@ -224,7 +225,8 @@
                                                             <path d="M6.75 5.75 9.25 8l-2.5 2.25 " stroke-width="1.5 " stroke-linecap="round " stroke-linejoin="round "></path>
                                                         </svg>
                                                     </div>
-                                                </article>                                
+                                                </article>
+                                                -->
                                                  
                                                 
                                                 <article class="group relative flex flex-col items-start ">
@@ -567,35 +569,6 @@
           out[o+2] = A[2] + u * (B[2] - A[2]) + v * (C[2] - A[2]);
         };
 
-        function makeCube() {
-          const a = new Float32Array(N * 3), s = 1.15;
-          for (let i = 0; i < N; i++) {
-            const f = (Math.random() * 6) | 0;
-            const u = Math.random() * 2 - 1, v = Math.random() * 2 - 1;
-            let x, y, z;
-            if (f === 0) { x = 1; y = u; z = v; }
-            else if (f === 1) { x = -1; y = u; z = v; }
-            else if (f === 2) { x = u; y = 1; z = v; }
-            else if (f === 3) { x = u; y = -1; z = v; }
-            else if (f === 4) { x = u; y = v; z = 1; }
-            else { x = u; y = v; z = -1; }
-            a[i*3] = x * s; a[i*3+1] = y * s; a[i*3+2] = z * s;
-          }
-          return a;
-        }
-
-        function makeSphere() {
-          const a = new Float32Array(N * 3), r = 1.35, gold = Math.PI * (1 + Math.sqrt(5));
-          for (let i = 0; i < N; i++) {
-            const phi = Math.acos(1 - 2 * (i + 0.5) / N);
-            const theta = gold * i;
-            a[i*3]   = r * Math.sin(phi) * Math.cos(theta);
-            a[i*3+1] = r * Math.cos(phi);
-            a[i*3+2] = r * Math.sin(phi) * Math.sin(theta);
-          }
-          return a;
-        }
-
         function makeJet() {
           const pts = [];
           const push = (x, y, z) => pts.push([x, y, z]);
@@ -671,7 +644,143 @@
           return a;
         }
 
-        const shapes = [makeCube(), makeSphere(), makeJet()];
+        function makeTorusKnot() {
+          const a = new Float32Array(N * 3), p = 2, q = 3, tube = 0.45, sc = 0.5;
+          for (let i = 0; i < N; i++) {
+            const t = (i / N) * Math.PI * 2;
+            const r = Math.cos(q * t) + 2;
+            const cx = r * Math.cos(p * t), cy = r * Math.sin(p * t), cz = -Math.sin(q * t);
+            // tangent
+            const dr = -q * Math.sin(q * t);
+            let tx = dr * Math.cos(p * t) - r * p * Math.sin(p * t);
+            let ty = dr * Math.sin(p * t) + r * p * Math.cos(p * t);
+            let tz = -q * Math.cos(q * t);
+            const tl = Math.hypot(tx, ty, tz) || 1; tx /= tl; ty /= tl; tz /= tl;
+            // normal = tangent x up(0,0,1)  ->  (ty, -tx, 0)
+            let nx = ty, ny = -tx, nz = 0;
+            const nl = Math.hypot(nx, ny, nz) || 1; nx /= nl; ny /= nl; nz /= nl;
+            // binormal = tangent x normal
+            const bx = ty * nz - tz * ny, by = tz * nx - tx * nz, bz = tx * ny - ty * nx;
+            const ang = Math.random() * Math.PI * 2, rad = tube * Math.sqrt(Math.random());
+            a[i*3]   = (cx + (Math.cos(ang) * nx + Math.sin(ang) * bx) * rad) * sc;
+            a[i*3+1] = (cy + (Math.cos(ang) * ny + Math.sin(ang) * by) * rad) * sc;
+            a[i*3+2] = (cz + (Math.cos(ang) * nz + Math.sin(ang) * bz) * rad) * sc;
+          }
+          return a;
+        }
+
+        function makeHelix() {
+          const a = new Float32Array(N * 3), turns = 3, R = 0.62, H = 2.9, rungs = 26, jit = 0.05;
+          for (let i = 0; i < N; i++) {
+            const cls = Math.random();
+            let x, y, z;
+            if (cls < 0.8) {                       // two intertwined strands
+              const fy = Math.random();
+              y = (fy - 0.5) * H;
+              const theta = fy * turns * Math.PI * 2 + (cls < 0.4 ? 0 : Math.PI);
+              x = R * Math.cos(theta); z = R * Math.sin(theta);
+            } else {                               // rungs between the strands
+              const ri = (Math.random() * rungs) | 0;
+              const f = ri / (rungs - 1);
+              y = (f - 0.5) * H;
+              const th = f * turns * Math.PI * 2;
+              const s = Math.random();
+              x = R * Math.cos(th) * (1 - 2 * s);
+              z = R * Math.sin(th) * (1 - 2 * s);
+            }
+            a[i*3]   = x + (Math.random() - 0.5) * jit;
+            a[i*3+1] = y + (Math.random() - 0.5) * jit;
+            a[i*3+2] = z + (Math.random() - 0.5) * jit;
+          }
+          return a;
+        }
+
+        function makePi() {
+          // Greek letter π, extruded for depth so it reads in 3D as it rotates
+          const a = new Float32Array(N * 3), D = 0.14;
+          const barY = 0.72, barH = 0.17, barW = 1.05;     // top bar
+          const legTop = barY - barH, legBot = -0.85, legW = 0.17;
+          const lx = -0.5, rx = 0.55;                       // leg centres
+          const set = (i, x, y) => { a[i*3] = x; a[i*3+1] = y; a[i*3+2] = (Math.random() * 2 - 1) * D; };
+          for (let i = 0; i < N; i++) {
+            const r = Math.random();
+            if (r < 0.30) {                                 // top bar
+              set(i, (Math.random() * 2 - 1) * barW, barY - Math.random() * barH);
+            } else if (r < 0.63) {                          // left leg
+              set(i, lx + (Math.random() - 0.5) * legW, legTop - Math.random() * (legTop - legBot));
+            } else if (r < 0.96) {                          // right leg with slight outward flare (the π "tail")
+              const t = Math.random();
+              set(i, rx + 0.18 * t * t + (Math.random() - 0.5) * legW, legTop - t * (legTop - legBot));
+            } else {                                        // little serif feet
+              const cx = Math.random() < 0.5 ? lx : rx;
+              set(i, cx + (Math.random() - 0.5) * 0.22, legBot + (Math.random() - 0.5) * 0.05);
+            }
+          }
+          return a;
+        }
+
+        function makeRocket() {
+          const pts = [];
+          const push = (x, y, z) => pts.push([x, y, z]);
+          const r = 0.32, yb = -0.7, yt = 0.7, noseTop = 1.25;
+
+          const body = Math.round(N * 0.42);                // cylindrical fuselage
+          for (let i = 0; i < body; i++) {
+            const y = yb + Math.random() * (yt - yb), th = Math.random() * Math.PI * 2;
+            push(r * Math.cos(th), y, r * Math.sin(th));
+          }
+          const nose = Math.round(N * 0.17);                // nose cone
+          for (let i = 0; i < nose; i++) {
+            const t = Math.random(), y = yt + t * (noseTop - yt), rad = r * (1 - t), th = Math.random() * Math.PI * 2;
+            push(rad * Math.cos(th), y, rad * Math.sin(th));
+          }
+          const finEach = Math.round(N * 0.06);             // 4 swept tail fins
+          for (let f = 0; f < 4; f++) {
+            const phi = f * Math.PI / 2, ux = Math.cos(phi), uz = Math.sin(phi), tx = -Math.sin(phi), tz = Math.cos(phi);
+            const A = [r, -0.2], B = [r, -0.72], C = [r + 0.5, -0.95]; // (radial, y) triangle
+            for (let i = 0; i < finEach; i++) {
+              let u = Math.random(), v = Math.random();
+              if (u + v > 1) { u = 1 - u; v = 1 - v; }
+              const radial = A[0] + u * (B[0] - A[0]) + v * (C[0] - A[0]);
+              const y = A[1] + u * (B[1] - A[1]) + v * (C[1] - A[1]);
+              const th = (Math.random() - 0.5) * 0.05;
+              push(ux * radial + tx * th, y, uz * radial + tz * th);
+            }
+          }
+          const plume = Math.round(N * 0.12);               // exhaust plume
+          for (let i = 0; i < plume; i++) {
+            const t = Math.random(), y = yb - t * 0.5, rad = 0.26 * (1 - t) * Math.sqrt(Math.random()), th = Math.random() * Math.PI * 2;
+            push(rad * Math.cos(th), y, rad * Math.sin(th));
+          }
+          while (pts.length < N) {                          // pad to exactly N
+            const y = yb + Math.random() * (yt - yb), th = Math.random() * Math.PI * 2;
+            push(r * Math.cos(th), y, r * Math.sin(th));
+          }
+          pts.length = N;
+
+          const a = new Float32Array(N * 3), sc = 0.82;
+          for (let i = 0; i < N; i++) { a[i*3] = pts[i][0] * sc; a[i*3+1] = pts[i][1] * sc; a[i*3+2] = pts[i][2] * sc; }
+          return a;
+        }
+
+        function makeLorenz() {
+          const a = new Float32Array(N * 3), sigma = 10, rho = 28, beta = 8 / 3, dt = 0.006, sc = 0.045;
+          let x = 0.1, y = 0, z = 0;
+          for (let s = 0; s < 800; s++) {          // burn-in past the transient
+            const dx = sigma * (y - x), dy = x * (rho - z) - y, dz = x * y - beta * z;
+            x += dx * dt; y += dy * dt; z += dz * dt;
+          }
+          for (let i = 0; i < N; i++) {
+            const dx = sigma * (y - x), dy = x * (rho - z) - y, dz = x * y - beta * z;
+            x += dx * dt; y += dy * dt; z += dz * dt;
+            a[i*3]   = x * sc           + (Math.random() - 0.5) * 0.04;
+            a[i*3+1] = (z - 25) * sc    + (Math.random() - 0.5) * 0.04;  // attractor is tall in z -> map up
+            a[i*3+2] = y * sc           + (Math.random() - 0.5) * 0.04;
+          }
+          return a;
+        }
+
+        const shapes = [makeJet(), makeHelix(), makePi(), makeLorenz(), makeRocket(), makeTorusKnot()];
 
         // ---- per-particle colours (teal palette + rare white sparkle) ----
         const palette = [
@@ -681,11 +790,14 @@
           [0x67/255, 0xe8/255, 0xf9/255], // cyan-300
           [1, 1, 1],                       // white
         ];
-        const colors = new Float32Array(N * 3);
+        const baseColors = new Float32Array(N * 3);
         for (let i = 0; i < N; i++) {
           const c = palette[Math.random() < 0.06 ? 4 : (Math.random() * 4) | 0];
-          colors[i*3] = c[0]; colors[i*3+1] = c[1]; colors[i*3+2] = c[2];
+          baseColors[i*3] = c[0]; baseColors[i*3+1] = c[1]; baseColors[i*3+2] = c[2];
         }
+        // Death Star colour variant: teal body, blazing green superlaser on the reserved beam particles
+        // colour array aligned to `shapes` order [jet, helix, pi, lorenz, rocket, torusKnot]
+        const shapeColors = [baseColors, baseColors, baseColors, baseColors, baseColors, baseColors];
 
         // ---- soft round sprite ----
         const spriteCanvas = document.createElement('canvas');
@@ -706,8 +818,9 @@
 
         const geom = new THREE.BufferGeometry();
         const positions = shapes[0].slice();
+        const colorBuf = shapeColors[0].slice();
         geom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        geom.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        geom.setAttribute('color', new THREE.BufferAttribute(colorBuf, 3));
 
         const material = new THREE.PointsMaterial({
           size: small ? 0.055 : 0.045,
@@ -747,10 +860,12 @@
         });
         container.addEventListener('pointerleave', () => { targetX = 0; targetY = 0; });
 
-        // ---- morph state machine ----
+        // ---- morph state machine: show shapes[curIdx], morph to shapes[nextIdx], repeat ----
         const ease = (t) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
         const MORPH = 2.2, HOLD = 1.9;
-        let from = shapes[0], toIdx = 1, to = shapes[toIdx];
+        let curIdx = 0, nextIdx = 1;
+        let from = shapes[curIdx], to = shapes[nextIdx];
+        let fromC = shapeColors[curIdx], toC = shapeColors[nextIdx];
         let phase = 'hold', mt = 0, holdT = 0;
         const clock = new THREE.Clock();
 
@@ -765,19 +880,26 @@
           if (!reduced) {
             if (phase === 'hold') {
               holdT += dt;
-              if (holdT >= HOLD) { phase = 'morph'; mt = 0; from = shapes[toIdx]; toIdx = (toIdx + 1) % shapes.length; to = shapes[toIdx]; }
+              if (holdT >= HOLD) { phase = 'morph'; mt = 0; from = shapes[curIdx]; to = shapes[nextIdx]; fromC = shapeColors[curIdx]; toC = shapeColors[nextIdx]; }
             } else {
               mt += dt / MORPH;
-              if (mt >= 1) { mt = 1; phase = 'hold'; holdT = 0; }
+              if (mt >= 1) { mt = 1; phase = 'hold'; holdT = 0; curIdx = nextIdx; nextIdx = (nextIdx + 1) % shapes.length; }
               const e = ease(mt);
-              for (let i = 0; i < positions.length; i++) positions[i] = from[i] + (to[i] - from[i]) * e;
+              for (let i = 0; i < positions.length; i++) {
+                positions[i] = from[i] + (to[i] - from[i]) * e;
+                colorBuf[i] = fromC[i] + (toC[i] - fromC[i]) * e;
+              }
               geom.attributes.position.needsUpdate = true;
+              geom.attributes.color.needsUpdate = true;
             }
           }
           renderer.render(scene, camera);
         }
 
-        if (reduced) { positions.set(shapes[2]); geom.attributes.position.needsUpdate = true; } // static jet
+        if (reduced) { // static fighter jet
+          positions.set(shapes[0]); colorBuf.set(shapeColors[0]);
+          geom.attributes.position.needsUpdate = true; geom.attributes.color.needsUpdate = true;
+        }
         frame();
       }
     </script>
