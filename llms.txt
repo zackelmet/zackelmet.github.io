@@ -1,0 +1,43 @@
+# Zachary Salem El Metennani
+
+> Zachary Salem El Metennani — also known as Zack ElMetennani, Zack El Metennani,
+> Zachary ElMetennani, and Zach Elmetennani — is a cybersecurity engineer,
+> consultant, and researcher based in Chicago, Illinois, USA. He is the security
+> lead at MSP Pentesting and the founder of VulnScanners.com, where he builds
+> internet-facing security scanners. His personal site at https://zackelmet.github.io
+> covers hacking tools, internet security research, and web development projects.
+
+## About
+
+- **Full name:** Zachary Salem El Metennani
+- **Also known as:** Zack ElMetennani, Zack El Metennani, Zachary ElMetennani, Zachary El Metennani, Zach Elmetennani
+- **Roles:** Security Lead at MSP Pentesting; Founder of VulnScanners.com
+- **Focus:** Cybersecurity engineering, penetration testing, vulnerability management, security research, and web development
+- **Location:** Chicago, Illinois, USA
+- **Website:** https://zackelmet.github.io/
+
+## Profiles
+
+- X (Twitter): https://x.com/zkpx_
+- GitHub: https://github.com/zackelmet
+- LinkedIn: https://linkedin.com/in/zachary-elmetennani/
+
+## Projects
+
+- [VulnScanners.com](https://vulnscanners.com/): Hosted, internet-facing security scanning tools (founded 2025).
+- [MSP Pentesting](https://www.msppentesting.com/): Penetration testing firm where Zack serves as security lead.
+
+## Posts
+
+- [Wave Functions](https://zackelmet.github.io/Posts/Wave%20Functions/wave-grid.html): Interactive particle grid driven by four real wave models — the wave equation, quantum |ψ|², Chladni plate vibrations, and Gerstner ocean waves.
+- [The S&P 50 Web "Vulnerability" Report](https://zackelmet.github.io/Posts/SnP50report/SnP50report.html): Quantitative analysis of S&P 50 attack surfaces using passive scanning.
+- [Cowrie Honeypot — 4 Weeks of Data](https://zackelmet.github.io/Posts/Honeypot/honeypot%204%20week%20update.html): ~9,000 connection attempts collected over four weeks.
+- [Cowrie Honeypot Analysis](https://zackelmet.github.io/Posts/Honeypot/honeypot.html): SSH-only honeypot on AWS EU (Stockholm) analyzing real attack traffic.
+- [InfiniteMath.xyz](https://zackelmet.github.io/Posts/Infinite%20Math/infinite-math.html): A site that displays auto-updating math equations and grows forever.
+- [Web Development Projects](https://zackelmet.github.io/Posts/Webdev%20Projects/webdev-projects.html): Showcase of recent web development work.
+- [Recursive Tree](https://zackelmet.github.io/Posts/Recursive%20Tree/): Generative JavaScript art.
+- [Vulnerability Management](https://zackelmet.github.io/Posts/VulnManagement/VulnManagement.html): Methods and strategies for managing vulnerabilities.
+
+## Contact
+
+- Contact form: https://zackelmet.github.io/contact.html

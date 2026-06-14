@@ -4,65 +4,107 @@
   <!-- Root pages -->
   <url>
     <loc>https://zackelmet.github.io/</loc>
+    <lastmod>2026-06-14</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://zackelmet.github.io/contact.html</loc>
+    <lastmod>2025-09-25</lastmod>
+    <changefreq>yearly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://zackelmet.github.io/privacy.html</loc>
-    <priority>0.5</priority>
+    <lastmod>2025-04-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
   </url>
 
-  <!-- Blog/Posts -->
+  <!-- Blog / Posts -->
   <url>
-    <loc>https://zackelmet.github.io/Posts/Entropy-TerminalStates-BTC/Entropy-TerminalStates-BTC.html</loc>
-    <priority>0.6</priority>
+    <loc>https://zackelmet.github.io/Posts/Wave%20Functions/wave-grid.html</loc>
+    <lastmod>2026-06-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://zackelmet.github.io/Posts/SnP50report/SnP50report.html</loc>
+    <lastmod>2026-06-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://zackelmet.github.io/Posts/Honeypot/honeypot%204%20week%20update.html</loc>
+    <lastmod>2026-06-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zackelmet.github.io/Posts/Honeypot/honeypot.html</loc>
+    <lastmod>2026-06-11</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://zackelmet.github.io/Posts/Honeypot/honeypot-analytics.html</loc>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://zackelmet.github.io/Posts/Honeypot/honeypot%204%20week%20update.html</loc>
-    <priority>0.6</priority>
+    <lastmod>2025-09-25</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
   </url>
   <url>
     <loc>https://zackelmet.github.io/Posts/Infinite%20Math/infinite-math.html</loc>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://zackelmet.github.io/Posts/Kali%20Linux/KaliLinux.html</loc>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://zackelmet.github.io/Posts/List100/List100.html</loc>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://zackelmet.github.io/Posts/Recursive%20Tree/</loc>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://zackelmet.github.io/Posts/VulnManagement/VulnManagement.html</loc>
+    <lastmod>2026-06-11</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://zackelmet.github.io/Posts/Webdev%20Projects/webdev-projects.html</loc>
+    <lastmod>2026-06-11</lastmod>
+    <changefreq>yearly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://zackelmet.github.io/Posts/WebPayment/WebPayment.html</loc>
+    <loc>https://zackelmet.github.io/Posts/Recursive%20Tree/</loc>
+    <lastmod>2025-04-01</lastmod>
+    <changefreq>yearly</changefreq>
     <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://zackelmet.github.io/Posts/VulnManagement/VulnManagement.html</loc>
+    <lastmod>2026-06-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://zackelmet.github.io/Posts/Kali%20Linux/KaliLinux.html</loc>
+    <lastmod>2026-06-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
   </url>
   <url>
     <loc>https://zackelmet.github.io/Posts/WifiSecurity/WifiSecurity.html</loc>
-    <priority>0.6</priority>
+    <lastmod>2026-06-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://zackelmet.github.io/Posts/Entropy-TerminalStates-BTC/Entropy-TerminalStates-BTC.html</loc>
+    <lastmod>2026-06-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://zackelmet.github.io/Posts/List100/List100.html</loc>
+    <lastmod>2026-06-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://zackelmet.github.io/Posts/WebPayment/WebPayment.html</loc>
+    <lastmod>2026-06-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
   </url>
 
 </urlset>

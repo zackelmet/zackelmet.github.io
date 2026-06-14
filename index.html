@@ -39,6 +39,58 @@
     <meta property="og:image:type" content="image/png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="675">
+
+    <!-- Structured data: Person (helps search engines build a Knowledge Graph entity for the name) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "@id": "https://zackelmet.github.io/#person",
+      "name": "Zachary Salem El Metennani",
+      "alternateName": [
+        "Zack ElMetennani",
+        "Zack El Metennani",
+        "Zachary ElMetennani",
+        "Zachary El Metennani",
+        "Zach Elmetennani"
+      ],
+      "givenName": "Zachary",
+      "additionalName": "Salem",
+      "familyName": "El Metennani",
+      "description": "Zachary Salem El Metennani (Zack ElMetennani) is the security lead at MSP Pentesting and founder of VulnScanners.com, working as a cybersecurity engineer, consultant, and researcher.",
+      "jobTitle": "Security Lead",
+      "url": "https://zackelmet.github.io/",
+      "image": "https://zackelmet.github.io/images/socialbanner.jpeg",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Chicago",
+        "addressRegion": "IL",
+        "addressCountry": "US"
+      },
+      "worksFor": {
+        "@type": "Organization",
+        "name": "MSP Pentesting",
+        "url": "https://www.msppentesting.com/"
+      },
+      "founder": {
+        "@type": "Organization",
+        "name": "VulnScanners.com",
+        "url": "https://vulnscanners.com/"
+      },
+      "knowsAbout": [
+        "Cybersecurity",
+        "Penetration Testing",
+        "Vulnerability Management",
+        "Security Research",
+        "Web Development"
+      ],
+      "sameAs": [
+        "https://x.com/zkpx_",
+        "https://github.com/zackelmet",
+        "https://linkedin.com/in/zachary-elmetennani/"
+      ]
+    }
+    </script>
     </head>
 
     <body class="flex h-full bg-zinc-600 dark:bg-black">
@@ -57,7 +109,7 @@
                                 <div class="mx-auto max-w-2xl lg:max-w-5xl">
                                     <div class="grid grid-cols-1 gap-y-16 lg:grid-cols-2 lg:grid-rows-[auto_1fr] lg:gap-y-12">
                                         <div class="lg:pl-20">
-                                            <div class="max-w-xs px-2.5 lg:max-w-none"><img alt=""loading="lazy"width="800"height="800"decoding="async"data-nimg="1"class="aspect-square rotate-3 rounded-2xl bg-zinc-600 object-cover dark:bg-zinc-800"sizes="(min-width: 1024px) 32rem, 20rem"srcset="/images/me.png 16w, /images/me.png 32w, /images/me.png 48w, /images/me.png 64w, /images/me.png 96w, /images/me.png 128w, /images/me.png 256w, /images/me.png 384w, /images/me.png 640w, /images/me.png 750w, /images/me.png 828w, /images/me.png 1080w, /images/me.png 1200w, /images/me.png 1920w, /images/me.png 2048w, /images/me.png 3840w"src="/images/me.png style="color:transparent;">
+                                            <div class="max-w-xs px-2.5 lg:max-w-none"><div id="hero-three" class="aspect-square rotate-3 rounded-2xl" style="background:#1A3640;overflow:hidden;position:relative;" role="img" aria-label="Animated 3D particle sculpture that morphs between a cube, a sphere, and a fighter jet"></div>
                                     </div>
                                 </div>
                                 <div class="lg:order-first lg:row-span-2 ">
@@ -492,6 +544,243 @@
 
     </div>
 </div>
+
+    <!-- Hero particle morph: cube -> sphere -> fighter jet -->
+    <script type="importmap">
+    { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
+    </script>
+    <script type="module">
+      import * as THREE from 'three';
+
+      const container = document.getElementById('hero-three');
+      if (container) {
+        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const small = Math.min(window.innerWidth, window.innerHeight) < 480;
+        const N = small ? 3200 : 5200;
+
+        // ---- shape generators (each returns a Float32Array of length N*3) ----
+        const triPoint = (A, B, C, out, o) => {
+          let u = Math.random(), v = Math.random();
+          if (u + v > 1) { u = 1 - u; v = 1 - v; }
+          out[o]   = A[0] + u * (B[0] - A[0]) + v * (C[0] - A[0]);
+          out[o+1] = A[1] + u * (B[1] - A[1]) + v * (C[1] - A[1]);
+          out[o+2] = A[2] + u * (B[2] - A[2]) + v * (C[2] - A[2]);
+        };
+
+        function makeCube() {
+          const a = new Float32Array(N * 3), s = 1.15;
+          for (let i = 0; i < N; i++) {
+            const f = (Math.random() * 6) | 0;
+            const u = Math.random() * 2 - 1, v = Math.random() * 2 - 1;
+            let x, y, z;
+            if (f === 0) { x = 1; y = u; z = v; }
+            else if (f === 1) { x = -1; y = u; z = v; }
+            else if (f === 2) { x = u; y = 1; z = v; }
+            else if (f === 3) { x = u; y = -1; z = v; }
+            else if (f === 4) { x = u; y = v; z = 1; }
+            else { x = u; y = v; z = -1; }
+            a[i*3] = x * s; a[i*3+1] = y * s; a[i*3+2] = z * s;
+          }
+          return a;
+        }
+
+        function makeSphere() {
+          const a = new Float32Array(N * 3), r = 1.35, gold = Math.PI * (1 + Math.sqrt(5));
+          for (let i = 0; i < N; i++) {
+            const phi = Math.acos(1 - 2 * (i + 0.5) / N);
+            const theta = gold * i;
+            a[i*3]   = r * Math.sin(phi) * Math.cos(theta);
+            a[i*3+1] = r * Math.cos(phi);
+            a[i*3+2] = r * Math.sin(phi) * Math.sin(theta);
+          }
+          return a;
+        }
+
+        function makeJet() {
+          const pts = [];
+          const push = (x, y, z) => pts.push([x, y, z]);
+
+          // fuselage: tapered body, nose -> +z
+          const fus = Math.round(N * 0.40);
+          for (let i = 0; i < fus; i++) {
+            const z = Math.random() * 3 - 1.5;
+            let r;
+            if (z > 0.6) r = 0.28 * Math.pow(Math.max(0, 1 - (z - 0.6) / 0.9), 0.7); // nose cone
+            else if (z < -1.0) r = 0.28 * (1 - 0.45 * ((-z - 1.0) / 0.5));            // tail taper
+            else r = 0.28;
+            const th = Math.random() * Math.PI * 2;
+            push(r * Math.cos(th), r * Math.sin(th) * 0.8, z);
+          }
+
+          // swept delta wings (mirrored)
+          const wing = Math.round(N * 0.14);
+          const wRoots = [
+            [[0.22, 0, 0.55], [0.22, 0, -0.45], [1.5, 0, -0.55]],
+            [[-0.22, 0, 0.55], [-0.22, 0, -0.45], [-1.5, 0, -0.55]],
+          ];
+          for (const tri of wRoots) {
+            for (let i = 0; i < wing; i++) {
+              const o = [0, 0, 0]; triPoint(tri[0], tri[1], tri[2], o, 0);
+              push(o[0], o[1] + (Math.random() - 0.5) * 0.05, o[2]);
+            }
+          }
+
+          // horizontal tail stabilizers (mirrored)
+          const stab = Math.round(N * 0.07);
+          const sRoots = [
+            [[0.1, 0, -1.15], [0.1, 0, -1.5], [0.72, 0.03, -1.55]],
+            [[-0.1, 0, -1.15], [-0.1, 0, -1.5], [-0.72, 0.03, -1.55]],
+          ];
+          for (const tri of sRoots) {
+            for (let i = 0; i < stab; i++) {
+              const o = [0, 0, 0]; triPoint(tri[0], tri[1], tri[2], o, 0);
+              push(o[0], o[1] + (Math.random() - 0.5) * 0.04, o[2]);
+            }
+          }
+
+          // vertical tail fin
+          const fin = Math.round(N * 0.08);
+          for (let i = 0; i < fin; i++) {
+            const o = [0, 0, 0];
+            triPoint([0, 0.1, -1.5], [0, 0.1, -0.95], [0, 0.8, -1.55], o, 0);
+            push(o[0] + (Math.random() - 0.5) * 0.04, o[1], o[2]);
+          }
+
+          // cockpit canopy (upper half-ellipsoid)
+          const cap = Math.round(N * 0.07);
+          for (let i = 0; i < cap; i++) {
+            const u = Math.random() * Math.PI * 2, vv = Math.random() * Math.PI / 2;
+            push(Math.cos(u) * Math.sin(vv) * 0.12,
+                 0.16 + Math.cos(vv) * 0.16,
+                 0.78 + Math.sin(u) * Math.sin(vv) * 0.34);
+          }
+
+          // normalise count to exactly N, then scale
+          while (pts.length < N) {
+            const z = Math.random() * 3 - 1.5;
+            push(0.27 * Math.cos(z), 0.2 * Math.sin(z), z);
+          }
+          pts.length = N;
+
+          const a = new Float32Array(N * 3), sc = 0.82;
+          for (let i = 0; i < N; i++) {
+            a[i*3]   = pts[i][0] * sc;
+            a[i*3+1] = pts[i][1] * sc;
+            a[i*3+2] = pts[i][2] * sc;
+          }
+          return a;
+        }
+
+        const shapes = [makeCube(), makeSphere(), makeJet()];
+
+        // ---- per-particle colours (teal palette + rare white sparkle) ----
+        const palette = [
+          [0x5e/255, 0xea/255, 0xd4/255], // teal-300
+          [0x2d/255, 0xd4/255, 0xbf/255], // teal-400
+          [0x99/255, 0xf6/255, 0xe4/255], // teal-200
+          [0x67/255, 0xe8/255, 0xf9/255], // cyan-300
+          [1, 1, 1],                       // white
+        ];
+        const colors = new Float32Array(N * 3);
+        for (let i = 0; i < N; i++) {
+          const c = palette[Math.random() < 0.06 ? 4 : (Math.random() * 4) | 0];
+          colors[i*3] = c[0]; colors[i*3+1] = c[1]; colors[i*3+2] = c[2];
+        }
+
+        // ---- soft round sprite ----
+        const spriteCanvas = document.createElement('canvas');
+        spriteCanvas.width = spriteCanvas.height = 64;
+        const sctx = spriteCanvas.getContext('2d');
+        const grad = sctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+        grad.addColorStop(0, 'rgba(255,255,255,1)');
+        grad.addColorStop(0.25, 'rgba(255,255,255,0.85)');
+        grad.addColorStop(1, 'rgba(255,255,255,0)');
+        sctx.fillStyle = grad;
+        sctx.fillRect(0, 0, 64, 64);
+        const sprite = new THREE.CanvasTexture(spriteCanvas);
+
+        // ---- scene ----
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
+        camera.position.set(0, 0, 4.3);
+
+        const geom = new THREE.BufferGeometry();
+        const positions = shapes[0].slice();
+        geom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geom.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+        const material = new THREE.PointsMaterial({
+          size: small ? 0.055 : 0.045,
+          map: sprite, vertexColors: true, transparent: true,
+          depthWrite: false, blending: THREE.AdditiveBlending, sizeAttenuation: true,
+        });
+
+        const group = new THREE.Group();
+        const points = new THREE.Points(geom, material);
+        group.add(points);
+        group.rotation.x = -0.18;
+        scene.add(group);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setClearColor(0x000000, 0);
+        const canvas = renderer.domElement;
+        canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block;';
+        container.appendChild(canvas);
+
+        function resize() {
+          const w = container.clientWidth || 320, h = container.clientHeight || w;
+          renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+          renderer.setSize(w, h, false);
+          camera.aspect = w / h;
+          camera.updateProjectionMatrix();
+        }
+        resize();
+        if (window.ResizeObserver) new ResizeObserver(resize).observe(container);
+        else window.addEventListener('resize', resize);
+
+        // ---- pointer parallax ----
+        let targetX = 0, targetY = 0;
+        container.addEventListener('pointermove', (e) => {
+          const r = container.getBoundingClientRect();
+          targetX = ((e.clientX - r.left) / r.width - 0.5) * 0.6;
+          targetY = ((e.clientY - r.top) / r.height - 0.5) * 0.4;
+        });
+        container.addEventListener('pointerleave', () => { targetX = 0; targetY = 0; });
+
+        // ---- morph state machine ----
+        const ease = (t) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+        const MORPH = 2.2, HOLD = 1.9;
+        let from = shapes[0], toIdx = 1, to = shapes[toIdx];
+        let phase = 'hold', mt = 0, holdT = 0;
+        const clock = new THREE.Clock();
+
+        function frame() {
+          requestAnimationFrame(frame);
+          const dt = Math.min(clock.getDelta(), 0.05);
+
+          group.rotation.y += dt * (reduced ? 0.12 : 0.35);
+          group.rotation.x += (-0.18 + targetY - group.rotation.x) * 0.05;
+          group.rotation.z += (targetX * 0.5 - group.rotation.z) * 0.05;
+
+          if (!reduced) {
+            if (phase === 'hold') {
+              holdT += dt;
+              if (holdT >= HOLD) { phase = 'morph'; mt = 0; from = shapes[toIdx]; toIdx = (toIdx + 1) % shapes.length; to = shapes[toIdx]; }
+            } else {
+              mt += dt / MORPH;
+              if (mt >= 1) { mt = 1; phase = 'hold'; holdT = 0; }
+              const e = ease(mt);
+              for (let i = 0; i < positions.length; i++) positions[i] = from[i] + (to[i] - from[i]) * e;
+              geom.attributes.position.needsUpdate = true;
+            }
+          }
+          renderer.render(scene, camera);
+        }
+
+        if (reduced) { positions.set(shapes[2]); geom.attributes.position.needsUpdate = true; } // static jet
+        frame();
+      }
+    </script>
 
 </body>
 

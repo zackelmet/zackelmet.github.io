@@ -1,6 +1,44 @@
-# Allow all crawlers
+# robots.txt for https://zackelmet.github.io/
+# Zachary Salem El Metennani (Zack ElMetennani)
+
+# Allow all standard search crawlers full access
 User-agent: *
-Disallow:
+Allow: /
+
+# Explicitly welcome AI / answer-engine crawlers so the site can be
+# cited in AI-generated answers about Zack ElMetennani.
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+# Machine-readable site summary for LLMs
+# https://zackelmet.github.io/llms.txt
 
 # Sitemap location
 Sitemap: https://zackelmet.github.io/sitemap.xml
