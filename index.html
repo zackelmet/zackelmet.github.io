@@ -1006,7 +1006,8 @@
           } else {
             group.rotation.y += dt * (reduced ? 0.12 : 0.35);
           }
-          group.rotation.x += (-0.18 + targetY - group.rotation.x) * 0.05;
+          const pitchBase = paused ? 0.22 : -0.18;   // tip the held skull to face down a bit
+          group.rotation.x += (pitchBase + targetY - group.rotation.x) * 0.05;
           group.rotation.z += (targetX * 0.5 - group.rotation.z) * 0.05;
 
           if (!reduced) {
