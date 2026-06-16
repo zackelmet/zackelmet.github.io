@@ -29,6 +29,7 @@
 
 ## Posts
 
+- [Game of Life](https://zackelmet.github.io/Posts/Game%20of%20Life/game-of-life.html): Interactive Conway's Game of Life — four trivial rules giving rise to gliders, oscillators, glider guns, and unbounded complexity; draw your own or drop in classic patterns.
 - [Wave Functions](https://zackelmet.github.io/Posts/Wave%20Functions/wave-grid.html): Interactive particle grid driven by four real wave models — the wave equation, quantum |ψ|², Chladni plate vibrations, and Gerstner ocean waves.
 - [The S&P 50 Web "Vulnerability" Report](https://zackelmet.github.io/Posts/SnP50report/SnP50report.html): Quantitative analysis of S&P 50 attack surfaces using passive scanning.
 - [Cowrie Honeypot — 4 Weeks of Data](https://zackelmet.github.io/Posts/Honeypot/honeypot%204%20week%20update.html): ~9,000 connection attempts collected over four weeks.

@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>Game of Life</title>
+<meta name="description" content="Conway's Game of Life — an interactive cellular automaton where four trivial rules give rise to gliders, oscillators, glider guns, and unbounded complexity. Draw your own, drop in classic patterns, and watch it evolve." />
+<meta name="author" content="zackelmet" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Game of Life" />
+<meta property="og:description" content="Conway's Game of Life — an interactive cellular automaton where four trivial rules give rise to gliders, oscillators, glider guns, and unbounded complexity." />
+<meta property="og:image" content="https://zackelmet.github.io/images/game-of-life-preview.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="675" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:site" content="@zkpz_" />
+<meta name="twitter:title" content="Game of Life" />
+<meta name="twitter:description" content="Conway's Game of Life — an interactive cellular automaton where four trivial rules give rise to gliders, oscillators, glider guns, and unbounded complexity." />
+<meta name="twitter:image" content="https://zackelmet.github.io/images/game-of-life-preview.png" />
+<link rel="icon" type="image/x-icon" href="/images/favicon.ico" />
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: #05060f; overflow: hidden;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+  #c { display: block; width: 100vw; height: 100vh; cursor: crosshair; }
+
+  /* ---- home button (matches the Wave Functions post) ---- */
+  #home { position: fixed; top: 18px; left: 20px; z-index: 30; display: flex; align-items: center; justify-content: center;
+    width: 40px; height: 40px; border-radius: 9999px; background: rgba(18,22,38,.6); border: 1px solid rgba(255,255,255,.12);
+    backdrop-filter: blur(4px); transition: background .2s; }
+  #home:hover { background: rgba(40,50,82,.85); }
+  #home svg { width: 16px; height: 16px; }
+  #home path { stroke: #9fb4d8; transition: stroke .2s; }
+  #home:hover path { stroke: #fff; }
+
+  /* ---- info panel (bottom-left) ---- */
+  #panel { position: fixed; left: 24px; bottom: 24px; display: flex; align-items: center; gap: 18px; pointer-events: none; z-index: 20; }
+  #info { pointer-events: auto; cursor: pointer; }
+  #info .name { font-size: 19px; letter-spacing: .04em; color: #fff; margin-bottom: 7px; text-shadow: 0 1px 4px #000; }
+  #info .eq { color: #9fd8ff; font-size: 14px; letter-spacing: .02em; }
+  #info .eq b { color: #fff; font-weight: 600; }
+  #info .hint { margin-top: 9px; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: #5a6a92; transition: color .2s; }
+  #info:hover .hint { color: #7fb0ff; }
+
+  /* live stats next to the title */
+  #stats { display: flex; gap: 16px; padding-left: 18px; border-left: 1px solid rgba(120,160,255,.18); }
+  #stats div { font-size: 10px; letter-spacing: .08em; color: #5a6a92; }
+  #stats div b { display: block; font-size: 16px; color: #cdd6ff; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  /* ---- controls (top-right glass panel) ---- */
+  #controls { position: fixed; top: 18px; right: 20px; z-index: 20; width: 244px;
+    background: linear-gradient(160deg, rgba(13,18,40,.82), rgba(8,10,22,.82));
+    border: 1px solid #23315c; border-radius: 16px; padding: 16px;
+    backdrop-filter: blur(8px); box-shadow: 0 24px 60px rgba(0,0,0,.55);
+    transition: transform .35s cubic-bezier(.16,1,.3,1), opacity .35s; }
+  #controls.hidden { transform: translateX(290px); opacity: 0; pointer-events: none; }
+  .crow { display: flex; gap: 8px; margin-bottom: 8px; }
+  button { flex: 1; font-family: inherit; font-size: 11px; letter-spacing: .03em; color: #c4cee8;
+    background: rgba(120,160,255,.07); border: 1px solid #23315c; border-radius: 9px; padding: 8px 6px;
+    cursor: pointer; transition: background .15s, border-color .15s, color .15s, transform .05s; }
+  button:hover { background: rgba(120,160,255,.18); border-color: #3a4d82; color: #fff; }
+  button:active { transform: scale(.96); }
+  button.primary { background: linear-gradient(135deg, rgba(127,216,255,.2), rgba(127,176,255,.2)); border-color: #3a5da0; color: #fff; }
+  button.primary:hover { background: linear-gradient(135deg, rgba(127,216,255,.34), rgba(127,176,255,.34)); }
+
+  .field { margin: 12px 2px 2px; }
+  .field label { display: flex; justify-content: space-between; font-size: 10px; letter-spacing: .07em;
+    color: #7d86b0; margin-bottom: 7px; text-transform: uppercase; }
+  .field label b { color: #9fd8ff; font-weight: 600; text-transform: none; }
+  select, input[type=range] { width: 100%; }
+  select { font-family: inherit; font-size: 11px; color: #c4cee8; background: rgba(120,160,255,.07);
+    border: 1px solid #23315c; border-radius: 9px; padding: 8px; cursor: pointer; outline: none; }
+  select option { background: #0d1228; }
+  input[type=range] { -webkit-appearance: none; appearance: none; height: 4px; background: rgba(120,160,255,.2);
+    border-radius: 4px; outline: none; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 15px; height: 15px;
+    border-radius: 50%; background: #7fd8ff; cursor: pointer; box-shadow: 0 0 8px #7fd8ff; transition: transform .1s; }
+  input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+  input[type=range]::-moz-range-thumb { width: 15px; height: 15px; border: none; border-radius: 50%;
+    background: #7fd8ff; cursor: pointer; box-shadow: 0 0 8px #7fd8ff; }
+
+  #showCtrl { position: fixed; top: 18px; right: 20px; z-index: 21; width: 40px; height: 40px;
+    border-radius: 10px; display: none; align-items: center; justify-content: center; font-size: 16px; }
+  #showCtrl.show { display: flex; }
+
+  /* ---- learn-more card overlay (matches Wave Functions) ---- */
+  #overlay { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 40; }
+  #backdrop { position: absolute; inset: 0; background: rgba(3,4,12,.72); backdrop-filter: blur(4px); }
+  #card { position: relative; width: min(600px, 90vw); max-height: 82vh; overflow: auto;
+    background: linear-gradient(160deg,#0d1228,#080a16); border: 1px solid #23315c; border-radius: 16px;
+    padding: 30px 32px; box-shadow: 0 30px 80px rgba(0,0,0,.6); }
+  #card .ctitle { font-size: 23px; color: #fff; margin-bottom: 6px; }
+  #card .ceq { color: #9fd8ff; font-size: 15px; margin-bottom: 4px; }
+  #card .cbody h4 { color: #7fb0ff; margin: 18px 0 6px; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; }
+  #card .cbody p { line-height: 1.65; font-size: 14px; color: #c4cee8; margin: 0; }
+  #card .cbody ul { margin: 6px 0 0; padding-left: 18px; }
+  #card .cbody li { line-height: 1.6; font-size: 14px; color: #c4cee8; margin-bottom: 4px; }
+  #card .cresume { margin-top: 22px; font-size: 11px; color: #5a6a92; letter-spacing: .08em; }
+  #cardClose { position: absolute; top: 12px; right: 16px; background: none; border: none; color: #8090b5;
+    font-size: 26px; line-height: 1; cursor: pointer; }
+  #cardClose:hover { color: #fff; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<a id="home" href="/" aria-label="Back to home" title="Home">
+  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M7.25 11.25 3.75 8m0 0 3.5-3.25M3.75 8h8.5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</a>
+
+<div id="panel">
+  <div id="info" title="Click to learn the rules">
+    <div class="name">Game of Life</div>
+    <div class="eq"><b>B3/S23</b> &middot; born on 3, survives on 2&ndash;3</div>
+    <div class="hint">click to learn more &rarr;</div>
+  </div>
+  <div id="stats">
+    <div>GEN<b id="genStat">0</b></div>
+    <div>ALIVE<b id="aliveStat">0</b></div>
+    <div>GEN/S<b id="fpsStat">0</b></div>
+  </div>
+</div>
+
+<button id="showCtrl" title="Show controls">&#9776;</button>
+<div id="controls">
+  <div class="crow">
+    <button id="playBtn" class="primary">&#9654; Play</button>
+    <button id="stepBtn">Step &rsaquo;</button>
+  </div>
+  <div class="crow">
+    <button id="randomBtn">&#9860; Random</button>
+    <button id="clearBtn">Clear</button>
+    <button id="hideBtn" title="Hide panel (H)">&times;</button>
+  </div>
+  <div class="field">
+    <label>Pattern <b id="patName">draw your own</b></label>
+    <select id="patternSel">
+      <option value="">&mdash; pick a seed &mdash;</option>
+      <option value="gun">Gosper glider gun</option>
+      <option value="pulsar">Pulsar</option>
+      <option value="pentadecathlon">Pentadecathlon</option>
+      <option value="lwss">Lightweight spaceship</option>
+      <option value="acorn">Acorn (long-lived)</option>
+      <option value="rpentomino">R-pentomino</option>
+      <option value="glider">Single glider</option>
+    </select>
+  </div>
+  <div class="field">
+    <label>Speed <b><span id="speedVal">12</span>/s</b></label>
+    <input id="speed" type="range" min="1" max="60" value="12" />
+  </div>
+  <div class="field">
+    <label>Cell size <b><span id="sizeVal">9</span>px</b></label>
+    <input id="cellSize" type="range" min="3" max="24" value="9" />
+  </div>
+</div>
+
+<div id="overlay">
+  <div id="backdrop"></div>
+  <div id="card">
+    <button id="cardClose" aria-label="close">&times;</button>
+    <div class="ctitle">Conway's Game of Life</div>
+    <div class="ceq">B3/S23 &mdash; a two-state, eight-neighbor cellular automaton</div>
+    <div class="cbody">
+      <h4>What it is</h4>
+      <p>The Game of Life isn't a game you play &mdash; it's a universe you seed and then watch. Cells on a grid are alive or dead, and every generation they all update at once from just four rules based on their eight neighbors:</p>
+      <ul>
+        <li>A live cell with <b>fewer than two</b> live neighbors dies (underpopulation).</li>
+        <li>A live cell with <b>two or three</b> neighbors lives on.</li>
+        <li>A live cell with <b>more than three</b> neighbors dies (overcrowding).</li>
+        <li>A dead cell with <b>exactly three</b> neighbors becomes alive (reproduction).</li>
+      </ul>
+      <p style="margin-top:8px">From those trivial rules emerge gliders that crawl across the grid, oscillators that breathe, guns that fire streams of spaceships, and patterns whose fate is genuinely unpredictable &mdash; the headline example of <i>emergence</i>, where complexity arises with no designer.</p>
+      <h4>History</h4>
+      <p>The mathematician John Horton Conway devised it in 1970 while searching for the simplest rules that could sustain unbounded, lifelike behavior. It reached the world through Martin Gardner's October 1970 "Mathematical Games" column in <i>Scientific American</i> and promptly consumed untold hours of mainframe time as people hunted for new patterns.</p>
+      <h4>In the world</h4>
+      <p>Life is <b>Turing complete</b>: you can build logic gates, memory, and even a working computer entirely out of gliders and still-lifes. It became a cornerstone of the study of cellular automata and artificial life, a model for emergence and self-organization in biology and physics, and a perennial proof that simple local rules can compute anything at all.</p>
+    </div>
+    <div class="cresume">click outside, &times;, or Esc to close</div>
+  </div>
+</div>
+
+<script>
+(() => {
+  "use strict";
+  const canvas = document.getElementById("c");
+  const ctx = canvas.getContext("2d", { alpha: false });
+
+  let cell = 9;
+  let cols = 0, rows = 0;
+  let grid, next, age;
+  let dpr = Math.min(window.devicePixelRatio || 1, 2);
+  let W = 0, H = 0;
+
+  function allocate() {
+    cols = Math.ceil(window.innerWidth / cell);
+    rows = Math.ceil(window.innerHeight / cell);
+    const n = cols * rows;
+    grid = new Uint8Array(n);
+    next = new Uint8Array(n);
+    age  = new Uint16Array(n);
+  }
+
+  function resize() {
+    W = window.innerWidth; H = window.innerHeight;
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.floor(W * dpr);
+    canvas.height = Math.floor(H * dpr);
+    canvas.style.width = W + "px";
+    canvas.style.height = H + "px";
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const oldGrid = grid, oc = cols, orr = rows;
+    allocate();
+    if (oldGrid) {
+      for (let y = 0; y < Math.min(orr, rows); y++)
+        for (let x = 0; x < Math.min(oc, cols); x++)
+          if (oldGrid[y*oc+x]) grid[y*cols+x] = 1;
+    }
+    drawAll();
+  }
+
+  const idx = (x, y) => y * cols + x;
+
+  // toroidal step
+  function step() {
+    for (let y = 0; y < rows; y++) {
+      const yU = (y - 1 + rows) % rows;
+      const yD = (y + 1) % rows;
+      for (let x = 0; x < cols; x++) {
+        const xL = (x - 1 + cols) % cols;
+        const xR = (x + 1) % cols;
+        const n =
+          grid[idx(xL,yU)] + grid[idx(x,yU)] + grid[idx(xR,yU)] +
+          grid[idx(xL,y )]                   + grid[idx(xR,y )] +
+          grid[idx(xL,yD)] + grid[idx(x,yD)] + grid[idx(xR,yD)];
+        const i = idx(x, y);
+        const alive = grid[i];
+        const live = alive ? (n === 2 || n === 3) : (n === 3);
+        next[i] = live ? 1 : 0;
+        age[i] = live ? (alive ? Math.min(age[i] + 1, 9999) : 1) : 0;
+      }
+    }
+    const t = grid; grid = next; next = t;
+    generation++;
+  }
+
+  // age color along the site palette: fresh cyan -> settled blue -> old gold
+  function ageColor(a) {
+    const t = Math.min(a / 60, 1);
+    const hue = 192 - t * 150;          // 192 (cyan) -> 42 (gold)
+    const light = 66 - t * 6;
+    const sat = 92 - t * 8;
+    return `hsl(${hue}, ${sat}%, ${light}%)`;
+  }
+
+  function drawAll() {
+    ctx.fillStyle = "#05060f";
+    ctx.fillRect(0, 0, W, H);
+    renderCells(1);
+  }
+
+  function renderCells(alphaTrail) {
+    if (running && alphaTrail < 1) {
+      ctx.fillStyle = `rgba(5,6,15,${alphaTrail})`;
+      ctx.fillRect(0, 0, W, H);
+    }
+    let alive = 0;
+    const r = Math.max(1, cell * 0.46);
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) {
+        const i = idx(x, y);
+        if (!grid[i]) continue;
+        alive++;
+        const px = x * cell + cell / 2;
+        const py = y * cell + cell / 2;
+        const col = ageColor(age[i] || 1);
+        ctx.fillStyle = col;
+        if (cell >= 6) { ctx.shadowColor = col; ctx.shadowBlur = cell * 0.9; }
+        ctx.beginPath();
+        ctx.arc(px, py, r, 0, 6.283185);
+        ctx.fill();
+      }
+    }
+    ctx.shadowBlur = 0;
+    aliveCount = alive;
+  }
+
+  const PATTERNS = {
+    glider: [[1,0],[2,1],[0,2],[1,2],[2,2]],
+    lwss: [[0,0],[3,0],[4,1],[0,2],[4,2],[1,3],[2,3],[3,3],[4,3]],
+    rpentomino: [[1,0],[2,0],[0,1],[1,1],[1,2]],
+    acorn: [[1,0],[3,1],[0,2],[1,2],[4,2],[5,2],[6,2]],
+    pulsar: [
+      [2,0],[3,0],[4,0],[8,0],[9,0],[10,0],
+      [0,2],[5,2],[7,2],[12,2],
+      [0,3],[5,3],[7,3],[12,3],
+      [0,4],[5,4],[7,4],[12,4],
+      [2,5],[3,5],[4,5],[8,5],[9,5],[10,5],
+      [2,7],[3,7],[4,7],[8,7],[9,7],[10,7],
+      [0,8],[5,8],[7,8],[12,8],
+      [0,9],[5,9],[7,9],[12,9],
+      [0,10],[5,10],[7,10],[12,10],
+      [2,12],[3,12],[4,12],[8,12],[9,12],[10,12]
+    ],
+    pentadecathlon: [
+      [1,0],[1,1],[0,2],[2,2],[1,3],[1,4],[1,5],[1,6],[0,7],[2,7],[1,8],[1,9]
+    ],
+    gun: [
+      [24,0],[22,1],[24,1],[12,2],[13,2],[20,2],[21,2],[34,2],[35,2],
+      [11,3],[15,3],[20,3],[21,3],[34,3],[35,3],
+      [0,4],[1,4],[10,4],[16,4],[20,4],[21,4],
+      [0,5],[1,5],[10,5],[14,5],[16,5],[17,5],[22,5],[24,5],
+      [10,6],[16,6],[24,6],
+      [11,7],[15,7],
+      [12,8],[13,8]
+    ]
+  };
+
+  function placePattern(name) {
+    const pts = PATTERNS[name];
+    if (!pts) return;
+    let maxX = 0, maxY = 0;
+    for (const [x,y] of pts) { if (x>maxX) maxX=x; if (y>maxY) maxY=y; }
+    const ox = Math.floor((cols - maxX) / 2);
+    const oy = Math.floor((rows - maxY) / 2);
+    grid.fill(0); age.fill(0);
+    for (const [x,y] of pts) {
+      const gx = ox + x, gy = oy + y;
+      if (gx>=0 && gx<cols && gy>=0 && gy<rows) { grid[idx(gx,gy)] = 1; age[idx(gx,gy)] = 1; }
+    }
+    generation = 0;
+    drawAll();
+    updateStats();
+  }
+
+  function randomize(density = 0.18) {
+    for (let i = 0; i < grid.length; i++) {
+      grid[i] = Math.random() < density ? 1 : 0;
+      age[i] = grid[i];
+    }
+    generation = 0;
+    drawAll();
+    updateStats();
+  }
+
+  function clearGrid() {
+    grid.fill(0); next.fill(0); age.fill(0);
+    generation = 0;
+    drawAll();
+    updateStats();
+  }
+
+  let running = false;
+  let generation = 0;
+  let aliveCount = 0;
+  let genPerSec = 12;
+  let acc = 0, last = performance.now();
+  let frames = 0, fpsLast = performance.now();
+
+  function loop(now) {
+    const dt = now - last; last = now;
+    if (running) {
+      acc += dt;
+      const stepMs = 1000 / genPerSec;
+      let did = 0;
+      while (acc >= stepMs && did < 8) { step(); acc -= stepMs; did++; }
+      if (did) {
+        renderCells(0.32);
+        frames += did;
+        updateStats();
+      }
+    }
+    if (now - fpsLast >= 500) {
+      document.getElementById("fpsStat").textContent = Math.round(frames * 1000 / (now - fpsLast));
+      frames = 0; fpsLast = now;
+    }
+    requestAnimationFrame(loop);
+  }
+
+  function updateStats() {
+    document.getElementById("genStat").textContent = generation;
+    document.getElementById("aliveStat").textContent = aliveCount;
+  }
+
+  // ---- drawing ----
+  let drawing = false, eraseMode = false, lastCx = -1, lastCy = -1;
+  function cellFromEvent(clientX, clientY) {
+    return [Math.floor(clientX / cell), Math.floor(clientY / cell)];
+  }
+  function paint(x, y, val) {
+    if (x<0||x>=cols||y<0||y>=rows) return;
+    grid[idx(x,y)] = val;
+    age[idx(x,y)] = val ? 1 : 0;
+  }
+  function paintLine(x0,y0,x1,y1,val) {
+    const dx = Math.abs(x1-x0), dy = Math.abs(y1-y0);
+    const sx = x0<x1?1:-1, sy = y0<y1?1:-1;
+    let err = dx - dy;
+    while (true) {
+      paint(x0,y0,val);
+      if (x0===x1 && y0===y1) break;
+      const e2 = 2*err;
+      if (e2 > -dy) { err -= dy; x0 += sx; }
+      if (e2 < dx)  { err += dx; y0 += sy; }
+    }
+  }
+  function pointerDown(e) {
+    drawing = true;
+    eraseMode = e.shiftKey || e.button === 2;
+    const [x,y] = cellFromEvent(e.clientX, e.clientY);
+    paint(x,y, eraseMode?0:1);
+    lastCx = x; lastCy = y;
+    if (!running) drawAll();
+    updateStats();
+  }
+  function pointerMove(e) {
+    if (!drawing) return;
+    const [x,y] = cellFromEvent(e.clientX, e.clientY);
+    if (x===lastCx && y===lastCy) return;
+    paintLine(lastCx,lastCy,x,y, eraseMode?0:1);
+    lastCx = x; lastCy = y;
+    if (!running) drawAll();
+    updateStats();
+  }
+  function pointerUp() { drawing = false; lastCx = lastCy = -1; }
+
+  canvas.addEventListener("mousedown", pointerDown);
+  canvas.addEventListener("mousemove", pointerMove);
+  window.addEventListener("mouseup", pointerUp);
+  canvas.addEventListener("contextmenu", e => e.preventDefault());
+  canvas.addEventListener("touchstart", e => {
+    e.preventDefault();
+    const t = e.touches[0]; pointerDown({clientX:t.clientX, clientY:t.clientY, shiftKey:false, button:0});
+  }, {passive:false});
+  canvas.addEventListener("touchmove", e => {
+    e.preventDefault();
+    const t = e.touches[0]; pointerMove({clientX:t.clientX, clientY:t.clientY});
+  }, {passive:false});
+  canvas.addEventListener("touchend", e => { e.preventDefault(); pointerUp(); }, {passive:false});
+
+  // ---- UI ----
+  const playBtn = document.getElementById("playBtn");
+  function setRunning(v) {
+    running = v;
+    playBtn.innerHTML = v ? "&#10074;&#10074; Pause" : "&#9654; Play";
+    playBtn.classList.toggle("primary", !v);
+    if (v) { acc = 0; last = performance.now(); }
+    else drawAll();
+  }
+  playBtn.onclick = () => setRunning(!running);
+  document.getElementById("stepBtn").onclick = () => { step(); drawAll(); updateStats(); };
+  document.getElementById("randomBtn").onclick = () => randomize();
+  document.getElementById("clearBtn").onclick = () => clearGrid();
+
+  const patternSel = document.getElementById("patternSel");
+  patternSel.onchange = () => {
+    if (patternSel.value) {
+      placePattern(patternSel.value);
+      document.getElementById("patName").textContent = patternSel.options[patternSel.selectedIndex].text;
+      if (!running) setRunning(true);
+    }
+  };
+
+  const speed = document.getElementById("speed");
+  speed.oninput = () => { genPerSec = +speed.value; document.getElementById("speedVal").textContent = genPerSec; };
+
+  const sizeSlider = document.getElementById("cellSize");
+  sizeSlider.oninput = () => {
+    cell = +sizeSlider.value;
+    document.getElementById("sizeVal").textContent = cell;
+    resize();
+    updateStats();
+  };
+
+  // panel show/hide
+  const controls = document.getElementById("controls");
+  const showCtrl = document.getElementById("showCtrl");
+  function setPanel(show) {
+    controls.classList.toggle("hidden", !show);
+    showCtrl.classList.toggle("show", !show);
+  }
+  document.getElementById("hideBtn").onclick = () => setPanel(false);
+  showCtrl.onclick = () => setPanel(true);
+
+  // ---- learn-more card ----
+  const overlay = document.getElementById("overlay");
+  function openCard() { overlay.style.display = "flex"; running && (wasRunning = true); setRunning(false); }
+  let wasRunning = false;
+  function closeCard() { overlay.style.display = "none"; if (wasRunning) { wasRunning = false; setRunning(true); } }
+  document.getElementById("info").addEventListener("click", openCard);
+  document.getElementById("backdrop").addEventListener("click", closeCard);
+  document.getElementById("cardClose").addEventListener("click", closeCard);
+
+  // keyboard
+  window.addEventListener("keydown", e => {
+    if (overlay.style.display === "flex" && e.key === "Escape") { closeCard(); return; }
+    if (e.code === "Space") { e.preventDefault(); setRunning(!running); }
+    else if (e.key === "c" || e.key === "C") clearGrid();
+    else if (e.key === "r" || e.key === "R") randomize();
+    else if (e.key === "s" || e.key === "S") { step(); drawAll(); updateStats(); }
+    else if (e.key === "h" || e.key === "H") setPanel(controls.classList.contains("hidden"));
+  });
+
+  window.addEventListener("resize", resize);
+
+  // ---- boot ----
+  resize();
+  randomize(0.16);
+  setRunning(true);
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
