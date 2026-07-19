@@ -109,7 +109,7 @@
                                 <div class="mx-auto max-w-2xl lg:max-w-5xl">
                                     <div class="grid grid-cols-1 gap-y-16 lg:grid-cols-2 lg:grid-rows-[auto_1fr] lg:gap-y-12">
                                         <div class="lg:pl-20">
-                                            <div class="max-w-xs px-2.5 lg:max-w-none"><div id="hero-three" class="aspect-square rotate-3 rounded-2xl" style="background:#1A3640;overflow:hidden;position:relative;" role="img" aria-label="Animated 3D particle sculpture that morphs between a fighter jet, an atom, a scorpion, a Lorenz attractor, a skull and crossbones, a rocket ship, and a torus knot"></div>
+                                            <div class="max-w-xs px-2.5 lg:max-w-none"><div id="hero-three" class="aspect-square rotate-3 rounded-2xl" style="background:radial-gradient(120% 120% at 32% 28%, #23505e 0%, #1A3640 48%, #0d2029 100%);overflow:hidden;position:relative;" role="img" aria-label="Animated 3D particle sculpture that morphs between a fighter jet, an atom, a scorpion, a Lorenz attractor, a skull and crossbones, a rocket ship, a globe with attack arcs, a terminal prompt, and a torus knot"></div>
                                     </div>
                                 </div>
                                 <div class="lg:order-first lg:row-span-2 ">
@@ -579,7 +579,7 @@
     </div>
 </div>
 
-    <!-- Hero particle morph: cube -> sphere -> fighter jet -->
+    <!-- Hero particle morph: GPU-staggered particle streams cycling jet -> atom -> scorpion -> lorenz -> skull -> rocket -> globe -> terminal prompt -> torus knot, each with its own palette -->
     <script type="importmap">
     { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
     </script>
@@ -919,26 +919,159 @@
           return a;
         }
 
-        const shapes = [makeJet(), makeAtom(), makeScorpion(), makeLorenz(), makeSkull(), makeRocket(), makeTorusKnot()];
-        // per-shape auto-rotation: 0 = settle face-on while held (skull), 1 = keep spinning
-        const shapeSpin = [1, 1, 1, 1, 0, 1, 1];
-
-        // ---- per-particle colours (teal palette + rare white sparkle) ----
-        const palette = [
-          [0x5e/255, 0xea/255, 0xd4/255], // teal-300
-          [0x2d/255, 0xd4/255, 0xbf/255], // teal-400
-          [0x99/255, 0xf6/255, 0xe4/255], // teal-200
-          [0x67/255, 0xe8/255, 0xf9/255], // cyan-300
-          [1, 1, 1],                       // white
-        ];
-        const baseColors = new Float32Array(N * 3);
-        for (let i = 0; i < N; i++) {
-          const c = palette[Math.random() < 0.06 ? 4 : (Math.random() * 4) | 0];
-          baseColors[i*3] = c[0]; baseColors[i*3+1] = c[1]; baseColors[i*3+2] = c[2];
+        function makeGlobe() {
+          // wireframe globe with red "attack" arcs hopping between glowing impact points
+          const a = new Float32Array(N * 3);
+          const R = 1.12, jit = 0.018;
+          let idx = 0;
+          const put = (x, y, z) => {
+            a[idx*3]   = x + (Math.random() - 0.5) * jit;
+            a[idx*3+1] = y + (Math.random() - 0.5) * jit;
+            a[idx*3+2] = z + (Math.random() - 0.5) * jit;
+            idx++;
+          };
+          const gridN = Math.round(N * 0.58), fillN = Math.round(N * 0.10), arcN = Math.round(N * 0.22);
+          const mers = 8, pars = [-60, -30, 0, 30, 60], lines = mers + pars.length;
+          for (let i = 0; i < gridN; i++) {                  // 8 meridians + 5 parallels
+            const k = i % lines;
+            if (k < mers) {
+              const phi = k * Math.PI / mers, t = Math.random() * Math.PI * 2;
+              put(R * Math.sin(t) * Math.cos(phi), R * Math.cos(t), R * Math.sin(t) * Math.sin(phi));
+            } else {
+              const lat = pars[k - mers] * Math.PI / 180, t = Math.random() * Math.PI * 2;
+              put(R * Math.cos(lat) * Math.cos(t), R * Math.sin(lat), R * Math.cos(lat) * Math.sin(t));
+            }
+          }
+          for (let i = 0; i < fillN; i++) {                  // faint even fill so the sphere reads solid
+            const u = Math.random() * 2 - 1, th = Math.random() * Math.PI * 2, r = Math.sqrt(1 - u*u);
+            put(R * r * Math.cos(th), R * u, R * r * Math.sin(th));
+          }
+          const toV = (lat, lon) => {
+            const la = lat * Math.PI / 180, lo = lon * Math.PI / 180;
+            return [Math.cos(la) * Math.cos(lo), Math.sin(la), Math.cos(la) * Math.sin(lo)];
+          };
+          const hops = [[20,-100,48,10], [38,-120,35,140], [-25,-60,50,30], [10,100,45,-75], [-30,150,20,-10]];
+          const perArc = Math.floor(arcN / hops.length);
+          for (const [la1, lo1, la2, lo2] of hops) {         // great-circle hops bulging off the surface
+            const A = toV(la1, lo1), B = toV(la2, lo2);
+            const dot = Math.max(-1, Math.min(1, A[0]*B[0] + A[1]*B[1] + A[2]*B[2]));
+            const om = Math.acos(dot), so = Math.sin(om) || 1;
+            for (let i = 0; i < perArc; i++) {
+              const s = Math.random();
+              const wa = Math.sin((1 - s) * om) / so, wb = Math.sin(s * om) / so;
+              const rr = R * (1 + 0.38 * Math.sin(Math.PI * s));
+              put((A[0]*wa + B[0]*wb) * rr, (A[1]*wa + B[1]*wb) * rr, (A[2]*wa + B[2]*wb) * rr);
+            }
+          }
+          const ends = [];                                    // glowing impact nodes at hop endpoints
+          for (const [la1, lo1, la2, lo2] of hops) ends.push(toV(la1, lo1), toV(la2, lo2));
+          while (idx < N) {
+            const e = ends[(Math.random() * ends.length) | 0], k = 0.05 * Math.cbrt(Math.random());
+            let ox, oy, oz, d2;
+            do { ox = Math.random()*2-1; oy = Math.random()*2-1; oz = Math.random()*2-1; d2 = ox*ox+oy*oy+oz*oz; } while (d2 > 1);
+            put(e[0]*R + ox*k, e[1]*R + oy*k, e[2]*R + oz*k);
+          }
+          return a;
         }
-        // Death Star colour variant: teal body, blazing green superlaser on the reserved beam particles
-        // colour array aligned to `shapes` order [jet, atom, scorpion, lorenz, skull, rocket, torusKnot]
-        const shapeColors = [baseColors, baseColors, baseColors, baseColors, baseColors, baseColors, baseColors];
+
+        function makePrompt() {
+          // ">_" terminal prompt, sampled from rendered canvas text
+          const c = document.createElement('canvas');
+          c.width = 240; c.height = 160;
+          const g = c.getContext('2d', { willReadFrequently: true });
+          const glyphs = [];   // ink pixels: [0] = ">", [1] = "_"
+          for (const [ch, dx] of [['>', 60], ['_', 150]]) {
+            g.clearRect(0, 0, 240, 160);
+            g.fillStyle = '#fff';
+            g.font = '900 120px "Courier New", monospace';
+            g.textAlign = 'center'; g.textBaseline = 'middle';
+            g.fillText(ch, dx, 80);
+            const d = g.getImageData(0, 0, 240, 160).data, px = [];
+            for (let y = 0; y < 160; y++) for (let x = 0; x < 240; x++)
+              if (d[(y * 240 + x) * 4 + 3] > 128) px.push([x, y]);
+            if (!px.length) for (let x = 0; x < 60; x++) for (let y = 0; y < 20; y++) px.push([dx - 30 + x, 70 + y]); // font-failure fallback block
+            glyphs.push(px);
+          }
+          const a = new Float32Array(N * 3);
+          const caretN = Math.round(N * 0.62), sc = 0.012;
+          for (let i = 0; i < N; i++) {
+            const px = i < caretN ? glyphs[0] : glyphs[1];
+            const p = px[(Math.random() * px.length) | 0];
+            a[i*3]   = (p[0] - 105 + Math.random()) * sc;
+            a[i*3+1] = (80 - p[1] + Math.random()) * sc;
+            a[i*3+2] = (Math.random() * 2 - 1) * 0.05 + 0.04;
+          }
+          return a;
+        }
+
+        const shapes = [makeJet(), makeAtom(), makeScorpion(), makeLorenz(), makeSkull(), makeRocket(), makeGlobe(), makePrompt(), makeTorusKnot()];
+        // per-shape auto-rotation: 0 = settle face-on while held (skull, prompt), 1 = keep spinning
+        const shapeSpin = [1, 1, 1, 1, 0, 1, 1, 0, 1];
+        // pitch while a no-spin shape is held (skull tips face-down a bit, prompt sits square)
+        const shapeHoldPitch = [0, 0, 0, 0, 0.22, 0, 0, 0.02, 0];
+
+        // ---- per-shape colour schemes, keyed off each generator's index-fraction layout ----
+        const hex = (h) => [((h >> 16) & 255) / 255, ((h >> 8) & 255) / 255, (h & 255) / 255];
+        const mixc = (a, b, t) => [a[0] + (b[0]-a[0])*t, a[1] + (b[1]-a[1])*t, a[2] + (b[2]-a[2])*t];
+        const pick = (arr) => arr[(Math.random() * arr.length) | 0];
+        function buildColors(colorAt) {
+          const arr = new Float32Array(N * 3);
+          for (let i = 0; i < N; i++) {
+            let c = colorAt(i / N);
+            if (Math.random() < 0.04) c = [1, 1, 1];        // white-hot sparkles
+            const b = 0.7 + Math.random() * 0.4;            // per-particle brightness variation
+            arr[i*3] = Math.min(1, c[0]*b); arr[i*3+1] = Math.min(1, c[1]*b); arr[i*3+2] = Math.min(1, c[2]*b);
+          }
+          return arr;
+        }
+        const jetColors = buildColors(() =>                  // icy steel
+          pick([hex(0x99f6e4), hex(0xa5f3fc), hex(0xcffafe), hex(0x67e8f9)]));
+        const atomColors = buildColors((f) => f < 0.26       // gold nucleus, electric-blue orbits
+          ? pick([hex(0xffe9b8), hex(0xffd27d), [1, 1, 1]])
+          : pick([hex(0x67e8f9), hex(0x7dd3fc), hex(0x38bdf8)]));
+        const scorpColors = buildColors((f) => (f > 0.88 && f < 0.95)
+          ? pick([hex(0xf87171), hex(0xfb923c)])             // venom-red stinger
+          : pick([hex(0xfbbf24), hex(0xf59e0b), hex(0xfcd34d), hex(0xd97706)])); // desert amber
+        const lorenzColors = buildColors((f) =>              // nebula: indigo -> fuchsia along the trajectory
+          mixc(hex(0x818cf8), hex(0xe879f9), f));
+        const skullColors = buildColors((f) => (f < 0.5 || f >= 0.96)
+          ? pick([hex(0xf5f0e0), hex(0xe8e0cd), hex(0xfffbef)])  // ivory skull
+          : pick([hex(0x9fb3bd), hex(0xb8c4cc)]));               // cooler grey bones
+        const rocketColors = buildColors((f) => {
+          if (f >= 0.83 && f < 0.95) return mixc(hex(0xfde68a), hex(0xf97316), (f - 0.83) / 0.12); // exhaust plume
+          if (f >= 0.59 && f < 0.83) return pick([hex(0x5eead4), hex(0x2dd4bf)]);                   // teal fins
+          return pick([hex(0xd8e5ea), hex(0xbcd3da), hex(0xe8f4f8)]);                               // silver hull
+        });
+        const knotColors = buildColors((f) => {              // aurora bands flowing along the knot
+          const t = f * 6.2832;
+          return [0.35 + 0.3*Math.sin(t), 0.75 + 0.2*Math.sin(t + 2.09), 0.8 + 0.2*Math.sin(t + 4.19)];
+        });
+        const globeColors = buildColors((f) => {
+          if (f < 0.58) return pick([hex(0x5eead4), hex(0x2dd4bf), hex(0x67e8f9)]);   // teal wireframe
+          if (f < 0.68) return hex(0x134e4a);                                          // dim interior fill
+          if (f < 0.895) return pick([hex(0xf87171), hex(0xfb923c), hex(0xef4444)]);   // red attack arcs
+          return pick([[1, 1, 1], hex(0xfca5a5)]);                                     // white-hot impact points
+        });
+        const promptColors = buildColors((f) => f < 0.62
+          ? pick([hex(0x4ade80), hex(0x22c55e), hex(0x86efac)])                        // terminal-green ">"
+          : pick([hex(0xbbf7d0), [1, 1, 1], hex(0x86efac)]));                          // bright cursor "_"
+        // aligned to `shapes` order [jet, atom, scorpion, lorenz, skull, rocket, globe, prompt, torusKnot]
+        const shapeColors = [jetColors, atomColors, scorpColors, lorenzColors, skullColors, rocketColors, globeColors, promptColors, knotColors];
+
+        // per-particle randomness: x=morph stagger, y=size, z=twinkle phase, w=twinkle speed
+        const seeds = new Float32Array(N * 4);
+        // random unit vector: mid-morph arc direction, so particles stream instead of gliding straight
+        const swirls = new Float32Array(N * 3);
+        for (let i = 0; i < N; i++) {
+          seeds[i*4]   = Math.random();
+          seeds[i*4+1] = Math.random();
+          seeds[i*4+2] = Math.random();
+          seeds[i*4+3] = 0.5 + Math.random() * 1.8;
+          let x, y, z, d2;
+          do { x = Math.random()*2-1; y = Math.random()*2-1; z = Math.random()*2-1; d2 = x*x + y*y + z*z; } while (d2 > 1 || d2 < 1e-4);
+          const d = Math.sqrt(d2);
+          swirls[i*3] = x/d; swirls[i*3+1] = y/d; swirls[i*3+2] = z/d;
+        }
 
         // ---- soft round sprite ----
         const spriteCanvas = document.createElement('canvas');
@@ -959,14 +1092,79 @@
 
         const geom = new THREE.BufferGeometry();
         const positions = shapes[0].slice();
-        const colorBuf = shapeColors[0].slice();
+        const targets = shapes[1].slice();
+        const colorsCur = shapeColors[0].slice();
+        const colorsTo = shapeColors[1].slice();
         geom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        geom.setAttribute('color', new THREE.BufferAttribute(colorBuf, 3));
+        geom.setAttribute('aTo', new THREE.BufferAttribute(targets, 3));
+        geom.setAttribute('aColor', new THREE.BufferAttribute(colorsCur, 3));
+        geom.setAttribute('aColorTo', new THREE.BufferAttribute(colorsTo, 3));
+        geom.setAttribute('aSeed', new THREE.BufferAttribute(seeds, 4));
+        geom.setAttribute('aSwirl', new THREE.BufferAttribute(swirls, 3));
 
-        const material = new THREE.PointsMaterial({
-          size: small ? 0.055 : 0.045,
-          map: sprite, vertexColors: true, transparent: true,
-          depthWrite: false, blending: THREE.AdditiveBlending, sizeAttenuation: true,
+        // GPU morph: each particle departs on its own schedule (aSeed.x stagger), arcs sideways
+        // along aSwirl while in flight, twinkles, and dims + cools with depth for atmosphere
+        const vert = `
+          attribute vec3 aTo;
+          attribute vec4 aSeed;
+          attribute vec3 aSwirl;
+          attribute vec3 aColor;
+          attribute vec3 aColorTo;
+          uniform float uProgress;
+          uniform float uTime;
+          uniform float uScale;
+          uniform float uSizeMul;
+          uniform float uBreathe;
+          varying vec3 vColor;
+          varying float vAlpha;
+          float easeC(float t) {
+            return t < 0.5 ? 4.0*t*t*t : 1.0 - pow(-2.0*t + 2.0, 3.0) / 2.0;
+          }
+          void main() {
+            float stag = 0.45;
+            float p = clamp(uProgress * (1.0 + stag) - aSeed.x * stag, 0.0, 1.0);
+            float e = easeC(p);
+            vec3 pos = mix(position, aTo, e);
+            float arc = sin(p * 3.14159265);
+            pos += aSwirl * arc * (0.12 + 0.45 * aSeed.y);
+            pos += uBreathe * 0.014 * vec3(
+              sin(uTime * aSeed.w + aSeed.z * 6.2832),
+              sin(uTime * aSeed.w * 1.31 + aSeed.z * 12.57),
+              cos(uTime * aSeed.w * 0.73 + aSeed.z * 9.42));
+            vec4 mv = modelViewMatrix * vec4(pos, 1.0);
+            float twinkle = 0.78 + 0.42 * sin(uTime * (1.2 + aSeed.w * 1.6) + aSeed.z * 6.2832);
+            float size = (0.030 + 0.038 * aSeed.y) * twinkle * (1.0 + 0.8 * arc) * uSizeMul;
+            gl_PointSize = size * uScale / -mv.z;
+            float depth = clamp((-mv.z - 2.8) / 3.0, 0.0, 1.0);
+            vec3 col = mix(aColor, aColorTo, e);
+            vColor = col * mix(vec3(1.0), vec3(0.35, 0.5, 0.6), depth);  // far particles darken + cool
+            vAlpha = mix(1.0, 0.18, depth) * (1.0 + 0.6 * arc);
+            gl_Position = projectionMatrix * mv;
+          }`;
+        const frag = `
+          precision mediump float;
+          varying vec3 vColor;
+          varying float vAlpha;
+          void main() {
+            vec2 uv = gl_PointCoord - 0.5;
+            float d = length(uv) * 2.0;
+            float glow = pow(max(0.0, 1.0 - d), 1.8);
+            float core = smoothstep(0.42, 0.0, d);
+            vec3 col = vColor * glow + core * glow * 0.55;
+            gl_FragColor = vec4(col, glow * vAlpha);
+          }`;
+
+        const material = new THREE.ShaderMaterial({
+          uniforms: {
+            uProgress: { value: 0 },
+            uTime: { value: 0 },
+            uScale: { value: 300 },
+            uSizeMul: { value: small ? 1.3 : 1.0 },
+            uBreathe: { value: reduced ? 0 : 1 },
+          },
+          vertexShader: vert,
+          fragmentShader: frag,
+          transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
         });
 
         const group = new THREE.Group();
@@ -974,6 +1172,24 @@
         group.add(points);
         group.rotation.x = -0.18;
         scene.add(group);
+
+        // ---- ambient dust: sparse, large, dim motes drifting behind the sculpture ----
+        const DUST = small ? 140 : 220;
+        const dustGeom = new THREE.BufferGeometry();
+        const dustPos = new Float32Array(DUST * 3);
+        for (let i = 0; i < DUST; i++) {
+          let x, y, z, d2;
+          do { x = Math.random()*2-1; y = Math.random()*2-1; z = Math.random()*2-1; d2 = x*x + y*y + z*z; } while (d2 > 1 || d2 < 0.04);
+          const d = Math.sqrt(d2), r = 1.3 + Math.random() * 1.4;
+          dustPos[i*3] = x/d*r; dustPos[i*3+1] = y/d*r; dustPos[i*3+2] = z/d*r;
+        }
+        dustGeom.setAttribute('position', new THREE.BufferAttribute(dustPos, 3));
+        const dustMat = new THREE.PointsMaterial({
+          size: 0.35, map: sprite, transparent: true, opacity: 0.05,
+          color: 0x2dd4bf, depthWrite: false, blending: THREE.AdditiveBlending, sizeAttenuation: true,
+        });
+        const dust = new THREE.Points(dustGeom, dustMat);
+        scene.add(dust);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setClearColor(0x000000, 0);
@@ -987,6 +1203,8 @@
           renderer.setSize(w, h, false);
           camera.aspect = w / h;
           camera.updateProjectionMatrix();
+          // perspective point-size factor: half drawing-buffer height / tan(fov/2)
+          material.uniforms.uScale.value = renderer.domElement.height * 1.07;
         }
         resize();
         if (window.ResizeObserver) new ResizeObserver(resize).observe(container);
@@ -1001,18 +1219,18 @@
         });
         container.addEventListener('pointerleave', () => { targetX = 0; targetY = 0; });
 
-        // ---- morph state machine: show shapes[curIdx], morph to shapes[nextIdx], repeat ----
-        const ease = (t) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-        const MORPH = 2.2, HOLD = 4.2;
+        // ---- morph state machine: hold shapes[curIdx], stream particles to shapes[nextIdx], repeat ----
+        // interpolation happens on the GPU (per-particle stagger + arc); CPU only advances uProgress
+        const MORPH = 2.6, HOLD = 4.2;
         let curIdx = 0, nextIdx = 1;
-        let from = shapes[curIdx], to = shapes[nextIdx];
-        let fromC = shapeColors[curIdx], toC = shapeColors[nextIdx];
-        let phase = 'hold', mt = 0, holdT = 0;
+        let phase = 'hold', mt = 0, holdT = 0, t = 0;
         const clock = new THREE.Clock();
 
         function frame() {
           requestAnimationFrame(frame);
           const dt = Math.min(clock.getDelta(), 0.05);
+          t += dt;
+          if (!reduced) material.uniforms.uTime.value = t;
 
           // while holding on a no-spin shape (skull), ease to face-on; otherwise keep rotating
           const paused = phase === 'hold' && shapeSpin[curIdx] === 0;
@@ -1022,32 +1240,43 @@
           } else {
             group.rotation.y += dt * (reduced ? 0.12 : 0.35);
           }
-          const pitchBase = paused ? 0.22 : -0.18;   // tip the held skull to face down a bit
+          const pitchBase = paused ? shapeHoldPitch[curIdx] : -0.18;
           group.rotation.x += (pitchBase + targetY - group.rotation.x) * 0.05;
           group.rotation.z += (targetX * 0.5 - group.rotation.z) * 0.05;
+
+          // ambient drift: dust counter-rotates, camera sways gently
+          dust.rotation.y -= dt * 0.03;
+          dust.rotation.x = Math.sin(t * 0.07) * 0.1;
+          if (!reduced) {
+            camera.position.x += (Math.sin(t * 0.13) * 0.06 - camera.position.x) * 0.02;
+            camera.position.y += (Math.cos(t * 0.10) * 0.05 - camera.position.y) * 0.02;
+            camera.lookAt(0, 0, 0);
+          }
 
           if (!reduced) {
             if (phase === 'hold') {
               holdT += dt;
-              if (holdT >= HOLD) { phase = 'morph'; mt = 0; from = shapes[curIdx]; to = shapes[nextIdx]; fromC = shapeColors[curIdx]; toC = shapeColors[nextIdx]; }
+              if (holdT >= HOLD) {
+                phase = 'morph'; mt = 0;
+                targets.set(shapes[nextIdx]);
+                colorsTo.set(shapeColors[nextIdx]);
+                geom.attributes.aTo.needsUpdate = true;
+                geom.attributes.aColorTo.needsUpdate = true;
+              }
             } else {
               mt += dt / MORPH;
-              if (mt >= 1) { mt = 1; phase = 'hold'; holdT = 0; curIdx = nextIdx; nextIdx = (nextIdx + 1) % shapes.length; }
-              const e = ease(mt);
-              for (let i = 0; i < positions.length; i++) {
-                positions[i] = from[i] + (to[i] - from[i]) * e;
-                colorBuf[i] = fromC[i] + (toC[i] - fromC[i]) * e;
+              if (mt >= 1) {
+                mt = 0; phase = 'hold'; holdT = 0;
+                curIdx = nextIdx; nextIdx = (nextIdx + 1) % shapes.length;
+                positions.set(shapes[curIdx]);
+                colorsCur.set(shapeColors[curIdx]);
+                geom.attributes.position.needsUpdate = true;
+                geom.attributes.aColor.needsUpdate = true;
               }
-              geom.attributes.position.needsUpdate = true;
-              geom.attributes.color.needsUpdate = true;
+              material.uniforms.uProgress.value = mt;
             }
           }
           renderer.render(scene, camera);
-        }
-
-        if (reduced) { // static fighter jet
-          positions.set(shapes[0]); colorBuf.set(shapeColors[0]);
-          geom.attributes.position.needsUpdate = true; geom.attributes.color.needsUpdate = true;
         }
         frame();
       }
