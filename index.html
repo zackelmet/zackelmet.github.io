@@ -109,7 +109,7 @@
                                 <div class="mx-auto max-w-2xl lg:max-w-5xl">
                                     <div class="grid grid-cols-1 gap-y-16 lg:grid-cols-2 lg:grid-rows-[auto_1fr] lg:gap-y-12">
                                         <div class="lg:pl-20">
-                                            <div class="max-w-xs px-2.5 lg:max-w-none"><div id="hero-three" class="aspect-square rotate-3 rounded-2xl" style="background:#1A3640;overflow:hidden;position:relative;" role="img" aria-label="Animated 3D particle sculpture that morphs between a fighter jet, an atom, a scorpion, a Lorenz attractor, a skull and crossbones, a rocket ship, a globe with attack arcs, a terminal prompt, and a torus knot"></div>
+                                            <div class="max-w-xs px-2.5 lg:max-w-none"><div id="hero-three" class="aspect-square rotate-3 rounded-2xl" style="background:#1A3640;overflow:hidden;position:relative;" role="img" aria-label="Animated 3D particle sculpture that morphs between a fighter jet, an atom, a scorpion, a Lorenz attractor, a skull and crossbones, a rocket ship, a globe with attack arcs, the initials ZE, and a torus knot"></div>
                                     </div>
                                 </div>
                                 <div class="lg:order-first lg:row-span-2 ">
@@ -579,7 +579,7 @@
     </div>
 </div>
 
-    <!-- Hero particle morph: GPU-staggered particle streams cycling jet -> atom -> scorpion -> lorenz -> skull -> rocket -> globe -> terminal prompt -> torus knot, each with its own palette -->
+    <!-- Hero particle morph: GPU-staggered particle streams cycling jet -> atom -> scorpion -> lorenz -> skull -> rocket -> globe -> "ZE" initials -> torus knot, each with its own palette -->
     <script type="importmap">
     { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
     </script>
@@ -677,7 +677,7 @@
         }
 
         function makeTorusKnot() {
-          const a = new Float32Array(N * 3), p = 2, q = 3, tube = 0.45, sc = 0.5;
+          const a = new Float32Array(N * 3), p = 2, q = 3, tube = 0.30, sc = 0.54;
           for (let i = 0; i < N; i++) {
             const t = (i / N) * Math.PI * 2;
             const r = Math.cos(q * t) + 2;
@@ -795,66 +795,78 @@
         }
 
         function makeScorpion() {
-          // top-down scorpion: segmented body, two pincer claws, 8 bent legs, tail curling to a stinger
+          // top-down scorpion (emoji-style): carapace + segment bands, compact crab claws
+          // beside the head, 8 bent legs, thick segmented tail curling round to a red stinger
           const pts = [];
           const push = (x, y, z) => pts.push([x, y, z]);
-          const jz = () => (Math.random() * 2 - 1) * 0.05;
-          const seg = (count, ax, ay, bx, by, r) => {           // points along a limb segment
+          const jz = () => (Math.random() * 2 - 1) * 0.06;
+          const seg = (count, ax, ay, bx, by, r) => {
             for (let i = 0; i < count; i++) {
               const s = Math.random();
-              push(ax + (bx - ax) * s + (Math.random() - 0.5) * r,
-                   ay + (by - ay) * s + (Math.random() - 0.5) * r, jz());
+              push(ax + (bx - ax) * s + (Math.random() - 0.5) * r * 2,
+                   ay + (by - ay) * s + (Math.random() - 0.5) * r * 2, jz());
             }
           };
-          const blob = (count, cx, cy, rr) => {                 // small 3D cluster
+          const oval = (count, cx, cy, rx, ry, ang = 0) => {
+            const ca = Math.cos(ang), sa = Math.sin(ang);
             for (let i = 0; i < count; i++) {
-              let a1, b1, c1, d2;
-              do { a1 = Math.random()*2-1; b1 = Math.random()*2-1; c1 = Math.random()*2-1; d2 = a1*a1+b1*b1+c1*c1; } while (d2 > 1);
-              const k = rr * Math.cbrt(Math.random());
-              push(cx + a1 * k, cy + b1 * k, c1 * k * 0.6);
+              const th = Math.random() * Math.PI * 2, rr = Math.sqrt(Math.random());
+              const ox = Math.cos(th) * rx * rr, oy = Math.sin(th) * ry * rr;
+              push(cx + ox * ca - oy * sa, cy + ox * sa + oy * ca, jz());
             }
           };
 
-          const bodyN = Math.round(N * 0.18);                   // cephalothorax + tapering abdomen
-          for (let i = 0; i < bodyN; i++) {
-            const y = 0.45 - Math.random() * 0.82;
-            const w = y > 0.12 ? 0.17 : 0.18 - (0.12 - y) * 0.16;
-            push((Math.random() * 2 - 1) * w, y, jz());
+          const bodyN = Math.round(N * 0.20);               // carapace + 5 abdomen bands
+          const carN = Math.round(bodyN * 0.35);
+          oval(carN, 0, 0.32, 0.19, 0.15);
+          const bands = [[0.13, 0.22], [0.03, 0.21], [-0.07, 0.19], [-0.17, 0.17], [-0.26, 0.145]];
+          const perBand = Math.floor((bodyN - carN) / bands.length);
+          for (const [cy, rx] of bands) oval(perBand, 0, cy, rx, 0.062);
+
+          const pinN = Math.round(N * 0.22), armN = Math.round(pinN * 0.13 / 2), chelaN = Math.round(pinN * 0.30 / 2), fingN = Math.round(pinN * 0.07 / 2);
+          for (const s of [-1, 1]) {
+            seg(armN, s * 0.14, 0.36, s * 0.28, 0.46, 0.065);      // short thick arm
+            oval(chelaN, s * 0.38, 0.56, 0.115, 0.100, s * 0.5);   // big round palm beside the head
+            seg(fingN, s * 0.45, 0.65, s * 0.39, 0.80, 0.038);     // outer pincer tip, curving in
+            seg(fingN, s * 0.28, 0.63, s * 0.32, 0.76, 0.032);     // inner tip, converging -> open claw mouth
           }
-          for (const side of [-1, 1]) {                         // two big two-pronged pincers
-            seg(Math.round(N * 0.035), side * 0.13, 0.34, side * 0.34, 0.70, 0.05);  // arm
-            blob(Math.round(N * 0.030), side * 0.40, 0.80, 0.11);                    // hand
-            seg(Math.round(N * 0.028), side * 0.34, 0.72, side * 0.52, 0.97, 0.03);  // outer finger
-            seg(Math.round(N * 0.028), side * 0.40, 0.78, side * 0.27, 0.95, 0.03);  // inner finger
-          }
-          const legAttach = [0.34, 0.20, 0.05, -0.10];          // 8 two-segment legs
-          const legN = Math.round(N * 0.012);
-          for (const side of [-1, 1]) {
-            for (let L = 0; L < 4; L++) {
-              const ay = legAttach[L], kneeX = side * 0.34, kneeY = ay - 0.06 - L * 0.02;
-              seg(legN, side * 0.12, ay, kneeX, kneeY, 0.02);
-              seg(legN, kneeX, kneeY, side * 0.52, ay - 0.22 - L * 0.03, 0.02);
+
+          const legN = Math.round(N * 0.014);               // 4 two-segment legs per side
+          const attach = [
+            [0.28, 0.38, 0.14, 0.56, 0.22],
+            [0.16, 0.40, 0.06, 0.60, 0.06],
+            [0.04, 0.40, -0.02, 0.58, -0.10],
+            [-0.08, 0.38, -0.10, 0.52, -0.26],
+          ];
+          for (const s of [-1, 1]) {
+            for (const [ay, kx, kdy, fx, fy] of attach) {
+              seg(legN, s * 0.15, ay, s * kx, ay + kdy, 0.022);
+              seg(legN, s * kx, ay + kdy, s * fx, fy, 0.020);
             }
           }
-          const wp = [[0.0, -0.38], [0.30, -0.42], [0.50, -0.16], [0.45, 0.14], [0.24, 0.32], [0.07, 0.33]]; // tail curl
+
+          const wp = [[0.00, -0.30], [0.10, -0.50], [0.30, -0.60], [0.50, -0.52], [0.60, -0.30], [0.58, -0.05], [0.46, 0.14]]; // tail curl
           const segL = []; let totL = 0;
           for (let i = 0; i < wp.length - 1; i++) { const d = Math.hypot(wp[i+1][0]-wp[i][0], wp[i+1][1]-wp[i][1]); segL.push(d); totL += d; }
-          const tailN = Math.round(N * 0.27);
+          const tailN = Math.round(N * 0.26);
           for (let i = 0; i < tailN; i++) {
             let s = Math.random() * totL, k = 0;
             while (k < segL.length - 1 && s > segL[k]) { s -= segL[k]; k++; }
-            const f = s / segL[k], prog = (k + f) / (wp.length - 1), r = 0.06 * (1 - 0.5 * prog);
-            push(wp[k][0] + (wp[k+1][0]-wp[k][0]) * f + (Math.random()-0.5) * r,
-                 wp[k][1] + (wp[k+1][1]-wp[k][1]) * f + (Math.random()-0.5) * r, jz() * 1.2);
+            const f = s / segL[k], prog = (k + f) / (wp.length - 1);
+            const r = (0.062 * (1 - 0.30 * prog)) * (0.78 + 0.38 * Math.abs(Math.sin(prog * Math.PI * 5))); // segment bulges
+            const th = Math.random() * Math.PI * 2, rr = Math.sqrt(Math.random()) * r;
+            push(wp[k][0] + (wp[k+1][0]-wp[k][0]) * f + Math.cos(th) * rr,
+                 wp[k][1] + (wp[k+1][1]-wp[k][1]) * f + Math.sin(th) * rr, jz() * 1.2);
           }
-          const sx = wp[wp.length-1][0], sy = wp[wp.length-1][1];   // stinger bulb + barb
-          blob(Math.round(N * 0.045), sx, sy, 0.06);
-          seg(Math.round(N * 0.02), sx, sy, sx - 0.06, sy + 0.12, 0.015);
 
-          while (pts.length < N) { const t = Math.random(); push((Math.random()*2-1)*0.15, 0.45 - t*0.82, jz()); }
+          const stingN = Math.round(N * 0.065), bulbN = Math.round(stingN * 0.6);
+          oval(bulbN, 0.44, 0.18, 0.062, 0.055);                   // telson bulb
+          seg(stingN - bulbN, 0.41, 0.22, 0.30, 0.31, 0.016);      // barb curving over the back
+
+          while (pts.length < N) oval(1, 0, 0.30, 0.17, 0.13);     // pad with carapace fill
           pts.length = N;
-          const a = new Float32Array(N * 3), sc = 1.1;
-          for (let i = 0; i < N; i++) { a[i*3] = pts[i][0]*sc; a[i*3+1] = pts[i][1]*sc; a[i*3+2] = pts[i][2]*sc; }
+          const a = new Float32Array(N * 3), sc = 1.12, ox = -0.05, oy = -0.18;
+          for (let i = 0; i < N; i++) { a[i*3] = (pts[i][0] + ox) * sc; a[i*3+1] = (pts[i][1] + oy) * sc; a[i*3+2] = pts[i][2]; }
           return a;
         }
 
@@ -903,18 +915,34 @@
         }
 
         function makeLorenz() {
-          const a = new Float32Array(N * 3), sigma = 10, rho = 28, beta = 8 / 3, dt = 0.006, sc = 0.045;
+          // integrate once, then spread particles uniformly along the curve's arc length --
+          // uniform-by-time clumps at the slow lobe cores and blows out to white under additive blending
+          const sigma = 10, rho = 28, beta = 8 / 3, dt = 0.006, sc = 0.045, STEPS = 2600;
           let x = 0.1, y = 0, z = 0;
           for (let s = 0; s < 800; s++) {          // burn-in past the transient
             const dx = sigma * (y - x), dy = x * (rho - z) - y, dz = x * y - beta * z;
             x += dx * dt; y += dy * dt; z += dz * dt;
           }
-          for (let i = 0; i < N; i++) {
+          const traj = new Float32Array((STEPS + 1) * 3), cum = new Float32Array(STEPS + 1);
+          traj[0] = x; traj[1] = y; traj[2] = z;
+          for (let s = 1; s <= STEPS; s++) {
             const dx = sigma * (y - x), dy = x * (rho - z) - y, dz = x * y - beta * z;
             x += dx * dt; y += dy * dt; z += dz * dt;
-            a[i*3]   = x * sc           + (Math.random() - 0.5) * 0.04;
-            a[i*3+1] = (z - 25) * sc    + (Math.random() - 0.5) * 0.04;  // attractor is tall in z -> map up
-            a[i*3+2] = y * sc           + (Math.random() - 0.5) * 0.04;
+            traj[s*3] = x; traj[s*3+1] = y; traj[s*3+2] = z;
+            cum[s] = cum[s-1] + Math.hypot(dx, dy, dz) * dt;
+          }
+          const a = new Float32Array(N * 3), totL = cum[STEPS];
+          let k = 1;
+          for (let i = 0; i < N; i++) {
+            const L = (i / N) * totL;
+            while (k < STEPS && cum[k] < L) k++;
+            const f = (L - cum[k-1]) / ((cum[k] - cum[k-1]) || 1);
+            const px = traj[(k-1)*3]   + (traj[k*3]   - traj[(k-1)*3])   * f;
+            const py = traj[(k-1)*3+1] + (traj[k*3+1] - traj[(k-1)*3+1]) * f;
+            const pz = traj[(k-1)*3+2] + (traj[k*3+2] - traj[(k-1)*3+2]) * f;
+            a[i*3]   = px * sc        + (Math.random() - 0.5) * 0.07;
+            a[i*3+1] = (pz - 25) * sc + (Math.random() - 0.5) * 0.07;   // attractor is tall in z -> map up
+            a[i*3+2] = py * sc        + (Math.random() - 0.5) * 0.07;
           }
           return a;
         }
@@ -974,18 +1002,19 @@
           return a;
         }
 
-        function makePrompt() {
-          // ">_" terminal prompt, sampled from rendered canvas text
+        function makeInitials() {
+          // "ZE" monogram, sampled from rendered canvas text
           const c = document.createElement('canvas');
           c.width = 240; c.height = 160;
           const g = c.getContext('2d', { willReadFrequently: true });
-          const glyphs = [];   // ink pixels: [0] = ">", [1] = "_"
-          for (const [ch, dx] of [['>', 60], ['_', 150]]) {
+          const glyphs = [];   // ink pixels: [0] = "Z", [1] = "E"
+          for (const [ch, dx] of [['Z', 64], ['E', 172]]) {
             g.clearRect(0, 0, 240, 160);
-            g.fillStyle = '#fff';
+            g.fillStyle = '#fff'; g.strokeStyle = '#fff'; g.lineWidth = 9;   // stroke fattens the glyph
             g.font = '900 120px "Courier New", monospace';
             g.textAlign = 'center'; g.textBaseline = 'middle';
             g.fillText(ch, dx, 80);
+            g.strokeText(ch, dx, 80);
             const d = g.getImageData(0, 0, 240, 160).data, px = [];
             for (let y = 0; y < 160; y++) for (let x = 0; x < 240; x++)
               if (d[(y * 240 + x) * 4 + 3] > 128) px.push([x, y]);
@@ -993,22 +1022,22 @@
             glyphs.push(px);
           }
           const a = new Float32Array(N * 3);
-          const caretN = Math.round(N * 0.62), sc = 0.012;
+          const zN = Math.round(N * 0.52), sc = 0.0115;
           for (let i = 0; i < N; i++) {
-            const px = i < caretN ? glyphs[0] : glyphs[1];
+            const px = i < zN ? glyphs[0] : glyphs[1];
             const p = px[(Math.random() * px.length) | 0];
-            a[i*3]   = (p[0] - 105 + Math.random()) * sc;
+            a[i*3]   = (p[0] - 118 + Math.random()) * sc;
             a[i*3+1] = (80 - p[1] + Math.random()) * sc;
             a[i*3+2] = (Math.random() * 2 - 1) * 0.05 + 0.04;
           }
           return a;
         }
 
-        const shapes = [makeJet(), makeAtom(), makeScorpion(), makeLorenz(), makeSkull(), makeRocket(), makeGlobe(), makePrompt(), makeTorusKnot()];
-        // per-shape auto-rotation: 0 = settle face-on while held (skull, prompt), 1 = keep spinning
-        const shapeSpin = [1, 1, 1, 1, 0, 1, 1, 0, 1];
-        // pitch while a no-spin shape is held (skull tips face-down a bit, prompt sits square)
-        const shapeHoldPitch = [0, 0, 0, 0, 0.22, 0, 0, 0.02, 0];
+        const shapes = [makeJet(), makeAtom(), makeScorpion(), makeLorenz(), makeSkull(), makeRocket(), makeGlobe(), makeInitials(), makeTorusKnot()];
+        // per-shape auto-rotation: 0 = settle face-on while held (scorpion, skull, initials), 1 = keep spinning
+        const shapeSpin = [1, 1, 0, 1, 0, 1, 1, 0, 1];
+        // pitch while a no-spin shape is held (skull tips face-down a bit)
+        const shapeHoldPitch = [0, 0, 0.1, 0, 0.22, 0, 0, 0.02, 0];
 
         // ---- per-shape colour schemes, keyed off each generator's index-fraction layout ----
         const hex = (h) => [((h >> 16) & 255) / 255, ((h >> 8) & 255) / 255, (h & 255) / 255];
@@ -1029,11 +1058,11 @@
         const atomColors = buildColors((f) => f < 0.26       // gold nucleus, electric-blue orbits
           ? pick([hex(0xffe9b8), hex(0xffd27d), [1, 1, 1]])
           : pick([hex(0x67e8f9), hex(0x7dd3fc), hex(0x38bdf8)]));
-        const scorpColors = buildColors((f) => (f > 0.88 && f < 0.95)
-          ? pick([hex(0xf87171), hex(0xfb923c)])             // venom-red stinger
+        const scorpColors = buildColors((f) => (f > 0.90 && f < 0.97)
+          ? pick([hex(0xf87171), hex(0xfb923c), hex(0xef4444)])   // venom-red telson + barb
           : pick([hex(0xfbbf24), hex(0xf59e0b), hex(0xfcd34d), hex(0xd97706)])); // desert amber
-        const lorenzColors = buildColors((f) =>              // nebula: indigo -> fuchsia along the trajectory
-          mixc(hex(0x818cf8), hex(0xe879f9), f));
+        const lorenzColors = buildColors((f) =>              // nebula: bright indigo -> fuchsia along the trajectory
+          mixc(hex(0xa5b4fc), hex(0xf0abfc), f));
         const skullColors = buildColors((f) => (f < 0.5 || f >= 0.96)
           ? pick([hex(0xf5f0e0), hex(0xe8e0cd), hex(0xfffbef)])  // ivory skull
           : pick([hex(0x9fb3bd), hex(0xb8c4cc)]));               // cooler grey bones
@@ -1052,11 +1081,11 @@
           if (f < 0.895) return pick([hex(0xf87171), hex(0xfb923c), hex(0xef4444)]);   // red attack arcs
           return pick([[1, 1, 1], hex(0xfca5a5)]);                                     // white-hot impact points
         });
-        const promptColors = buildColors((f) => f < 0.62
-          ? pick([hex(0x4ade80), hex(0x22c55e), hex(0x86efac)])                        // terminal-green ">"
-          : pick([hex(0xbbf7d0), [1, 1, 1], hex(0x86efac)]));                          // bright cursor "_"
-        // aligned to `shapes` order [jet, atom, scorpion, lorenz, skull, rocket, globe, prompt, torusKnot]
-        const shapeColors = [jetColors, atomColors, scorpColors, lorenzColors, skullColors, rocketColors, globeColors, promptColors, knotColors];
+        const initialColors = buildColors((f) => f < 0.52
+          ? pick([hex(0x5eead4), hex(0x2dd4bf), hex(0x99f6e4)])                        // teal "Z"
+          : pick([hex(0x67e8f9), hex(0x7dd3fc), hex(0x38bdf8)]));                      // cyan "E"
+        // aligned to `shapes` order [jet, atom, scorpion, lorenz, skull, rocket, globe, initials, torusKnot]
+        const shapeColors = [jetColors, atomColors, scorpColors, lorenzColors, skullColors, rocketColors, globeColors, initialColors, knotColors];
 
         // per-particle randomness: x=morph stagger, y=size, z=twinkle phase, w=twinkle speed
         const seeds = new Float32Array(N * 4);
