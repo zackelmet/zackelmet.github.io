@@ -2838,3 +2838,34 @@ img,video {
         margin-top: 0
     }
 }
+
+/* ---- Site-wide solid blue-green page background (override) ---- */
+/* Change this one value to adjust the exact shade across the whole site. */
+:root {
+    --page-bg: #0f766e;
+}
+
+/* Base fill for the whole viewport — covers the areas beyond the centered
+   strip, killing the black side-bands in light + dark mode */
+html,
+body {
+    background-color: var(--page-bg) !important;
+}
+
+/* The centered strip (posts use bg-zinc-600, the home page uses
+   bg-white/dark:bg-zinc-900) — both carry ring-1, so target that. Paint it
+   the same color and drop the ring so there are no dividing lines. */
+.fixed.inset-0 .ring-1 {
+    background-color: var(--page-bg) !important;
+    box-shadow: none !important;
+    --tw-ring-shadow: 0 0 #0000 !important;
+    --tw-ring-color: transparent !important;
+}
+
+/* Neutralize the opaque canvas layers (the home page paints its wrapper and
+   <main> with bg-zinc-600) so the teal shows through uniformly everywhere */
+body > .flex,
+body > .flex > .relative,
+main.flex-auto {
+    background-color: transparent !important;
+}
