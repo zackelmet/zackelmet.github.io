@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-XZQS8EF17V"></script>
+        <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+
+          gtag('config', 'G-XZQS8EF17V');
+        </script>
+        <link rel="preload" as="style" href="https://zackelmet.xyz/app-7ac6d5fa.css"/>
+    <link rel="stylesheet" href="../../app-7ac6d5fa.css"/>
+        <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+        <meta name="twitter:card" content="summary_large_image"/>
+        <meta name="twitter:site" content="@zkpz_"/>
+        <meta name="twitter:creator" content="@zkpx_"/>
+        <meta name="twitter:title" content="Renting a GPU to Understand LLM Inference">
+        <meta name="twitter:description" content="Serving Qwen2.5-72B on a single AMD MI300X to learn how inference actually works."/>
+        <meta property="og:url" content="Renting a GPU to Understand LLM Inference"/>
+        <meta property="og:title" content="Renting a GPU to Understand LLM Inference"/>
+        <meta name="og:description" content="Serving Qwen2.5-72B on a single AMD MI300X to learn how inference actually works."/>
+        <meta name="author" content="zackelmet"/>
+        <meta property="og:image" content="https://zackelmet.github.io/Posts/LLM-Inference-AMD/amd-mi300x.png">
+        <meta property="og:image:type" content="image/png">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="675">
+        <title>Renting a GPU to Understand LLM Inference</title>
+    </head>
+    <body class="flex h-full bg-zinc-600 dark:bg-black">
+        <div class="flex w-full">
+            <div class="fixed inset-0 flex justify-center sm:px-8">
+                <div class="flex w-full max-w-7xl lg:px-8">
+                    <div class="w-full ring-1 bg-zinc-600 ring-zinc-300/20"></div>
+                </div>
+            </div>
+            <div class="relative flex w-full flex-col">
+                <main class="flex-auto">
+                    <div class="sm:px-8 mt-16 lg:mt-32">
+                        <div class="mx-auto w-full max-w-7xl lg:px-8">
+                            <div class="relative px-4 sm:px-8 lg:px-12">
+                                <div class="mx-auto max-w-2xl lg:max-w-5xl">
+                                    <div class="xl:relative">
+                                        <div class="mx-auto max-w-2xl">
+                                            <a href="/">
+                                                <button type="button" aria-label="Go home" class="group mb-8 flex h-10 w-10 items-center justify-center rounded-full shadow-md shadow-zinc-800/5 ring-1 ring-zinc-900/5 transition dark:border dark:border-zinc-700/50 bg-zinc-800 dark:ring-0 dark:ring-white/10 dark:hover:border-zinc-700 dark:hover:ring-white/20 lg:absolute lg:-left-5 lg:-mt-2 lg:mb-0 xl:-top-1.5 xl:left-0 xl:mt-0">
+                                                    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" class="h-4 w-4 stroke-zinc-500 transition group-hover:stroke-zinc-700 dark:stroke-zinc-500 dark:group-hover:stroke-zinc-400">
+                                                        <path d="M7.25 11.25 3.75 8m0 0 3.5-3.25M3.75 8h8.5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                                    </svg>
+                                                </button>
+                                            </a>
+                                            <article>
+                                                <header class="flex flex-col">
+                                                    <h1 class="mt-6 text-4xl font-bold tracking-tight text-zinc-100 sm:text-5xl">Renting a GPU to Understand LLM Inference</h1>
+                                                    <time datetime="2026-07-19" class="order-first flex items-center text-base text-zinc-500">
+                                                        <span class="h-4 w-0.5 rounded-full bg-zinc-500"></span>
+                                                        <span class="ml-3">July 2026</span>
+                                                    </time>
+                                                    <p class="my-5 text-zinc-400 font-bold">I wanted to understand what actually happens on the GPU, so I served a model myself instead of reading about it.</p>
+                                                    <img alt="AMD Developer Cloud GPU droplet creation screen showing the single MI300X plan with 192GB VRAM" loading="lazy" decoding="async" src="amd-mi300x.png" class="rounded-lg" style="color: transparent;">
+                                                </header>
+                                                <div class="mt-4 prose prose-invert prose-a:text-emerald-500 prose-gray" data-mdx-content="true">
+                                                    <p>I wanted to actually understand how LLM inference works. What's happening on the GPU, not just the API call. So instead of reading more about it, I served a model myself.</p>
+                                                    <p>It turns out AMD runs a developer program that hands out free cloud credits. That was enough to spin up a single MI300X with 192GB of VRAM on one card. I grabbed Qwen2.5-72B and ran it on my own GPU. It's open weights, so anyone can download it and do the same.</p>
+                                                    <p>The timing felt right to run a Chinese open-weight model. They're having a serious moment. Qwen, DeepSeek, and Moonshot's Kimi K3 are all landing at or near frontier quality and shipping fully open, while a lot of the US labs are going the other direction and locking things behind APIs and safety guardrails. You hate to see it.</p>
+                                                    <h2>What I did</h2>
+                                                    <p>The setup itself is fairly boring in a good way: pick a GPU image that already has the ROCm drivers and vLLM installed, load the model, and vLLM exposes an OpenAI-compatible endpoint you can point any tool at. The interesting part wasn't the steps, it was watching what the machine actually does once the model is loaded.</p>
+                                                    <h2>A couple of notes from the deployment</h2>
+                                                    <p><strong>The weights aren't the whole story.</strong> Loading Qwen-72B took about 145GB, and vLLM immediately grabbed most of the rest of the card for the KV cache, the running memory that holds the conversation as the model generates. Watching the startup log spell out "this much VRAM equals this many tokens of context" made the context-length-vs-memory tradeoff concrete in a way no diagram ever did. The weights are the floor; the context is what actually fills the card.</p>
+                                                    <p><strong>Tool-calling is two moving parts, not one.</strong> The model has been trained to emit the call, but your server has to be told how to parse that output into a structured tool call. Skip that config and the call comes back as plain text the agent can't see. It doesn't error. It just silently stalls. That one cost me some time, and it's the kind of thing you only really internalize by hitting it.</p>
+                                                    <h2>Why I bothered</h2>
+                                                    <p>I care about this because I'm building AI-driven security tooling at <a href="https://vulnscanners.com">Vuln Scanners</a>, and I'd been making architecture decisions about inference entirely from the outside. Which model, what it costs at scale, where the bottlenecks are. Those are hard calls to make well from behind an API key.</p>
+                                                    <p>The whole AI stack feels like a black box until you rent the metal for an afternoon. Then it's just software you can read all the way down. If you're building on top of models and you've never served one yourself, the AMD Developer Cloud free credits are a cheap way to fix that. Cheapest tuition I've paid in a while.</p>
+                                                </div>
+                                            </article>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+                <footer class="mt-32 flex-none">
+                    <div class="sm:px-8">
+                        <div class="mx-auto w-full max-w-7xl lg:px-8">
+                            <div class="border-t border-zinc-100 pb-16 pt-10 dark:border-zinc-700/40">
+                                <div class="relative px-4 sm:px-8 lg:px-12 ">
+                                    <div class="mx-auto max-w-2xl lg:max-w-5xl ">
+                                        <div class="flex flex-col items-center justify-between gap-6 sm:flex-row ">
+                                            <div class="flex flex-wrap justify-center gap-x-6 gap-y-1 text-sm font-medium text-zinc-600 dark:text-zinc-200 ">
+                                                <a class="transition hover:text-teal-500 dark:hover:text-teal-400 " href="/">Home</a>
+                                                <p class="text-sm text-zinc-400 dark:text-zinc-500 ">©
+                                                    <script>document.write(new Date().getFullYear());</script>
+                                                    Zack ElMetennani
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                </footer>
+            </div>
+        </div>
+    </body>
+</html>
