@@ -91,6 +91,26 @@
       ]
     }
     </script>
+    <style>
+      /* Self-contained UI polish (utilities absent from the compiled Tailwind dump) */
+      .card-outline { border-color: rgb(212 212 216); }            /* zinc-300 */
+      @media (prefers-color-scheme: dark) {
+        .card-outline { border-color: rgb(82 82 91); }             /* zinc-600 */
+      }
+      .row-link {
+        position: relative;
+        margin: 0 -0.75rem;
+        padding: 0.625rem 0.75rem;
+        border-radius: 0.625rem;
+        transition: background-color 0.15s ease;
+      }
+      .row-link:hover { background-color: rgb(39 39 42 / 0.05); }  /* zinc-800/5 */
+      @media (prefers-color-scheme: dark) {
+        .row-link:hover { background-color: rgb(63 63 70 / 0.32); }/* zinc-700/32 */
+      }
+      /* stretched link: makes the whole .row-link row clickable */
+      .row-link a.stretch::after { content: ""; position: absolute; inset: 0; }
+    </style>
     </head>
 
     <body class="flex h-full bg-zinc-600 dark:bg-black">
@@ -109,7 +129,7 @@
                                 <div class="mx-auto max-w-2xl lg:max-w-5xl">
                                     <div class="grid grid-cols-1 gap-y-16 lg:grid-cols-2 lg:grid-rows-[auto_1fr] lg:gap-y-12">
                                         <div class="lg:pl-20">
-                                            <div class="max-w-xs px-2.5 lg:max-w-none"><div id="hero-three" class="aspect-square rotate-3 rounded-2xl" style="background:#1A3640;overflow:hidden;position:relative;" role="img" aria-label="Animated 3D particle sculpture that morphs between a fighter jet, an atom, a scorpion, a Lorenz attractor, a skull and crossbones, a rocket ship, a globe with attack arcs, the initials ZE, and a torus knot"></div>
+                                            <div class="max-w-xs px-2.5 lg:max-w-none"><div id="hero-three" class="aspect-square rotate-3 rounded-2xl" style="background:#1A3640;overflow:hidden;position:relative;" role="img" aria-label="Animated 3D particle sculpture that morphs between a fighter jet, an atom, a scorpion, a Lorenz attractor, a skull and crossbones, a rocket ship, a globe with attack arcs, and a torus knot"></div>
                                     </div>
                                 </div>
                                 <div class="lg:order-first lg:row-span-2 ">
@@ -470,7 +490,7 @@
 
                                     <!-- start contact box -->
                                     <a id="contact"></a>
-                                        <form class="mt-5 rounded-2xl border border-zinc-100 p-6 dark:border-zinc-700/40" method="POST" action="https://api.staticforms.xyz/submit">
+                                        <form class="mt-5 rounded-2xl border card-outline p-6" method="POST" action="https://api.staticforms.xyz/submit">
                                             <input type="hidden" name="accessKey" value="sf_jg67kjl0kmfel606ngl4cdle">
                                             <input type="hidden" name="redirectTo" value="/contact.html">
                                                 <h2 class="flex text-sm font-semibold text-zinc-600 dark:text-zinc-100 ">
@@ -503,7 +523,7 @@
                                                         </div>
                                                         <!-- submit button -->
                                                         <div class="mt-6 ">
-                                                            <button type="submit " class="inline-flex items-center justify-center rounded-md py-2 px-3 text-sm outline-offset-2 transition active:transition-none bg-zinc-800 font-semibold text-zinc-100 hover:bg-zinc-700 active:bg-zinc-800 active:text-zinc-100/70 dark:bg-zinc-700 dark:hover:bg-zinc-600 dark:active:bg-zinc-700 dark:active:text-zinc-100/70 flex-none ">
+                                                            <button type="submit " class="inline-flex items-center justify-center rounded-lg py-3 px-6 text-base outline-offset-2 transition active:transition-none bg-zinc-800 font-semibold text-zinc-100 hover:bg-zinc-700 active:bg-zinc-800 active:text-zinc-100/70 dark:bg-zinc-700 dark:hover:bg-zinc-600 dark:active:bg-zinc-700 dark:active:text-zinc-100/70 flex-none ">
                                                                 Send
                                                             </button>
                                                         </div>
@@ -516,7 +536,7 @@
 
 
                                     <!-- start projects box -->
-                                    <div class="mt-5 rounded-2xl border border-zinc-100 p-6 dark:border-zinc-700/40 ">
+                                    <div class="mt-5 rounded-2xl border card-outline p-6 ">
                                         <h2 class="flex text-sm font-semibold text-zinc-600 dark:text-zinc-100 ">
                                             <svg viewBox="0 0 24 24 " fill="none " stroke-width="1.5 " stroke-linecap="round " stroke-linejoin="round " aria-hidden="true " class="h-6 w-6 flex-none ">
                                                 <path d="M2.75 9.75a3 3 0 0 1 3-3h12.5a3 3 0 0 1 3 3v8.5a3 3 0 0 1-3 3H5.75a3 3 0 0 1-3-3v-8.5Z " class="fill-zinc-100 stroke-zinc-400 dark:fill-zinc-100/10 dark:stroke-zinc-500 "></path>
@@ -524,13 +544,13 @@
                                             </svg>
                                             <span class="ml-3 ">Current Project</span></h2>
                                         <ol class="mt-6 space-y-4 ">
-                                            <li class="flex gap-4">
+                                            <li class="flex gap-4 row-link">
                                                 <div class="relative mt-1 flex h-12 w-12 flex-none items-center justify-center rounded-full shadow-md shadow-zinc-800/5 ring-1 ring-zinc-900/5 dark:border dark:border-zinc-700/50 dark:bg-zinc-800 dark:ring-0">
                                                     <img alt="VulnScanners.com logo" src="images/vulnscanners-logo.png" class="h-10 w-10 rounded-full object-cover">
                                                 </div>
                                                 <dl class="flex flex-auto flex-wrap gap-x-2 ">
                                                     <dt class="sr-only ">Company</dt>
-                                                    <a class="w-full flex-none text-sm font-medium text-zinc-100 dark:text-zinc-100 " href="https://vulnscanners.com" target="_blank">
+                                                    <a class="stretch w-full flex-none text-sm font-medium text-zinc-100 dark:text-zinc-100 " href="https://vulnscanners.com" target="_blank">
                                                         VulnScanners.com
                                                     </a>
                                                     <dt class="sr-only ">Description</dt>
@@ -579,7 +599,7 @@
     </div>
 </div>
 
-    <!-- Hero particle morph: GPU-staggered particle streams cycling jet -> atom -> scorpion -> lorenz -> skull -> rocket -> globe -> "ZE" initials -> torus knot, each with its own palette -->
+    <!-- Hero particle morph: GPU-staggered particle streams cycling jet -> atom -> scorpion -> lorenz -> skull -> rocket -> globe -> torus knot, each with its own palette -->
     <script type="importmap">
     { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
     </script>
@@ -1002,42 +1022,11 @@
           return a;
         }
 
-        function makeInitials() {
-          // "ZE" monogram, sampled from rendered canvas text
-          const c = document.createElement('canvas');
-          c.width = 240; c.height = 160;
-          const g = c.getContext('2d', { willReadFrequently: true });
-          const glyphs = [];   // ink pixels: [0] = "Z", [1] = "E"
-          for (const [ch, dx] of [['Z', 64], ['E', 172]]) {
-            g.clearRect(0, 0, 240, 160);
-            g.fillStyle = '#fff'; g.strokeStyle = '#fff'; g.lineWidth = 9;   // stroke fattens the glyph
-            g.font = '900 120px "Courier New", monospace';
-            g.textAlign = 'center'; g.textBaseline = 'middle';
-            g.fillText(ch, dx, 80);
-            g.strokeText(ch, dx, 80);
-            const d = g.getImageData(0, 0, 240, 160).data, px = [];
-            for (let y = 0; y < 160; y++) for (let x = 0; x < 240; x++)
-              if (d[(y * 240 + x) * 4 + 3] > 128) px.push([x, y]);
-            if (!px.length) for (let x = 0; x < 60; x++) for (let y = 0; y < 20; y++) px.push([dx - 30 + x, 70 + y]); // font-failure fallback block
-            glyphs.push(px);
-          }
-          const a = new Float32Array(N * 3);
-          const zN = Math.round(N * 0.52), sc = 0.0115;
-          for (let i = 0; i < N; i++) {
-            const px = i < zN ? glyphs[0] : glyphs[1];
-            const p = px[(Math.random() * px.length) | 0];
-            a[i*3]   = (p[0] - 118 + Math.random()) * sc;
-            a[i*3+1] = (80 - p[1] + Math.random()) * sc;
-            a[i*3+2] = (Math.random() * 2 - 1) * 0.05 + 0.04;
-          }
-          return a;
-        }
-
-        const shapes = [makeJet(), makeAtom(), makeScorpion(), makeLorenz(), makeSkull(), makeRocket(), makeGlobe(), makeInitials(), makeTorusKnot()];
-        // per-shape auto-rotation: 0 = settle face-on while held (scorpion, skull, initials), 1 = keep spinning
-        const shapeSpin = [1, 1, 0, 1, 0, 1, 1, 0, 1];
+        const shapes = [makeJet(), makeAtom(), makeScorpion(), makeLorenz(), makeSkull(), makeRocket(), makeGlobe(), makeTorusKnot()];
+        // per-shape auto-rotation: 0 = settle face-on while held (skull only), 1 = keep spinning
+        const shapeSpin = [1, 1, 1, 1, 0, 1, 1, 1];
         // pitch while a no-spin shape is held (skull tips face-down a bit)
-        const shapeHoldPitch = [0, 0, 0.1, 0, 0.22, 0, 0, 0.02, 0];
+        const shapeHoldPitch = [0, 0, 0, 0, 0.22, 0, 0, 0];
 
         // ---- per-shape colour schemes, keyed off each generator's index-fraction layout ----
         const hex = (h) => [((h >> 16) & 255) / 255, ((h >> 8) & 255) / 255, (h & 255) / 255];
@@ -1053,8 +1042,12 @@
           }
           return arr;
         }
-        const jetColors = buildColors(() =>                  // icy steel
-          pick([hex(0x99f6e4), hex(0xa5f3fc), hex(0xcffafe), hex(0x67e8f9)]));
+        const jetColors = buildColors((f) => {               // blue jet, gold canopy, warm tail
+          if (f < 0.40) return pick([hex(0x3b82f6), hex(0x60a5fa), hex(0x2563eb)]);   // fuselage
+          if (f < 0.68) return pick([hex(0x93c5fd), hex(0x38bdf8), hex(0xbfdbfe)]);   // wings
+          if (f < 0.90) return pick([hex(0xf87171), hex(0xfb923c), hex(0xef4444)]);   // tail fins
+          return pick([hex(0xfcd34d), hex(0xfde68a), [1, 1, 1]]);                     // cockpit canopy
+        });
         const atomColors = buildColors((f) => f < 0.26       // gold nucleus, electric-blue orbits
           ? pick([hex(0xffe9b8), hex(0xffd27d), [1, 1, 1]])
           : pick([hex(0x67e8f9), hex(0x7dd3fc), hex(0x38bdf8)]));
@@ -1081,11 +1074,8 @@
           if (f < 0.895) return pick([hex(0xf87171), hex(0xfb923c), hex(0xef4444)]);   // red attack arcs
           return pick([[1, 1, 1], hex(0xfca5a5)]);                                     // white-hot impact points
         });
-        const initialColors = buildColors((f) => f < 0.52
-          ? pick([hex(0x5eead4), hex(0x2dd4bf), hex(0x99f6e4)])                        // teal "Z"
-          : pick([hex(0x67e8f9), hex(0x7dd3fc), hex(0x38bdf8)]));                      // cyan "E"
-        // aligned to `shapes` order [jet, atom, scorpion, lorenz, skull, rocket, globe, initials, torusKnot]
-        const shapeColors = [jetColors, atomColors, scorpColors, lorenzColors, skullColors, rocketColors, globeColors, initialColors, knotColors];
+        // aligned to `shapes` order [jet, atom, scorpion, lorenz, skull, rocket, globe, torusKnot]
+        const shapeColors = [jetColors, atomColors, scorpColors, lorenzColors, skullColors, rocketColors, globeColors, knotColors];
 
         // per-particle randomness: x=morph stagger, y=size, z=twinkle phase, w=twinkle speed
         const seeds = new Float32Array(N * 4);
@@ -1202,24 +1192,6 @@
         group.rotation.x = -0.18;
         scene.add(group);
 
-        // ---- ambient dust: sparse, large, dim motes drifting behind the sculpture ----
-        const DUST = small ? 140 : 220;
-        const dustGeom = new THREE.BufferGeometry();
-        const dustPos = new Float32Array(DUST * 3);
-        for (let i = 0; i < DUST; i++) {
-          let x, y, z, d2;
-          do { x = Math.random()*2-1; y = Math.random()*2-1; z = Math.random()*2-1; d2 = x*x + y*y + z*z; } while (d2 > 1 || d2 < 0.04);
-          const d = Math.sqrt(d2), r = 1.3 + Math.random() * 1.4;
-          dustPos[i*3] = x/d*r; dustPos[i*3+1] = y/d*r; dustPos[i*3+2] = z/d*r;
-        }
-        dustGeom.setAttribute('position', new THREE.BufferAttribute(dustPos, 3));
-        const dustMat = new THREE.PointsMaterial({
-          size: 0.35, map: sprite, transparent: true, opacity: 0.05,
-          color: 0x2dd4bf, depthWrite: false, blending: THREE.AdditiveBlending, sizeAttenuation: true,
-        });
-        const dust = new THREE.Points(dustGeom, dustMat);
-        scene.add(dust);
-
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setClearColor(0x000000, 0);
         const canvas = renderer.domElement;
@@ -1273,9 +1245,7 @@
           group.rotation.x += (pitchBase + targetY - group.rotation.x) * 0.05;
           group.rotation.z += (targetX * 0.5 - group.rotation.z) * 0.05;
 
-          // ambient drift: dust counter-rotates, camera sways gently
-          dust.rotation.y -= dt * 0.03;
-          dust.rotation.x = Math.sin(t * 0.07) * 0.1;
+          // ambient drift: camera sways gently
           if (!reduced) {
             camera.position.x += (Math.sin(t * 0.13) * 0.06 - camera.position.x) * 0.02;
             camera.position.y += (Math.cos(t * 0.10) * 0.05 - camera.position.y) * 0.02;
