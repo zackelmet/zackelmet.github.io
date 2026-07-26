@@ -129,7 +129,7 @@
                                 <div class="mx-auto max-w-2xl lg:max-w-5xl">
                                     <div class="grid grid-cols-1 gap-y-16 lg:grid-cols-2 lg:grid-rows-[auto_1fr] lg:gap-y-12">
                                         <div class="lg:pl-20">
-                                            <div class="max-w-xs px-2.5 lg:max-w-none"><div id="hero-three" class="aspect-square rotate-3 rounded-2xl" style="background:#1A3640;overflow:hidden;position:relative;" role="img" aria-label="Animated 3D particle sculpture that morphs between a fighter jet, an atom, a scorpion, a Lorenz attractor, a skull and crossbones, a rocket ship, a globe with attack arcs, and a torus knot"></div>
+                                            <div class="max-w-xs px-2.5 lg:max-w-none"><div id="hero-three" class="aspect-square rotate-3 rounded-2xl" style="background:#1A3640;overflow:hidden;position:relative;box-shadow:0 0 0 1px rgba(20,184,166,0.08)" role="img" aria-label="Mandelbrot fractal deep zoom animation"></div>
                                     </div>
                                 </div>
                                 <div class="lg:order-first lg:row-span-2 ">
@@ -599,7 +599,7 @@
     </div>
 </div>
 
-    <!-- Mandelbrot deep zoom: subtle slow zoom into Seahorse Valley, rendered at low-res and scaled up for a dreamy look -->
+    <!-- Mandelbrot deep zoom — blends into the site's #1A3640 bg, teal-500 accent glow -->
     <script>
     (function(){
       var c = document.getElementById('hero-three');
@@ -619,37 +619,40 @@
       if (window.ResizeObserver) new ResizeObserver(resize).observe(c);
       else window.addEventListener('resize', resize);
 
-      // Mandelbrot params — Seahorse Valley
+      // Mandelbrot — Seahorse Valley
       var cenX = -0.745, cenY = 0.186;
-      var zoom = 1.2, zoomMin = 0.08, zoomPeriod = 140000;
-      var MAX = 140, R = 160;
+      var zoom = 0.9, zoomMin = 0.04, zoomPeriod = 80000;
+      var MAX = 160, R = 200;
 
-      // Palette: near-black navy -> deep teal -> warm gold
+      // Palette: fades from the container bg (#1A3640) into teal-500 accent
+      // Inside-set pixels match #1A3640 exactly so the fractal sits flush
+      var bg = [0.102, 0.212, 0.251]; // #1A3640
       var stops = [
-        [0, [0.02,0.02,0.06]],
-        [0.28, [0.04,0.10,0.25]],
-        [0.52, [0.08,0.25,0.34]],
-        [0.76, [0.20,0.50,0.44]],
-        [1, [0.79,0.66,0.30]]
+        [0,    bg],
+        [0.25, [0.102, 0.300, 0.380]],
+        [0.50, [0.078, 0.500, 0.500]],
+        [0.75, [0.078, 0.722, 0.651]],
+        [0.90, [0.300, 0.850, 0.780]],
+        [1,    [0.920, 0.950, 0.880]]
       ];
+      function lerp(a, b, t) { return a + (b - a) * t; }
       function getCol(t) {
-        if (t >= 1) return stops[4][1];
-        for (var i = 0; i < 4; i++) {
+        if (t >= 1) return stops[stops.length-1][1];
+        for (var i = 0; i < stops.length - 1; i++) {
           if (t >= stops[i][0] && t <= stops[i+1][0]) {
             var f = (t - stops[i][0]) / (stops[i+1][0] - stops[i][0]);
+            f = f * f * (3 - 2 * f); // smoothstep
             var a = stops[i][1], b = stops[i+1][1];
-            return [a[0]+(b[0]-a[0])*f, a[1]+(b[1]-a[1])*f, a[2]+(b[2]-a[2])*f];
+            return [lerp(a[0],b[0],f), lerp(a[1],b[1],f), lerp(a[2],b[2],f)];
           }
         }
-        return stops[4][1];
+        return stops[stops.length-1][1];
       }
 
-      // Offscreen at fixed low resolution
       var off = document.createElement('canvas');
       off.width = off.height = R;
       var oc = off.getContext('2d');
 
-      // Pointer parallax
       var px = 0, py = 0;
       c.addEventListener('pointermove', function(e) {
         var r = c.getBoundingClientRect();
@@ -661,7 +664,7 @@
       var lastT = 0;
       function render(t) {
         if (!rm) {
-          if (t - lastT < 60) { // throttle recalc to ~16fps
+          if (t - lastT < 50) {
             cx.imageSmoothingEnabled = true;
             cx.drawImage(off, 0, 0, cv.width, cv.height);
             return;
@@ -669,8 +672,7 @@
           lastT = t;
         }
 
-        // Slow oscillating zoom so it never runs out of detail
-        if (!rm) zoom = zoomMin + (1.2 - zoomMin) * (0.5 + 0.5 * Math.sin(t * Math.PI * 2 / zoomPeriod));
+        if (!rm) zoom = zoomMin + (0.9 - zoomMin) * (0.5 + 0.5 * Math.sin(t * Math.PI * 2 / zoomPeriod));
 
         var rv = zoom * 2.5;
         var left = cenX + px * 0.03 - rv;
@@ -687,7 +689,7 @@
               var nx = zx*zx - zy*zy + mx;
               zy = 2*zx*zy + my; zx = nx; iter++;
             }
-            var col = iter === MAX ? [0.02,0.02,0.06] : getCol(iter / MAX);
+            var col = iter === MAX ? bg : getCol(iter / MAX);
             var i = (y * R + x) * 4;
             d[i] = col[0]*255|0; d[i+1] = col[1]*255|0; d[i+2] = col[2]*255|0; d[i+3] = 255;
           }
