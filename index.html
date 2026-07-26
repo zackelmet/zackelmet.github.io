@@ -650,14 +650,6 @@
         return [v[0], v[1]*c - v[2]*s, v[1]*s + v[2]*c];
       }
 
-      var px = 0, py = 0;
-      c.addEventListener('pointermove', function(e) {
-        var r = c.getBoundingClientRect();
-        px = ((e.clientX - r.left) / r.width - 0.5) * 0.3;
-        py = ((e.clientY - r.top) / r.height - 0.5) * 0.2;
-      });
-      c.addEventListener('pointerleave', function() { px = 0; py = 0; });
-
       var t = 0, lastT = 0;
       function render(time) {
         if (!rm) {
@@ -673,8 +665,8 @@
 
         // Rotate
         var rv = verts.map(function(v) {
-          var r = rotY(v, t * 0.14 + px * 0.15);
-          r = rotX(r, t * 0.06 + py * 0.12);
+          var r = rotY(v, t * 0.14);
+          r = rotX(r, t * 0.06);
           return r;
         });
 
