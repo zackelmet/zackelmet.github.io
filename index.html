@@ -599,686 +599,107 @@
     </div>
 </div>
 
-    <!-- Hero particle morph: GPU-staggered particle streams cycling jet -> atom -> scorpion -> lorenz -> skull -> rocket -> globe -> torus knot, each with its own palette -->
-    <script type="importmap">
-    { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
-    </script>
-    <script type="module">
-      import * as THREE from 'three';
+    <!-- Mandelbrot deep zoom: subtle slow zoom into Seahorse Valley, rendered at low-res and scaled up for a dreamy look -->
+    <script>
+    (function(){
+      var c = document.getElementById('hero-three');
+      if (!c) return;
+      var cv = document.createElement('canvas');
+      cv.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block;';
+      c.appendChild(cv);
+      var cx = cv.getContext('2d');
+      var rm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-      const container = document.getElementById('hero-three');
-      if (container) {
-        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        const small = Math.min(window.innerWidth, window.innerHeight) < 480;
-        const N = small ? 3200 : 5200;
-
-        // ---- shape generators (each returns a Float32Array of length N*3) ----
-        const triPoint = (A, B, C, out, o) => {
-          let u = Math.random(), v = Math.random();
-          if (u + v > 1) { u = 1 - u; v = 1 - v; }
-          out[o]   = A[0] + u * (B[0] - A[0]) + v * (C[0] - A[0]);
-          out[o+1] = A[1] + u * (B[1] - A[1]) + v * (C[1] - A[1]);
-          out[o+2] = A[2] + u * (B[2] - A[2]) + v * (C[2] - A[2]);
-        };
-
-        function makeJet() {
-          const pts = [];
-          const push = (x, y, z) => pts.push([x, y, z]);
-
-          // fuselage: tapered body, nose -> +z
-          const fus = Math.round(N * 0.40);
-          for (let i = 0; i < fus; i++) {
-            const z = Math.random() * 3 - 1.5;
-            let r;
-            if (z > 0.6) r = 0.28 * Math.pow(Math.max(0, 1 - (z - 0.6) / 0.9), 0.7); // nose cone
-            else if (z < -1.0) r = 0.28 * (1 - 0.45 * ((-z - 1.0) / 0.5));            // tail taper
-            else r = 0.28;
-            const th = Math.random() * Math.PI * 2;
-            push(r * Math.cos(th), r * Math.sin(th) * 0.8, z);
-          }
-
-          // swept delta wings (mirrored)
-          const wing = Math.round(N * 0.14);
-          const wRoots = [
-            [[0.22, 0, 0.55], [0.22, 0, -0.45], [1.5, 0, -0.55]],
-            [[-0.22, 0, 0.55], [-0.22, 0, -0.45], [-1.5, 0, -0.55]],
-          ];
-          for (const tri of wRoots) {
-            for (let i = 0; i < wing; i++) {
-              const o = [0, 0, 0]; triPoint(tri[0], tri[1], tri[2], o, 0);
-              push(o[0], o[1] + (Math.random() - 0.5) * 0.05, o[2]);
-            }
-          }
-
-          // horizontal tail stabilizers (mirrored)
-          const stab = Math.round(N * 0.07);
-          const sRoots = [
-            [[0.1, 0, -1.15], [0.1, 0, -1.5], [0.72, 0.03, -1.55]],
-            [[-0.1, 0, -1.15], [-0.1, 0, -1.5], [-0.72, 0.03, -1.55]],
-          ];
-          for (const tri of sRoots) {
-            for (let i = 0; i < stab; i++) {
-              const o = [0, 0, 0]; triPoint(tri[0], tri[1], tri[2], o, 0);
-              push(o[0], o[1] + (Math.random() - 0.5) * 0.04, o[2]);
-            }
-          }
-
-          // vertical tail fin
-          const fin = Math.round(N * 0.08);
-          for (let i = 0; i < fin; i++) {
-            const o = [0, 0, 0];
-            triPoint([0, 0.1, -1.5], [0, 0.1, -0.95], [0, 0.8, -1.55], o, 0);
-            push(o[0] + (Math.random() - 0.5) * 0.04, o[1], o[2]);
-          }
-
-          // cockpit canopy (upper half-ellipsoid)
-          const cap = Math.round(N * 0.07);
-          for (let i = 0; i < cap; i++) {
-            const u = Math.random() * Math.PI * 2, vv = Math.random() * Math.PI / 2;
-            push(Math.cos(u) * Math.sin(vv) * 0.12,
-                 0.16 + Math.cos(vv) * 0.16,
-                 0.78 + Math.sin(u) * Math.sin(vv) * 0.34);
-          }
-
-          // normalise count to exactly N, then scale
-          while (pts.length < N) {
-            const z = Math.random() * 3 - 1.5;
-            push(0.27 * Math.cos(z), 0.2 * Math.sin(z), z);
-          }
-          pts.length = N;
-
-          const a = new Float32Array(N * 3), sc = 0.82;
-          for (let i = 0; i < N; i++) {
-            a[i*3]   = pts[i][0] * sc;
-            a[i*3+1] = pts[i][1] * sc;
-            a[i*3+2] = pts[i][2] * sc;
-          }
-          return a;
-        }
-
-        function makeTorusKnot() {
-          const a = new Float32Array(N * 3), p = 2, q = 3, tube = 0.30, sc = 0.54;
-          for (let i = 0; i < N; i++) {
-            const t = (i / N) * Math.PI * 2;
-            const r = Math.cos(q * t) + 2;
-            const cx = r * Math.cos(p * t), cy = r * Math.sin(p * t), cz = -Math.sin(q * t);
-            // tangent
-            const dr = -q * Math.sin(q * t);
-            let tx = dr * Math.cos(p * t) - r * p * Math.sin(p * t);
-            let ty = dr * Math.sin(p * t) + r * p * Math.cos(p * t);
-            let tz = -q * Math.cos(q * t);
-            const tl = Math.hypot(tx, ty, tz) || 1; tx /= tl; ty /= tl; tz /= tl;
-            // normal = tangent x up(0,0,1)  ->  (ty, -tx, 0)
-            let nx = ty, ny = -tx, nz = 0;
-            const nl = Math.hypot(nx, ny, nz) || 1; nx /= nl; ny /= nl; nz /= nl;
-            // binormal = tangent x normal
-            const bx = ty * nz - tz * ny, by = tz * nx - tx * nz, bz = tx * ny - ty * nx;
-            const ang = Math.random() * Math.PI * 2, rad = tube * Math.sqrt(Math.random());
-            a[i*3]   = (cx + (Math.cos(ang) * nx + Math.sin(ang) * bx) * rad) * sc;
-            a[i*3+1] = (cy + (Math.cos(ang) * ny + Math.sin(ang) * by) * rad) * sc;
-            a[i*3+2] = (cz + (Math.cos(ang) * nz + Math.sin(ang) * bz) * rad) * sc;
-          }
-          return a;
-        }
-
-        function makeAtom() {
-          const a = new Float32Array(N * 3);
-          const nucleusN = Math.round(N * 0.26);
-          for (let i = 0; i < nucleusN; i++) {            // dense fuzzy nucleus
-            let x, y, z, d2;
-            do { x = Math.random() * 2 - 1; y = Math.random() * 2 - 1; z = Math.random() * 2 - 1; d2 = x*x + y*y + z*z; } while (d2 > 1);
-            const rr = 0.3 * Math.cbrt(Math.random()), n = Math.sqrt(d2) || 1;
-            a[i*3] = x / n * rr; a[i*3+1] = y / n * rr; a[i*3+2] = z / n * rr;
-          }
-          const R = 1.25, ecc = 0.6, tube = 0.04;          // 3 tilted elliptical electron orbits
-          const tilts = [[0, 0], [1.15, 0.6], [-1.15, -0.6]];
-          let idx = nucleusN;
-          for (let k = 0; k < 3; k++) {
-            const count = k === 2 ? N - idx : Math.floor((N - nucleusN) / 3);
-            const cax = Math.cos(tilts[k][0]), sax = Math.sin(tilts[k][0]), caz = Math.cos(tilts[k][1]), saz = Math.sin(tilts[k][1]);
-            for (let j = 0; j < count; j++, idx++) {
-              const th = Math.random() * Math.PI * 2;
-              let ex = Math.cos(th) * R, ey = Math.sin(th) * R * ecc, ez = 0;
-              let ox, oy, oz, d2;
-              do { ox = Math.random() * 2 - 1; oy = Math.random() * 2 - 1; oz = Math.random() * 2 - 1; d2 = ox*ox + oy*oy + oz*oz; } while (d2 > 1);
-              ex += ox * tube; ey += oy * tube; ez += oz * tube;
-              const y1 = ey * cax - ez * sax, z1 = ey * sax + ez * cax;          // rotate about X
-              a[idx*3] = ex * caz - y1 * saz; a[idx*3+1] = ex * saz + y1 * caz; a[idx*3+2] = z1; // then about Z
-            }
-          }
-          return a;
-        }
-
-        function makeSkull() {
-          // skull & crossbones, as a face-on silhouette (this shape is held still) over crossed bones
-          const pts = [];
-          const push = (x, y, z) => pts.push([x, y, z]);
-          const zf = () => (Math.random() * 2 - 1) * 0.1 + 0.08;       // slight forward dome
-          const crx = 0.58, cry = 0.56, cyCran = 0.45;
-          const inHead = (x, y) => {
-            if ((x / crx)**2 + ((y - cyCran) / cry)**2 <= 1 && y >= 0.06) return true; // cranium
-            if (y < 0.1 && y > -0.32) {                                 // cheeks + jaw, tapering to chin
-              const t = (0.1 - y) / 0.42;
-              return Math.abs(x) < 0.46 * (1 - t) + 0.30 * t;
-            }
-            return false;
-          };
-          const inEye = (x, y) =>                                       // big round-ish sockets
-            ((x - 0.25) / 0.19)**2 + ((y - 0.52) / 0.2)**2 < 1 ||
-            ((x + 0.25) / 0.19)**2 + ((y - 0.52) / 0.2)**2 < 1;
-          const inNose = (x, y) => y < 0.42 && y > 0.2 && Math.abs(x) < 0.1 * ((0.42 - y) / 0.22); // triangle
-          const inMouthGap = (x, y) => {                               // two rows of teeth
-            if (y < 0.05 && y > -0.2 && Math.abs(x) < 0.32) {
-              if (((x + 10) % 0.12) < 0.032) return true;              // vertical gaps between teeth
-              if (Math.abs(y + 0.08) < 0.022) return true;             // gap between upper & lower rows
-            }
-            return false;
-          };
-          const skullN = Math.round(N * 0.50);
-          let made = 0, guard = 0;
-          while (made < skullN && guard < skullN * 50) {
-            guard++;
-            const x = (Math.random() * 2 - 1) * 0.62, y = -0.34 + Math.random() * 1.4;
-            if (!inHead(x, y) || inEye(x, y) || inNose(x, y) || inMouthGap(x, y)) continue;
-            push(x, y, zf()); made++;
-          }
-          const boneN = Math.round(N * 0.23);                          // crossed bones behind, ends poking out
-          const addBone = (count, ang) => {
-            const ca = Math.cos(ang), sa = Math.sin(ang), L = 1.95, cx = 0, cy = 0.28, cz = -0.22;
-            for (let i = 0; i < count; i++) {
-              let lx, ly, lz;
-              if (Math.random() < 0.6) {                               // shaft
-                lx = (Math.random()*2-1) * (L*0.5 - 0.14);
-                const th = Math.random()*Math.PI*2, rr = 0.07*Math.sqrt(Math.random());
-                ly = rr*Math.cos(th); lz = rr*Math.sin(th);
-              } else {                                                 // four rounded end knobs
-                const end = Math.random()<0.5?-1:1, lobe = Math.random()<0.5?-1:1;
-                let sx, sy, sz, d2;
-                do { sx=Math.random()*2-1; sy=Math.random()*2-1; sz=Math.random()*2-1; d2=sx*sx+sy*sy+sz*sz; } while (d2 > 1);
-                const kr = 0.12*Math.cbrt(Math.random());
-                lx = end*(L*0.5-0.02) + sx*kr; ly = lobe*0.13 + sy*kr; lz = sz*kr;
-              }
-              push(cx + lx*ca - ly*sa, cy + lx*sa + ly*ca, cz + lz);
-            }
-          };
-          addBone(boneN, 0.7);
-          addBone(boneN, -0.7);
-          while (pts.length < N) {                                     // pad with cranium fill
-            const x = (Math.random()*2-1) * 0.5, y = cyCran - 0.1 + (Math.random()*2-1) * 0.4;
-            if (!inHead(x, y) || inEye(x, y)) continue;
-            push(x, y, zf());
-          }
-          pts.length = N;
-          const a = new Float32Array(N * 3), sc = 0.95;
-          for (let i = 0; i < N; i++) { a[i*3] = pts[i][0]*sc; a[i*3+1] = pts[i][1]*sc; a[i*3+2] = pts[i][2]*sc; }
-          return a;
-        }
-
-        function makeScorpion() {
-          // top-down scorpion (emoji-style): carapace + segment bands, compact crab claws
-          // beside the head, 8 bent legs, thick segmented tail curling round to a red stinger
-          const pts = [];
-          const push = (x, y, z) => pts.push([x, y, z]);
-          const jz = () => (Math.random() * 2 - 1) * 0.06;
-          const seg = (count, ax, ay, bx, by, r) => {
-            for (let i = 0; i < count; i++) {
-              const s = Math.random();
-              push(ax + (bx - ax) * s + (Math.random() - 0.5) * r * 2,
-                   ay + (by - ay) * s + (Math.random() - 0.5) * r * 2, jz());
-            }
-          };
-          const oval = (count, cx, cy, rx, ry, ang = 0) => {
-            const ca = Math.cos(ang), sa = Math.sin(ang);
-            for (let i = 0; i < count; i++) {
-              const th = Math.random() * Math.PI * 2, rr = Math.sqrt(Math.random());
-              const ox = Math.cos(th) * rx * rr, oy = Math.sin(th) * ry * rr;
-              push(cx + ox * ca - oy * sa, cy + ox * sa + oy * ca, jz());
-            }
-          };
-
-          const bodyN = Math.round(N * 0.20);               // carapace + 5 abdomen bands
-          const carN = Math.round(bodyN * 0.35);
-          oval(carN, 0, 0.32, 0.19, 0.15);
-          const bands = [[0.13, 0.22], [0.03, 0.21], [-0.07, 0.19], [-0.17, 0.17], [-0.26, 0.145]];
-          const perBand = Math.floor((bodyN - carN) / bands.length);
-          for (const [cy, rx] of bands) oval(perBand, 0, cy, rx, 0.062);
-
-          const pinN = Math.round(N * 0.22), armN = Math.round(pinN * 0.13 / 2), chelaN = Math.round(pinN * 0.30 / 2), fingN = Math.round(pinN * 0.07 / 2);
-          for (const s of [-1, 1]) {
-            seg(armN, s * 0.14, 0.36, s * 0.28, 0.46, 0.065);      // short thick arm
-            oval(chelaN, s * 0.38, 0.56, 0.115, 0.100, s * 0.5);   // big round palm beside the head
-            seg(fingN, s * 0.45, 0.65, s * 0.39, 0.80, 0.038);     // outer pincer tip, curving in
-            seg(fingN, s * 0.28, 0.63, s * 0.32, 0.76, 0.032);     // inner tip, converging -> open claw mouth
-          }
-
-          const legN = Math.round(N * 0.014);               // 4 two-segment legs per side
-          const attach = [
-            [0.28, 0.38, 0.14, 0.56, 0.22],
-            [0.16, 0.40, 0.06, 0.60, 0.06],
-            [0.04, 0.40, -0.02, 0.58, -0.10],
-            [-0.08, 0.38, -0.10, 0.52, -0.26],
-          ];
-          for (const s of [-1, 1]) {
-            for (const [ay, kx, kdy, fx, fy] of attach) {
-              seg(legN, s * 0.15, ay, s * kx, ay + kdy, 0.022);
-              seg(legN, s * kx, ay + kdy, s * fx, fy, 0.020);
-            }
-          }
-
-          const wp = [[0.00, -0.30], [0.10, -0.50], [0.30, -0.60], [0.50, -0.52], [0.60, -0.30], [0.58, -0.05], [0.46, 0.14]]; // tail curl
-          const segL = []; let totL = 0;
-          for (let i = 0; i < wp.length - 1; i++) { const d = Math.hypot(wp[i+1][0]-wp[i][0], wp[i+1][1]-wp[i][1]); segL.push(d); totL += d; }
-          const tailN = Math.round(N * 0.26);
-          for (let i = 0; i < tailN; i++) {
-            let s = Math.random() * totL, k = 0;
-            while (k < segL.length - 1 && s > segL[k]) { s -= segL[k]; k++; }
-            const f = s / segL[k], prog = (k + f) / (wp.length - 1);
-            const r = (0.062 * (1 - 0.30 * prog)) * (0.78 + 0.38 * Math.abs(Math.sin(prog * Math.PI * 5))); // segment bulges
-            const th = Math.random() * Math.PI * 2, rr = Math.sqrt(Math.random()) * r;
-            push(wp[k][0] + (wp[k+1][0]-wp[k][0]) * f + Math.cos(th) * rr,
-                 wp[k][1] + (wp[k+1][1]-wp[k][1]) * f + Math.sin(th) * rr, jz() * 1.2);
-          }
-
-          const stingN = Math.round(N * 0.065), bulbN = Math.round(stingN * 0.6);
-          oval(bulbN, 0.44, 0.18, 0.062, 0.055);                   // telson bulb
-          seg(stingN - bulbN, 0.41, 0.22, 0.30, 0.31, 0.016);      // barb curving over the back
-
-          while (pts.length < N) oval(1, 0, 0.30, 0.17, 0.13);     // pad with carapace fill
-          pts.length = N;
-          const a = new Float32Array(N * 3), sc = 1.12, ox = -0.05, oy = -0.18;
-          for (let i = 0; i < N; i++) { a[i*3] = (pts[i][0] + ox) * sc; a[i*3+1] = (pts[i][1] + oy) * sc; a[i*3+2] = pts[i][2]; }
-          return a;
-        }
-
-        function makeRocket() {
-          const pts = [];
-          const push = (x, y, z) => pts.push([x, y, z]);
-          const r = 0.32, yb = -0.7, yt = 0.7, noseTop = 1.25;
-
-          const body = Math.round(N * 0.42);                // cylindrical fuselage
-          for (let i = 0; i < body; i++) {
-            const y = yb + Math.random() * (yt - yb), th = Math.random() * Math.PI * 2;
-            push(r * Math.cos(th), y, r * Math.sin(th));
-          }
-          const nose = Math.round(N * 0.17);                // nose cone
-          for (let i = 0; i < nose; i++) {
-            const t = Math.random(), y = yt + t * (noseTop - yt), rad = r * (1 - t), th = Math.random() * Math.PI * 2;
-            push(rad * Math.cos(th), y, rad * Math.sin(th));
-          }
-          const finEach = Math.round(N * 0.06);             // 4 swept tail fins
-          for (let f = 0; f < 4; f++) {
-            const phi = f * Math.PI / 2, ux = Math.cos(phi), uz = Math.sin(phi), tx = -Math.sin(phi), tz = Math.cos(phi);
-            const A = [r, -0.2], B = [r, -0.72], C = [r + 0.5, -0.95]; // (radial, y) triangle
-            for (let i = 0; i < finEach; i++) {
-              let u = Math.random(), v = Math.random();
-              if (u + v > 1) { u = 1 - u; v = 1 - v; }
-              const radial = A[0] + u * (B[0] - A[0]) + v * (C[0] - A[0]);
-              const y = A[1] + u * (B[1] - A[1]) + v * (C[1] - A[1]);
-              const th = (Math.random() - 0.5) * 0.05;
-              push(ux * radial + tx * th, y, uz * radial + tz * th);
-            }
-          }
-          const plume = Math.round(N * 0.12);               // exhaust plume
-          for (let i = 0; i < plume; i++) {
-            const t = Math.random(), y = yb - t * 0.5, rad = 0.26 * (1 - t) * Math.sqrt(Math.random()), th = Math.random() * Math.PI * 2;
-            push(rad * Math.cos(th), y, rad * Math.sin(th));
-          }
-          while (pts.length < N) {                          // pad to exactly N
-            const y = yb + Math.random() * (yt - yb), th = Math.random() * Math.PI * 2;
-            push(r * Math.cos(th), y, r * Math.sin(th));
-          }
-          pts.length = N;
-
-          const a = new Float32Array(N * 3), sc = 0.82;
-          for (let i = 0; i < N; i++) { a[i*3] = pts[i][0] * sc; a[i*3+1] = pts[i][1] * sc; a[i*3+2] = pts[i][2] * sc; }
-          return a;
-        }
-
-        function makeLorenz() {
-          // integrate once, then spread particles uniformly along the curve's arc length --
-          // uniform-by-time clumps at the slow lobe cores and blows out to white under additive blending
-          const sigma = 10, rho = 28, beta = 8 / 3, dt = 0.006, sc = 0.045, STEPS = 2600;
-          let x = 0.1, y = 0, z = 0;
-          for (let s = 0; s < 800; s++) {          // burn-in past the transient
-            const dx = sigma * (y - x), dy = x * (rho - z) - y, dz = x * y - beta * z;
-            x += dx * dt; y += dy * dt; z += dz * dt;
-          }
-          const traj = new Float32Array((STEPS + 1) * 3), cum = new Float32Array(STEPS + 1);
-          traj[0] = x; traj[1] = y; traj[2] = z;
-          for (let s = 1; s <= STEPS; s++) {
-            const dx = sigma * (y - x), dy = x * (rho - z) - y, dz = x * y - beta * z;
-            x += dx * dt; y += dy * dt; z += dz * dt;
-            traj[s*3] = x; traj[s*3+1] = y; traj[s*3+2] = z;
-            cum[s] = cum[s-1] + Math.hypot(dx, dy, dz) * dt;
-          }
-          const a = new Float32Array(N * 3), totL = cum[STEPS];
-          let k = 1;
-          for (let i = 0; i < N; i++) {
-            const L = (i / N) * totL;
-            while (k < STEPS && cum[k] < L) k++;
-            const f = (L - cum[k-1]) / ((cum[k] - cum[k-1]) || 1);
-            const px = traj[(k-1)*3]   + (traj[k*3]   - traj[(k-1)*3])   * f;
-            const py = traj[(k-1)*3+1] + (traj[k*3+1] - traj[(k-1)*3+1]) * f;
-            const pz = traj[(k-1)*3+2] + (traj[k*3+2] - traj[(k-1)*3+2]) * f;
-            a[i*3]   = px * sc        + (Math.random() - 0.5) * 0.07;
-            a[i*3+1] = (pz - 25) * sc + (Math.random() - 0.5) * 0.07;   // attractor is tall in z -> map up
-            a[i*3+2] = py * sc        + (Math.random() - 0.5) * 0.07;
-          }
-          return a;
-        }
-
-        function makeGlobe() {
-          // wireframe globe with red "attack" arcs hopping between glowing impact points
-          const a = new Float32Array(N * 3);
-          const R = 1.12, jit = 0.018;
-          let idx = 0;
-          const put = (x, y, z) => {
-            a[idx*3]   = x + (Math.random() - 0.5) * jit;
-            a[idx*3+1] = y + (Math.random() - 0.5) * jit;
-            a[idx*3+2] = z + (Math.random() - 0.5) * jit;
-            idx++;
-          };
-          const gridN = Math.round(N * 0.58), fillN = Math.round(N * 0.10), arcN = Math.round(N * 0.22);
-          const mers = 8, pars = [-60, -30, 0, 30, 60], lines = mers + pars.length;
-          for (let i = 0; i < gridN; i++) {                  // 8 meridians + 5 parallels
-            const k = i % lines;
-            if (k < mers) {
-              const phi = k * Math.PI / mers, t = Math.random() * Math.PI * 2;
-              put(R * Math.sin(t) * Math.cos(phi), R * Math.cos(t), R * Math.sin(t) * Math.sin(phi));
-            } else {
-              const lat = pars[k - mers] * Math.PI / 180, t = Math.random() * Math.PI * 2;
-              put(R * Math.cos(lat) * Math.cos(t), R * Math.sin(lat), R * Math.cos(lat) * Math.sin(t));
-            }
-          }
-          for (let i = 0; i < fillN; i++) {                  // faint even fill so the sphere reads solid
-            const u = Math.random() * 2 - 1, th = Math.random() * Math.PI * 2, r = Math.sqrt(1 - u*u);
-            put(R * r * Math.cos(th), R * u, R * r * Math.sin(th));
-          }
-          const toV = (lat, lon) => {
-            const la = lat * Math.PI / 180, lo = lon * Math.PI / 180;
-            return [Math.cos(la) * Math.cos(lo), Math.sin(la), Math.cos(la) * Math.sin(lo)];
-          };
-          const hops = [[20,-100,48,10], [38,-120,35,140], [-25,-60,50,30], [10,100,45,-75], [-30,150,20,-10]];
-          const perArc = Math.floor(arcN / hops.length);
-          for (const [la1, lo1, la2, lo2] of hops) {         // great-circle hops bulging off the surface
-            const A = toV(la1, lo1), B = toV(la2, lo2);
-            const dot = Math.max(-1, Math.min(1, A[0]*B[0] + A[1]*B[1] + A[2]*B[2]));
-            const om = Math.acos(dot), so = Math.sin(om) || 1;
-            for (let i = 0; i < perArc; i++) {
-              const s = Math.random();
-              const wa = Math.sin((1 - s) * om) / so, wb = Math.sin(s * om) / so;
-              const rr = R * (1 + 0.38 * Math.sin(Math.PI * s));
-              put((A[0]*wa + B[0]*wb) * rr, (A[1]*wa + B[1]*wb) * rr, (A[2]*wa + B[2]*wb) * rr);
-            }
-          }
-          const ends = [];                                    // glowing impact nodes at hop endpoints
-          for (const [la1, lo1, la2, lo2] of hops) ends.push(toV(la1, lo1), toV(la2, lo2));
-          while (idx < N) {
-            const e = ends[(Math.random() * ends.length) | 0], k = 0.05 * Math.cbrt(Math.random());
-            let ox, oy, oz, d2;
-            do { ox = Math.random()*2-1; oy = Math.random()*2-1; oz = Math.random()*2-1; d2 = ox*ox+oy*oy+oz*oz; } while (d2 > 1);
-            put(e[0]*R + ox*k, e[1]*R + oy*k, e[2]*R + oz*k);
-          }
-          return a;
-        }
-
-        const shapes = [makeJet(), makeAtom(), makeScorpion(), makeLorenz(), makeSkull(), makeRocket(), makeGlobe(), makeTorusKnot()];
-        // per-shape auto-rotation: 0 = settle face-on while held (skull only), 1 = keep spinning
-        const shapeSpin = [1, 1, 1, 1, 0, 1, 1, 1];
-        // pitch while a no-spin shape is held (skull tips face-down a bit)
-        const shapeHoldPitch = [0, 0, 0, 0, 0.22, 0, 0, 0];
-
-        // ---- per-shape colour schemes, keyed off each generator's index-fraction layout ----
-        const hex = (h) => [((h >> 16) & 255) / 255, ((h >> 8) & 255) / 255, (h & 255) / 255];
-        const mixc = (a, b, t) => [a[0] + (b[0]-a[0])*t, a[1] + (b[1]-a[1])*t, a[2] + (b[2]-a[2])*t];
-        const pick = (arr) => arr[(Math.random() * arr.length) | 0];
-        function buildColors(colorAt) {
-          const arr = new Float32Array(N * 3);
-          for (let i = 0; i < N; i++) {
-            let c = colorAt(i / N);
-            if (Math.random() < 0.04) c = [1, 1, 1];        // white-hot sparkles
-            const b = 0.7 + Math.random() * 0.4;            // per-particle brightness variation
-            arr[i*3] = Math.min(1, c[0]*b); arr[i*3+1] = Math.min(1, c[1]*b); arr[i*3+2] = Math.min(1, c[2]*b);
-          }
-          return arr;
-        }
-        const jetColors = buildColors((f) => {               // blue jet, gold canopy, warm tail
-          if (f < 0.40) return pick([hex(0x3b82f6), hex(0x60a5fa), hex(0x2563eb)]);   // fuselage
-          if (f < 0.68) return pick([hex(0x93c5fd), hex(0x38bdf8), hex(0xbfdbfe)]);   // wings
-          if (f < 0.90) return pick([hex(0xf87171), hex(0xfb923c), hex(0xef4444)]);   // tail fins
-          return pick([hex(0xfcd34d), hex(0xfde68a), [1, 1, 1]]);                     // cockpit canopy
-        });
-        const atomColors = buildColors((f) => f < 0.26       // gold nucleus, electric-blue orbits
-          ? pick([hex(0xffe9b8), hex(0xffd27d), [1, 1, 1]])
-          : pick([hex(0x67e8f9), hex(0x7dd3fc), hex(0x38bdf8)]));
-        const scorpColors = buildColors((f) => (f > 0.90 && f < 0.97)
-          ? pick([hex(0xf87171), hex(0xfb923c), hex(0xef4444)])   // venom-red telson + barb
-          : pick([hex(0xfbbf24), hex(0xf59e0b), hex(0xfcd34d), hex(0xd97706)])); // desert amber
-        const lorenzColors = buildColors((f) =>              // nebula: bright indigo -> fuchsia along the trajectory
-          mixc(hex(0xa5b4fc), hex(0xf0abfc), f));
-        const skullColors = buildColors((f) => (f < 0.5 || f >= 0.96)
-          ? pick([hex(0xf5f0e0), hex(0xe8e0cd), hex(0xfffbef)])  // ivory skull
-          : pick([hex(0x9fb3bd), hex(0xb8c4cc)]));               // cooler grey bones
-        const rocketColors = buildColors((f) => {
-          if (f >= 0.83 && f < 0.95) return mixc(hex(0xfde68a), hex(0xf97316), (f - 0.83) / 0.12); // exhaust plume
-          if (f >= 0.59 && f < 0.83) return pick([hex(0x5eead4), hex(0x2dd4bf)]);                   // teal fins
-          return pick([hex(0xd8e5ea), hex(0xbcd3da), hex(0xe8f4f8)]);                               // silver hull
-        });
-        const knotColors = buildColors((f) => {              // aurora bands flowing along the knot
-          const t = f * 6.2832;
-          return [0.35 + 0.3*Math.sin(t), 0.75 + 0.2*Math.sin(t + 2.09), 0.8 + 0.2*Math.sin(t + 4.19)];
-        });
-        const globeColors = buildColors((f) => {
-          if (f < 0.58) return pick([hex(0x5eead4), hex(0x2dd4bf), hex(0x67e8f9)]);   // teal wireframe
-          if (f < 0.68) return hex(0x134e4a);                                          // dim interior fill
-          if (f < 0.895) return pick([hex(0xf87171), hex(0xfb923c), hex(0xef4444)]);   // red attack arcs
-          return pick([[1, 1, 1], hex(0xfca5a5)]);                                     // white-hot impact points
-        });
-        // aligned to `shapes` order [jet, atom, scorpion, lorenz, skull, rocket, globe, torusKnot]
-        const shapeColors = [jetColors, atomColors, scorpColors, lorenzColors, skullColors, rocketColors, globeColors, knotColors];
-
-        // per-particle randomness: x=morph stagger, y=size, z=twinkle phase, w=twinkle speed
-        const seeds = new Float32Array(N * 4);
-        // random unit vector: mid-morph arc direction, so particles stream instead of gliding straight
-        const swirls = new Float32Array(N * 3);
-        for (let i = 0; i < N; i++) {
-          seeds[i*4]   = Math.random();
-          seeds[i*4+1] = Math.random();
-          seeds[i*4+2] = Math.random();
-          seeds[i*4+3] = 0.5 + Math.random() * 1.8;
-          let x, y, z, d2;
-          do { x = Math.random()*2-1; y = Math.random()*2-1; z = Math.random()*2-1; d2 = x*x + y*y + z*z; } while (d2 > 1 || d2 < 1e-4);
-          const d = Math.sqrt(d2);
-          swirls[i*3] = x/d; swirls[i*3+1] = y/d; swirls[i*3+2] = z/d;
-        }
-
-        // ---- soft round sprite ----
-        const spriteCanvas = document.createElement('canvas');
-        spriteCanvas.width = spriteCanvas.height = 64;
-        const sctx = spriteCanvas.getContext('2d');
-        const grad = sctx.createRadialGradient(32, 32, 0, 32, 32, 32);
-        grad.addColorStop(0, 'rgba(255,255,255,1)');
-        grad.addColorStop(0.25, 'rgba(255,255,255,0.85)');
-        grad.addColorStop(1, 'rgba(255,255,255,0)');
-        sctx.fillStyle = grad;
-        sctx.fillRect(0, 0, 64, 64);
-        const sprite = new THREE.CanvasTexture(spriteCanvas);
-
-        // ---- scene ----
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
-        camera.position.set(0, 0, 4.3);
-
-        const geom = new THREE.BufferGeometry();
-        const positions = shapes[0].slice();
-        const targets = shapes[1].slice();
-        const colorsCur = shapeColors[0].slice();
-        const colorsTo = shapeColors[1].slice();
-        geom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        geom.setAttribute('aTo', new THREE.BufferAttribute(targets, 3));
-        geom.setAttribute('aColor', new THREE.BufferAttribute(colorsCur, 3));
-        geom.setAttribute('aColorTo', new THREE.BufferAttribute(colorsTo, 3));
-        geom.setAttribute('aSeed', new THREE.BufferAttribute(seeds, 4));
-        geom.setAttribute('aSwirl', new THREE.BufferAttribute(swirls, 3));
-
-        // GPU morph: each particle departs on its own schedule (aSeed.x stagger), arcs sideways
-        // along aSwirl while in flight, twinkles, and dims + cools with depth for atmosphere
-        const vert = `
-          attribute vec3 aTo;
-          attribute vec4 aSeed;
-          attribute vec3 aSwirl;
-          attribute vec3 aColor;
-          attribute vec3 aColorTo;
-          uniform float uProgress;
-          uniform float uTime;
-          uniform float uScale;
-          uniform float uSizeMul;
-          uniform float uBreathe;
-          varying vec3 vColor;
-          varying float vAlpha;
-          float easeC(float t) {
-            return t < 0.5 ? 4.0*t*t*t : 1.0 - pow(-2.0*t + 2.0, 3.0) / 2.0;
-          }
-          void main() {
-            float stag = 0.45;
-            float p = clamp(uProgress * (1.0 + stag) - aSeed.x * stag, 0.0, 1.0);
-            float e = easeC(p);
-            vec3 pos = mix(position, aTo, e);
-            float arc = sin(p * 3.14159265);
-            pos += aSwirl * arc * (0.12 + 0.45 * aSeed.y);
-            pos += uBreathe * 0.014 * vec3(
-              sin(uTime * aSeed.w + aSeed.z * 6.2832),
-              sin(uTime * aSeed.w * 1.31 + aSeed.z * 12.57),
-              cos(uTime * aSeed.w * 0.73 + aSeed.z * 9.42));
-            vec4 mv = modelViewMatrix * vec4(pos, 1.0);
-            float twinkle = 0.78 + 0.42 * sin(uTime * (1.2 + aSeed.w * 1.6) + aSeed.z * 6.2832);
-            float size = (0.030 + 0.038 * aSeed.y) * twinkle * (1.0 + 0.8 * arc) * uSizeMul;
-            gl_PointSize = size * uScale / -mv.z;
-            float depth = clamp((-mv.z - 2.8) / 3.0, 0.0, 1.0);
-            vec3 col = mix(aColor, aColorTo, e);
-            vColor = col * mix(vec3(1.0), vec3(0.35, 0.5, 0.6), depth);  // far particles darken + cool
-            vAlpha = mix(1.0, 0.18, depth) * (1.0 + 0.6 * arc);
-            gl_Position = projectionMatrix * mv;
-          }`;
-        const frag = `
-          precision mediump float;
-          varying vec3 vColor;
-          varying float vAlpha;
-          void main() {
-            vec2 uv = gl_PointCoord - 0.5;
-            float d = length(uv) * 2.0;
-            float glow = pow(max(0.0, 1.0 - d), 1.8);
-            float core = smoothstep(0.42, 0.0, d);
-            vec3 col = vColor * glow + core * glow * 0.55;
-            gl_FragColor = vec4(col, glow * vAlpha);
-          }`;
-
-        const material = new THREE.ShaderMaterial({
-          uniforms: {
-            uProgress: { value: 0 },
-            uTime: { value: 0 },
-            uScale: { value: 300 },
-            uSizeMul: { value: small ? 1.3 : 1.0 },
-            uBreathe: { value: reduced ? 0 : 1 },
-          },
-          vertexShader: vert,
-          fragmentShader: frag,
-          transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
-        });
-
-        const group = new THREE.Group();
-        const points = new THREE.Points(geom, material);
-        group.add(points);
-        group.rotation.x = -0.18;
-        scene.add(group);
-
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setClearColor(0x000000, 0);
-        const canvas = renderer.domElement;
-        canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block;';
-        container.appendChild(canvas);
-
-        function resize() {
-          const w = container.clientWidth || 320, h = container.clientHeight || w;
-          renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-          renderer.setSize(w, h, false);
-          camera.aspect = w / h;
-          camera.updateProjectionMatrix();
-          // perspective point-size factor: half drawing-buffer height / tan(fov/2)
-          material.uniforms.uScale.value = renderer.domElement.height * 1.07;
-        }
-        resize();
-        if (window.ResizeObserver) new ResizeObserver(resize).observe(container);
-        else window.addEventListener('resize', resize);
-
-        // ---- pointer parallax ----
-        let targetX = 0, targetY = 0;
-        container.addEventListener('pointermove', (e) => {
-          const r = container.getBoundingClientRect();
-          targetX = ((e.clientX - r.left) / r.width - 0.5) * 0.6;
-          targetY = ((e.clientY - r.top) / r.height - 0.5) * 0.4;
-        });
-        container.addEventListener('pointerleave', () => { targetX = 0; targetY = 0; });
-
-        // ---- morph state machine: hold shapes[curIdx], stream particles to shapes[nextIdx], repeat ----
-        // interpolation happens on the GPU (per-particle stagger + arc); CPU only advances uProgress
-        const MORPH = 2.6, HOLD = 4.2;
-        let curIdx = 0, nextIdx = 1;
-        let phase = 'hold', mt = 0, holdT = 0, t = 0;
-        const clock = new THREE.Clock();
-
-        function frame() {
-          requestAnimationFrame(frame);
-          const dt = Math.min(clock.getDelta(), 0.05);
-          t += dt;
-          if (!reduced) material.uniforms.uTime.value = t;
-
-          // while holding on a no-spin shape (skull), ease to face-on; otherwise keep rotating
-          const paused = phase === 'hold' && shapeSpin[curIdx] === 0;
-          if (paused) {
-            const tY = Math.round(group.rotation.y / (Math.PI * 2)) * (Math.PI * 2);
-            group.rotation.y += (tY - group.rotation.y) * 0.08;
-          } else {
-            group.rotation.y += dt * (reduced ? 0.12 : 0.35);
-          }
-          const pitchBase = paused ? shapeHoldPitch[curIdx] : -0.18;
-          group.rotation.x += (pitchBase + targetY - group.rotation.x) * 0.05;
-          group.rotation.z += (targetX * 0.5 - group.rotation.z) * 0.05;
-
-          // ambient drift: camera sways gently
-          if (!reduced) {
-            camera.position.x += (Math.sin(t * 0.13) * 0.06 - camera.position.x) * 0.02;
-            camera.position.y += (Math.cos(t * 0.10) * 0.05 - camera.position.y) * 0.02;
-            camera.lookAt(0, 0, 0);
-          }
-
-          if (!reduced) {
-            if (phase === 'hold') {
-              holdT += dt;
-              if (holdT >= HOLD) {
-                phase = 'morph'; mt = 0;
-                targets.set(shapes[nextIdx]);
-                colorsTo.set(shapeColors[nextIdx]);
-                geom.attributes.aTo.needsUpdate = true;
-                geom.attributes.aColorTo.needsUpdate = true;
-              }
-            } else {
-              mt += dt / MORPH;
-              if (mt >= 1) {
-                mt = 0; phase = 'hold'; holdT = 0;
-                curIdx = nextIdx; nextIdx = (nextIdx + 1) % shapes.length;
-                positions.set(shapes[curIdx]);
-                colorsCur.set(shapeColors[curIdx]);
-                geom.attributes.position.needsUpdate = true;
-                geom.attributes.aColor.needsUpdate = true;
-              }
-              material.uniforms.uProgress.value = mt;
-            }
-          }
-          renderer.render(scene, camera);
-        }
-        frame();
+      var W, H, dpr = window.devicePixelRatio || 1;
+      function resize() {
+        W = c.clientWidth || 320; H = c.clientHeight || W;
+        cv.width = W * dpr; cv.height = H * dpr;
       }
+      resize();
+      if (window.ResizeObserver) new ResizeObserver(resize).observe(c);
+      else window.addEventListener('resize', resize);
+
+      // Mandelbrot params — Seahorse Valley
+      var cenX = -0.745, cenY = 0.186;
+      var zoom = 1.2, zoomMin = 0.08, zoomPeriod = 140000;
+      var MAX = 140, R = 160;
+
+      // Palette: near-black navy -> deep teal -> warm gold
+      var stops = [
+        [0, [0.02,0.02,0.06]],
+        [0.28, [0.04,0.10,0.25]],
+        [0.52, [0.08,0.25,0.34]],
+        [0.76, [0.20,0.50,0.44]],
+        [1, [0.79,0.66,0.30]]
+      ];
+      function getCol(t) {
+        if (t >= 1) return stops[4][1];
+        for (var i = 0; i < 4; i++) {
+          if (t >= stops[i][0] && t <= stops[i+1][0]) {
+            var f = (t - stops[i][0]) / (stops[i+1][0] - stops[i][0]);
+            var a = stops[i][1], b = stops[i+1][1];
+            return [a[0]+(b[0]-a[0])*f, a[1]+(b[1]-a[1])*f, a[2]+(b[2]-a[2])*f];
+          }
+        }
+        return stops[4][1];
+      }
+
+      // Offscreen at fixed low resolution
+      var off = document.createElement('canvas');
+      off.width = off.height = R;
+      var oc = off.getContext('2d');
+
+      // Pointer parallax
+      var px = 0, py = 0;
+      c.addEventListener('pointermove', function(e) {
+        var r = c.getBoundingClientRect();
+        px = ((e.clientX - r.left) / r.width - 0.5) * 0.2;
+        py = ((e.clientY - r.top) / r.height - 0.5) * 0.15;
+      });
+      c.addEventListener('pointerleave', function() { px = 0; py = 0; });
+
+      var lastT = 0;
+      function render(t) {
+        if (!rm) {
+          if (t - lastT < 60) { // throttle recalc to ~16fps
+            cx.imageSmoothingEnabled = true;
+            cx.drawImage(off, 0, 0, cv.width, cv.height);
+            return;
+          }
+          lastT = t;
+        }
+
+        // Slow oscillating zoom so it never runs out of detail
+        if (!rm) zoom = zoomMin + (1.2 - zoomMin) * (0.5 + 0.5 * Math.sin(t * Math.PI * 2 / zoomPeriod));
+
+        var rv = zoom * 2.5;
+        var left = cenX + px * 0.03 - rv;
+        var top = cenY + py * 0.03 - rv;
+        var step = rv * 2 / R;
+
+        var img = oc.createImageData(R, R);
+        var d = img.data;
+        for (var y = 0; y < R; y++) {
+          for (var x = 0; x < R; x++) {
+            var mx = left + x * step, my = top + y * step;
+            var zx = 0, zy = 0, iter = 0;
+            while (zx*zx + zy*zy < 4 && iter < MAX) {
+              var nx = zx*zx - zy*zy + mx;
+              zy = 2*zx*zy + my; zx = nx; iter++;
+            }
+            var col = iter === MAX ? [0.02,0.02,0.06] : getCol(iter / MAX);
+            var i = (y * R + x) * 4;
+            d[i] = col[0]*255|0; d[i+1] = col[1]*255|0; d[i+2] = col[2]*255|0; d[i+3] = 255;
+          }
+        }
+        oc.putImageData(img, 0, 0);
+        cx.imageSmoothingEnabled = true;
+        cx.drawImage(off, 0, 0, cv.width, cv.height);
+      }
+
+      function loop(t) { render(t || 0); requestAnimationFrame(loop); }
+      requestAnimationFrame(loop);
+    })();
     </script>
 
 </body>
