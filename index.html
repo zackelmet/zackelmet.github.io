@@ -667,7 +667,8 @@
           lastT = time;
         }
 
-        var size = Math.min(W, H) * 0.11;
+        var sizeMult = window.innerWidth < 640 ? 0.20 : 0.11;
+        var size = Math.min(W, H) * sizeMult;
         var fov = 3, cx = cv.width / 2, cy = cv.height / 2;
 
         ctx.clearRect(0, 0, cv.width, cv.height);
